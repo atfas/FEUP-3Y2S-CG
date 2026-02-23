@@ -12,3 +12,27 @@
 ![Screenshot 1](screenshots/cg-t0xgxx-tp1-n.png)
 ![Screenshot 2](screenshots/cg-t05g08-tp1-1.png)
 ![Screenshot 3](screenshots/cg-t05g08-tp1-2.png)
+
+
+### Exercise 2
+
+In this exercise, we created 2 classes: `MyTriangleSmall` and `MyTriangleBig`.
+
+__MyTriangleSmall__
+
+ This class, instead of defining a right triangle, such as created on the `MyTriangle` class, defines an isosceles triangle centered at the origin. In order to do that, we simply assigned the vertex positions of the triangle in order to display the image in the right shape and place. Every other thing was exactly as in the `MyTriangle` class.
+
+![ScreenShot MyTriangleSmall](screenshots/cg-t05g08-tp1-5.png)
+
+__MyTriangleBig__
+
+ This class, just as in the `MyTriangleSmall` class, defines an isosceles triangle centered at the origin, but with twice the size of smaller one.
+ In order to do that, we decided to simply extend the `MyTriangleSmall` class instead of rewriting the same logic.Then, we override the `display` function and applied a scale factor with vector (2,2,1), which duplicates the triangle size in the x and y axis.
+
+ In order to do it, we called the following functions:
+ * `scene.pushMatrix`: saves the current transformation matrix of the scene (to be restored later).
+ * `scene.scale`: scales the scene by x,y and z values, in this case x=2, y=2, z=1 (not needed).
+ * `super.display`: applies the current transformations (like the scale) to the object, and draws it in the scene.
+ * `scene.popMatrix`: restores the previously saved transformation matrix. 
+
+![ScreenShot MyTriangleBig](screenshots/cg-t05g08-tp1-6.png) 
