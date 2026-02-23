@@ -32,7 +32,7 @@ export class MyScene extends CGFscene {
 
     //Objects connected to MyInterface
     this.displayAxis = true;
-    this.displayDiamond = false;
+    this.displayDiamond = true;
     this.displayTriangle = false;
     this.displayParallelogram = false;
     this.scaleFactor = 1;
@@ -96,7 +96,7 @@ export class MyScene extends CGFscene {
     this.multMatrix(sca);
 
     // ---- BEGIN Primitive drawing section
-
+    
     if (this.displayDiamond) this.diamond.display();
     if (this.displayTriangle) this.triangle.display();
     if (this.displayParallelogram) this.parallelogram.display();
