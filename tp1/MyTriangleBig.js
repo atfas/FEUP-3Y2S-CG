@@ -7,7 +7,7 @@ export class MyTriangleBig extends MyTriangleSmall {
 	
     display(){
         this.scene.pushMatrix();
-        this.scene.scale(2, 2, 0);
+        this.scene.scale(2, 2, 1);
         super.display();
         this.scene.popMatrix();
     }
