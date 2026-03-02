@@ -80,6 +80,8 @@ export class MyTangram extends CGFobject {
         this.blueTriangle();
         this.orangeTriangle();
         this.redTriangle();
-        this.purpleTriangle();        
+        this.purpleTriangle();     
+        
+        this.scene.popMatrix();
     }
 }
