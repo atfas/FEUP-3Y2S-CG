@@ -1,16 +1,16 @@
 # CG 2025/2026
 
-## Group T0xG0y
-| Name             | Number    | E-Mail             |
+## Group T05G08
+| Name | Number | E-Mail |
 | ---------------- | --------- | ------------------ |
-| John Doe         | 201901010 | ...                |
-| Jane Doe         | 201901011 | ...                |
+| Afonso Saraiva | 202304461 | up202304461@up.pt |
+| Pedro Coelho | 202306714 | up202306714@up.pt |
 
 ----
 
-  - [tp1](tp1/README.md)
-  - [tp2](tp2/README.md)
-  - [tp3](tp3/README.md)
-  - [tp4](tp4/README.md)
-  - [tp5](tp5/README.md)
-  - [Project](proj/README.md)
+ - [tp1](tp1/README.md)
+ - [tp2](tp2/README.md)
+ - [tp3](tp3/README.md)
+ - [tp4](tp4/README.md)
+ - [tp5](tp5/README.md)
+ - [Project](proj/README.md)
