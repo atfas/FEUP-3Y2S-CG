@@ -32,7 +32,7 @@ export class MyTangram extends CGFobject {
     }  
     yellowParallelogram() {
         this.scene.pushMatrix();
-        this.scene.setDiffuse(1, 1, 0);
+        this.scene.setDiffuse(1, 1, 1);
         this.scene.translate(2+Math.sqrt(2), 0, 0);
         this.scene.rotate(Math.PI, 0, 1, 0);
         this.parallelogram.display();
@@ -72,8 +72,8 @@ export class MyTangram extends CGFobject {
     }
     display() {
         this.scene.pushMatrix();
-        this.scene.translate(0, -1-Math.sqrt(2), 0);
-
+        this.scene.translate(5, -2-Math.sqrt(2), 0);
+        this.scene.popMatrix();
         this.pinkTriangle();
         this.greenDiamond();
         this.yellowParallelogram();
