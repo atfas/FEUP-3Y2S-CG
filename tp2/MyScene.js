@@ -1,5 +1,6 @@
 import { CGFscene, CGFcamera, CGFaxis } from "../../lib/CGF.js";
 import { MyTangram } from "./objects/MyTangram.js"; 
+import { MyUnitCube } from "./objects/MyUnitCube.js";
 import { MyUnitCubeQuad } from "./objects/MyUnitCubeQuad.js";
 
 /**
@@ -27,11 +28,14 @@ export class MyScene extends CGFscene {
     //Initialize scene objects
     this.axis = new CGFaxis(this);
     this.tangram = new MyTangram(this);
+    this.unitCube = new MyUnitCube(this);
     this.unitCubeQuad = new MyUnitCubeQuad(this);
 
     //Objects connected to MyInterface
     this.displayAxis = true;
-    this.displayTangram = true;
+    this.displayTangram = false;
+    this.displayUnitCube = false;
+    this.displaySupportTangram = false;
     this.displayUnitCubeQuad= false;
     this.scaleFactor = 1;
   }
@@ -56,6 +60,26 @@ export class MyScene extends CGFscene {
     this.setSpecular(0.2, 0.4, 0.8, 1.0);
     this.setShininess(10.0);
   }
+
+  displayCenteredTangram(){
+    this.pushMatrix();
+    this.translate(0, -2-Math.sqrt(2), 0);
+    this.tangram.display();
+    this.popMatrix();
+
+  }
+
+  displayCubeBehindTangram(){
+    this.displayCenteredTangram();
+
+    this.pushMatrix();
+    this.translate(0,0,-5.01);
+    this.setDiffuse(1,1,1);
+    this.scale(10,10,10);
+    this.unitCube.display();
+    this.popMatrix();
+  }
+
   display() {
     // ---- BEGIN Background, camera and axis setup
     // Clear image and depth buffer everytime we update the scene
@@ -94,8 +118,17 @@ export class MyScene extends CGFscene {
     this.multMatrix(sca);
 
     // ---- BEGIN Primitive drawing section
-    
-    if (this.displayTangram) this.tangram.display();
+    if (this.displayTangram) {this.displayCenteredTangram();}
+
+    if (this.displayUnitCube) this.unitCube.display();
+
+    if (this.displaySupportTangram) {
+      this.pushMatrix();
+      this.translate(5,0,5);
+      this.rotate(-Math.PI / 2, 1, 0, 0);
+      this.displayCubeBehindTangram();
+      this.popMatrix();
+    }
     if (this.displayUnitCubeQuad) this.unitCubeQuad.display();
     // ---- END Primitive drawing section
   }

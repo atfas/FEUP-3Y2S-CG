@@ -22,7 +22,10 @@ export class MyInterface extends CGFinterface {
 
         // Checkboxes for shape visibility
         this.gui.add(this.scene, 'displayTangram').name('Display Tangram');
-        this.gui.add(this.scene, 'displayUnitCubeQuad').name('Display Cube Quad')
+        this.gui.add(this.scene, 'displayUnitCube').name('Display Unit Cube');
+        this.gui.add(this.scene, 'displaySupportTangram').name('Tangram w/Unit Cube');
+        this.gui.add(this.scene, 'displayUnitCubeQuad').name('Display Cube Quad');
+        
         //Slider element in GUI
         this.gui.add(this.scene, 'scaleFactor', 0.1, 5).name('Scale Factor');
 
