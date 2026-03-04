@@ -32,6 +32,7 @@ export class MyScene extends CGFscene {
     this.displayAxis = true;
     this.displayTangram = false;
     this.displayUnitCube = false;
+    this.displaySupportTangram = false;
     this.scaleFactor = 1;
   }
   initLights() {
@@ -55,6 +56,26 @@ export class MyScene extends CGFscene {
     this.setSpecular(0.2, 0.4, 0.8, 1.0);
     this.setShininess(10.0);
   }
+
+  displayCenteredTangram(){
+    this.pushMatrix();
+    this.translate(0, -2-Math.sqrt(2), 0);
+    this.tangram.display();
+    this.popMatrix();
+
+  }
+
+  displayCubeBehindTangram(){
+    this.displayCenteredTangram();
+
+    this.pushMatrix();
+    this.translate(0,0,-5.01);
+    this.setDiffuse(1,1,1);
+    this.scale(10,10,10);
+    this.unitCube.display();
+    this.popMatrix();
+  }
+
   display() {
     // ---- BEGIN Background, camera and axis setup
     // Clear image and depth buffer everytime we update the scene
@@ -93,33 +114,17 @@ export class MyScene extends CGFscene {
     this.multMatrix(sca);
 
     // ---- BEGIN Primitive drawing section
-    this.pushMatrix();
-
-    // Rodar conjunto
-    this.rotate(-Math.PI / 2, 1, 0, 0);
-
-    // CUBO 
-    this.pushMatrix();
-    this.rotate(-Math.PI / 2, 1, 0, 0);
-    this.translate(5, 0.2, -5);
-    this.scale(10, 0.5, 10);
-    this.unitCube.display();
-    this.popMatrix();
-
-
-    // TANGRAM
-
-    this.pushMatrix();
-    this.translate(5+Math.sqrt(2), -5-2-Math.sqrt(2), 1);
-    this.tangram.display();
-    this.popMatrix();
-
-
-    if (this.displayTangram) this.tangram.display();
+    if (this.displayTangram) {this.displayCenteredTangram();}
 
     if (this.displayUnitCube) this.unitCube.display();
-    
-  
+
+    if (this.displaySupportTangram) {
+      this.pushMatrix();
+      this.translate(5,0,5);
+      this.rotate(-Math.PI / 2, 1, 0, 0);
+      this.displayCubeBehindTangram();
+      this.popMatrix();
+    }
 
     // ---- END Primitive drawing section
   }
