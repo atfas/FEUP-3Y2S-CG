@@ -4,7 +4,7 @@
 ## TP 2 Notes
 
 
-### Exercise 3 – MyTangram Composition
+### Exercise 1 – MyTangram Composition
 
 In this exercise, we combined all previously created objects into a single **composite object**, `MyTangram`, to recreate the Tangram figure.
 
