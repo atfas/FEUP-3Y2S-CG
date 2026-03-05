@@ -16,11 +16,15 @@ export class MyParallelogram extends CGFobject {
 
 		// Double-sided
 		this.indices = [
-			0, 1, 2,
-			1, 3, 2,
-			2, 1, 0,
-			2, 3, 1
-		];
+            0, 1, 2,
+            0, 2, 3,
+
+        //back faces 
+            2, 1, 0,
+            3, 2, 0
+        ];
+
+
 
 		this.primitiveType = this.scene.gl.TRIANGLES;
 		this.initGLBuffers();
