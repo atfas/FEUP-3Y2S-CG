@@ -1,6 +1,8 @@
 import { CGFscene, CGFcamera, CGFaxis } from "../lib/CGF.js";
 import { MyTangram } from "./objects/MyTangram.js"; 
 import { MyUnitCube } from "./objects/MyUnitCube.js";
+import { MyUnitCubeQuad } from "./objects/MyUnitCubeQuad.js";
+
 /**
  * MyScene
  * @constructor
@@ -27,12 +29,15 @@ export class MyScene extends CGFscene {
     this.axis = new CGFaxis(this);
     this.tangram = new MyTangram(this);
     this.unitCube = new MyUnitCube(this);
+    this.unitCubeQuad = new MyUnitCubeQuad(this);
 
     //Objects connected to MyInterface
     this.displayAxis = true;
     this.displayTangram = false;
     this.displayUnitCube = false;
     this.displaySupportTangram = false;
+    this.displayUnitCubeQuad= false;
+    this.displayQuadSupportTangram=false;
     this.scaleFactor = 1;
   }
   initLights() {
@@ -64,18 +69,26 @@ export class MyScene extends CGFscene {
     this.popMatrix();
 
   }
-
-  displayCubeBehindTangram(){
+  
+  displayBehingTangram(object){ 
     this.displayCenteredTangram();
 
     this.pushMatrix();
     this.translate(0,0,-5.01);
     this.setDiffuse(1,1,1);
     this.scale(10,10,10);
-    this.unitCube.display();
+    object.display();
     this.popMatrix();
   }
 
+  displayXZ(object){
+    this.pushMatrix();
+    this.translate(5,0,5);
+    this.rotate(-Math.PI / 2, 1, 0, 0);
+    this.displayBehingTangram(object);
+    this.popMatrix();
+  }
+  
   display() {
     // ---- BEGIN Background, camera and axis setup
     // Clear image and depth buffer everytime we update the scene
@@ -118,13 +131,11 @@ export class MyScene extends CGFscene {
 
     if (this.displayUnitCube) this.unitCube.display();
 
-    if (this.displaySupportTangram) {
-      this.pushMatrix();
-      this.translate(5,0,5);
-      this.rotate(-Math.PI / 2, 1, 0, 0);
-      this.displayCubeBehindTangram();
-      this.popMatrix();
-    }
+    if (this.displaySupportTangram) {this.displayXZ(this.unitCube);}
+
+    if (this.displayUnitCubeQuad) this.unitCubeQuad.display();
+
+    if(this.displayQuadSupportTangram){this.displayXZ(this.unitCubeQuad);}
 
     // ---- END Primitive drawing section
   }
