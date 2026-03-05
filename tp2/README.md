@@ -62,3 +62,49 @@ Finally, we rotated the complete composition so that it became **parallel to the
 * The full structure aligned parallel to the XZ plane
 
 ![Screenshot Tangram](screenshots/cg-t05g08-tp2-2.png)
+
+### Exercise 3 – MyUnitCubeQuad
+
+In this exercise, we re-implemented the **unit cube** assembling all six faces from individual `MyQuad` classes instead of a single triangle mesh.
+
+#### MyUnitCubeQuad Class
+
+The class `MyUnitCubeQuad` extends `CGFobject` and builds the cube by:
+
+* Creating a single `MyQuad` instance shared across all face methods
+* Positioning and rotating it
+* Each face is isolated with `pushMatrix` / `popMatrix`
+
+The six face methods are: `displayBase`, `displayTop`, `displayFront`, `displayBack`, `displayLeft`, and `displayRight`.
+
+#### Positioning the Cube as Tangram Base
+
+The `MyUnitCubeQuad` object replaced the previous `MyUnitCube` in the Tangram support, using the same `displayXZ` transformation function:
+
+* Translate to `(5, 0, 5)`
+* Rotate `-90°` around the X axis
+* Scale to `10×10×10` and position behind the Tangram with a slight offset to avoid same z value
+
+### Final Result
+
+* The Tangram composition
+* A quad-based cube acting as a base
+* The full structure aligned parallel to the XZ plane similar to the previews exercise
+
+![Screenshot Tangram](screenshots/cg-t05g08-tp2-3.png)
+
+---
+
+### Conclusion – MyUnitCube vs MyUnitCubeQuad
+
+Although both objects produce a unit cube, the rendering result differs:
+
+* **MyUnitCube** (Exercise 2) uses a single shared mesh with all vertices joined together. This results in a cube with **smoother faces** where the edges and face boundaries are barely visible.
+
+* **MyUnitCubeQuad** (Exercise 3) assembles the cube from **six independent quads**. This results in a cube with **sharper faces** with visible boundaries between them.
+
+![Screenshot Tangram1](screenshots/cg-t05g08-tp2-2.png) 
+Smoother Faces(2)
+
+![Screenshot Tangram2](screenshots/cg-t05g08-tp2-3.png) 
+Sharper Faces(3)
