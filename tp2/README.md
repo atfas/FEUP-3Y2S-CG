@@ -1,7 +1,3 @@
-Aqui tens a continuação **ligeiramente melhorada e mais clara**, mantendo o estilo simples do vosso README:
-
----
-
 # CG 2025/2026
 
 ## Group T05G08
