@@ -1,4 +1,4 @@
-import { CGFscene, CGFcamera, CGFaxis } from "../../lib/CGF.js";
+import { CGFscene, CGFcamera, CGFaxis } from "../lib/CGF.js";
 import { MyTangram } from "./objects/MyTangram.js"; 
 import { MyUnitCube } from "./objects/MyUnitCube.js";
 /**
