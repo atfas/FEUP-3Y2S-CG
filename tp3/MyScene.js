@@ -47,6 +47,7 @@ export class MyScene extends CGFscene {
         this.displayNormals = false;
         this.objectComplexity = 0.5;
         this.scaleFactor = 2.0;
+        this.ambientLight = 0.3;
 
     }
     initLights() {
@@ -103,6 +104,10 @@ export class MyScene extends CGFscene {
 
     updateObjectComplexity(){
         this.objects[this.selectedObject].updateBuffers(this.objectComplexity);
+    }
+
+    updateAmbientLight(){
+        this.setGlobalAmbientLight(this.ambientLight,this.ambientLight,this.ambientLight,1.0)
     }
 
 
@@ -177,6 +182,7 @@ export class MyScene extends CGFscene {
             this.objects[this.selectedObject].disableNormalViz();
         
         this.objects[this.selectedObject].display();
+        this.updateAmbientLight();
         this.popMatrix();
         // ---- END Primitive drawing section
     }
