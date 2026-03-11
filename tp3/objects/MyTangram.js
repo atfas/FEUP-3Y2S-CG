@@ -78,7 +78,7 @@ export class MyTangram extends CGFobject {
     }
     greenDiamond() {
         this.scene.pushMatrix();
-        this.greenMaterial.apply();
+        this.scene.customMaterial.apply();
         this.scene.translate(-1, Math.sqrt(2), 0);
         this.diamond.display();
         this.scene.popMatrix();
