@@ -4,7 +4,8 @@ import { MyCone } from "./objects/MyCone.js";
 import { MyPlane } from "./objects/MyPlane.js";
 import { MyTangram } from "./objects/MyTangram.js";
 import {MyUnitCube} from "./objects/MyUnitCube.js"
-
+import {MyPrism} from "./objects/MyPrism.js"
+import {MyPrismLines} from "./objects/MyPrismLines.js";
 /**
 * MyScene
 * @constructor
@@ -34,11 +35,14 @@ export class MyScene extends CGFscene {
         this.pyramid = new MyPyramid(this, 3, 1);
         this.tangram = new MyTangram(this);
         this.cube = new MyUnitCube(this);
-        
-        this.objects = [this.plane, this.pyramid, this.cone,this.tangram,this.cube];
+        this.cube = new MyUnitCube(this, 6, 4);
+        this.prism = new MyPrism(this, 6, 4);
+        this.prismLines = new MyPrismLines(this, 6, 4);
+
+        this.objects = [this.plane, this.pyramid, this.cone,this.tangram,this.cube, this.prism];
 
         // Labels and ID's for object selection on MyInterface
-        this.objectIDs = { 'Plane': 0 , 'Pyramid': 1, 'Cone': 2, 'Tangram' : 3, 'Cube' : 4};
+        this.objectIDs = { 'Plane': 0 , 'Pyramid': 1, 'Cone': 2, 'Tangram' : 3, 'Cube' : 4, 'Prism' : 5};
 
         //Other variables connected to MyInterface
         this.selectedObject = 0;
@@ -157,6 +161,9 @@ export class MyScene extends CGFscene {
         // Labels and ID's for object selection on MyInterface
         this.materialIDs = {'Red Ambient': 0, 'Red Diffuse': 1, 'Red Specular': 2, 'Wood': 3, 'Custom': 4};
     }
+
+
+    
     display() {
         // ---- BEGIN Background, camera and axis setup
         // Clear image and depth buffer everytime we update the scene
@@ -188,6 +195,8 @@ export class MyScene extends CGFscene {
             this.objects[this.selectedObject].disableNormalViz();
         
         this.objects[this.selectedObject].display();
+
+        
         this.updateAmbientLight();
         this.popMatrix();
         // ---- END Primitive drawing section
