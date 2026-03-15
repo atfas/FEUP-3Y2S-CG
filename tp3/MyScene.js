@@ -196,7 +196,9 @@ export class MyScene extends CGFscene {
         
         this.objects[this.selectedObject].display();
 
-        
+        if(this.selectedObject == this.objectIDs['Prism']){
+            this.prismLines.display();
+        }
         this.updateAmbientLight();
         this.popMatrix();
         // ---- END Primitive drawing section
