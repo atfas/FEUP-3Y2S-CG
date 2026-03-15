@@ -53,6 +53,10 @@ export class MyScene extends CGFscene {
         this.scaleFactor = 2.0;
         this.ambientLight = 0.3;
 
+        //Prism specific variables
+        this.prismSlices = 6;
+        this.prismStacks = 4;
+        this.displayPrismLines = false;
     }
     initLights() {
         this.setGlobalAmbientLight(0.3, 0.3, 0.3, 1.0);
@@ -73,6 +77,11 @@ export class MyScene extends CGFscene {
     }
     initCameras() {
         this.camera = new CGFcamera(0.4, 0.1, 500, vec3.fromValues(10, 10, 10), vec3.fromValues(0, 0, 0));
+    }
+    updatePrism() {
+        this.prism = new MyPrism(this, this.prismSlices, this.prismStacks);
+        this.prismLines = new MyPrismLines(this, this.prismSlices, this.prismStacks);
+        this.objects[this.objectIDs['Prism']] = this.prism;
     }
 
     hexToRgbA(hex)
@@ -196,7 +205,7 @@ export class MyScene extends CGFscene {
         
         this.objects[this.selectedObject].display();
 
-        if(this.selectedObject == this.objectIDs['Prism']){
+        if (this.selectedObject == this.objectIDs['Prism'] && this.displayPrismLines) {
             this.prismLines.display();
         }
         this.updateAmbientLight();
