@@ -27,7 +27,7 @@ After that, we defined a material with similar color to wood and add it to the s
 
 We tested it using the Cube just like as can be seen bellow:
 
-![Wood Cube](screenshoots/image1.png)
+![Wood Cube](screenshoots/cg-t05g08-tp3-1.png)
 
 For the Tangram object, the procedure was similar excepting the fact that tangram was only a 2D figure, which means that it only needed 2 normals (front and back) for each vertex.
 
@@ -41,5 +41,5 @@ Then, we created a new material for each Tangram piece with the same colors as i
 
 Finally, we changed the MyDiamond object on the Tangram to use the material set as the custom material in the scene.
 
-![Tangram with MyDiamond Custom](screenshoots/image3.png)
+![Tangram with MyDiamond Custom](screenshoots/cg-t05g08-tp3-2.png)
 
