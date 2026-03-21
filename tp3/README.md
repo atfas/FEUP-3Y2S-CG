@@ -43,3 +43,15 @@ Finally, we changed the MyDiamond object on the Tangram to use the material set 
 
 ![Tangram with MyDiamond Custom](screenshoots/cg-t05g08-tp3-2.png)
 
+### Exercise 3 – Cylindrical Surface - Application of Gouraud shading
+
+In this exercise, we created a new MyCylinder object, which was similar to the prism implementation, and added the correct normals to smooth the cylinder's shading.
+
+In order to do that, we decided to only define one normal on each vertex perpendicular to the face it belongs to. This means that the normal vector is equal to the vertex position itself.
+
+Since we didn't need 2 normals for each vertex, contrary to MyPrism, we halved the vertex count.
+
+In order to do that, we first defined all the vertices and normals needed to compose the Cylinder and then assigned the indices for all faces.
+
+![MyCylinder](screenshoots/cg-tp05g08-tp3-4.png)
+![MyCylinder Normals](screenshoots/cg-tp05g08-tp3-5.png)
