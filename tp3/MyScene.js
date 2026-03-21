@@ -22,7 +22,7 @@ export class MyScene extends CGFscene {
         this.initMaterials();
 
         //Background color
-        this.gl.clearColor(1.0, 1.0, 1.0, 1.0);
+        this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
         this.gl.clearDepth(100.0);
         this.gl.enable(this.gl.DEPTH_TEST);
