@@ -43,6 +43,31 @@ Finally, we changed the MyDiamond object on the Tangram to use the material set 
 
 ![Tangram with MyDiamond Custom](screenshoots/cg-t05g08-tp3-2.png)
 
+
+### Exercise 2 – Prism Drawing
+
+In this exercise, we created a new `MyPrism.js` object capable of drawing a prism with a variable number of sides (slices) and floors (stacks), inscribed in a unit cylinder centered at the origin, with its base on the XY plane and unit length along the Z axis.
+
+
+#### Part 1 – Single Stack
+
+In a first version, we implemented the prism with only one stack (floor). Since each rectangular face of the prism must have normals perpendicular to that face (flat shading), we had to define each vertex more than once in the vertex list.
+
+The normal for each face was computed as the outward-facing vector perpendicular to the face, lying on the XY plane, pointing away from the central Z axis. All normals were normalized.
+
+We noted that, with this definition of normals (one constant normal per face), the resulting illumination is equivalent to Constant Shading.
+#### Part 2 – Integration into MyScene
+
+We imported `MyPrism.js` into `MyScene` and hid all previously displayed scene elements (except the axes). In the `init` function, we instantiated a `MyPrism` with 8 slices, representing a vertical column with appropriate dimensions. In the `display` function, we used scale and translation transformations to position and size the prism correctly before calling its `display` method.
+
+#### Part 3 – Multiple Stacks
+
+We extended the implementation to support multiple stacks, dividing the unit-height cylinder into equal vertical segments. The column from Part 2 was updated to use 20 stacks while keeping 8 slices and the same overall height. This results in a smoother appearance when lighting is applied, since each rectangular face is subdivided into smaller quads and the Gouraud interpolation produces more gradual shading transitions across the surface.
+
+We added stack lines soo we can be able to see if the stacks are correct and added to the GUI.
+
+![MyPrism with 8 slices and 20 stacks](screenshoots/cg-t05g08-tp3-3.png)
+
 ### Exercise 3 – Cylindrical Surface - Application of Gouraud shading
 
 In this exercise, we created a new MyCylinder object, which was similar to the prism implementation, and added the correct normals to smooth the cylinder's shading.
