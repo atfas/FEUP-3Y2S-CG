@@ -29,6 +29,8 @@ export class MyInterface extends CGFinterface {
 
         this.gui.add(this.scene, 'selectedMaterial', this.scene.materialIDs).name('Selected Material');
 
+        this.gui.add(this.scene,'ambientLight', 0.1, 1.0).name('Ambient Light')
+
         // a folder for grouping parameters for one of the lights
         var f0 = this.gui.addFolder('Light 0 ');
         f0.add(this.scene.lights[0], 'enabled').name("Enabled");
@@ -57,7 +59,12 @@ export class MyInterface extends CGFinterface {
         f2.addColor(this.scene.customMaterialValues,'Diffuse').onChange(this.scene.updateCustomMaterial.bind(this.scene));
         f2.addColor(this.scene.customMaterialValues,'Specular').onChange(this.scene.updateCustomMaterial.bind(this.scene));
         f2.add(this.scene.customMaterialValues,'Shininess', 0, 100).onChange(this.scene.updateCustomMaterial.bind(this.scene));
-
+        
+        // Prism controls folder
+        var fPrism = this.gui.addFolder('Prism Settings');
+        fPrism.add(this.scene, 'prismSlices', 3, 20, 1).name('Slices').onChange(this.scene.updatePrism.bind(this.scene));
+        fPrism.add(this.scene, 'prismStacks', 1, 20, 1).name('Stacks').onChange(this.scene.updatePrism.bind(this.scene));
+        fPrism.add(this.scene, 'displayPrismLines').name('Show Lines');
         return true;
     }
 
