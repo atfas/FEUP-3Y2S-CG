@@ -1,5 +1,5 @@
 import { CGFscene, CGFcamera, CGFaxis, CGFappearance, CGFtexture } from "../lib/CGF.js";
-import { MyQuad } from "./MyQuad.js";
+import { MyQuad } from "./objects/MyQuad.js";
 
 /**
  * MyScene
