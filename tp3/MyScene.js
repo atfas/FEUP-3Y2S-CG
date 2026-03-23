@@ -1,8 +1,12 @@
 import { CGFscene, CGFcamera, CGFaxis, CGFappearance } from "../lib/CGF.js";
-import { MyPyramid } from "./MyPyramid.js";
-import { MyCone } from "./MyCone.js";
-import { MyPlane } from "./MyPlane.js";
-
+import { MyPyramid } from "./objects/MyPyramid.js";
+import { MyCone } from "./objects/MyCone.js";
+import { MyPlane } from "./objects/MyPlane.js";
+import { MyTangram } from "./objects/MyTangram.js";
+import {MyUnitCube} from "./objects/MyUnitCube.js"
+import {MyPrism} from "./objects/MyPrism.js"
+import {MyPrismLines} from "./objects/MyPrismLines.js";
+import { MyCylinder } from "./objects/MyCylinder.js";
 /**
 * MyScene
 * @constructor
@@ -30,11 +34,17 @@ export class MyScene extends CGFscene {
         this.plane = new MyPlane(this, 5);
         this.cone = new MyCone(this, 3, 1);
         this.pyramid = new MyPyramid(this, 3, 1);
-        
-        this.objects = [this.plane, this.pyramid, this.cone];
+        this.tangram = new MyTangram(this);
+        this.cube = new MyUnitCube(this);
+        this.cube = new MyUnitCube(this, 6, 4);
+        this.prism = new MyPrism(this, 6, 4);
+        this.prismLines = new MyPrismLines(this, 6, 4);
+        this.cylinder = new MyCylinder(this,8,20);
+
+        this.objects = [this.plane, this.pyramid, this.cone,this.tangram,this.cube, this.prism,this.cylinder];
 
         // Labels and ID's for object selection on MyInterface
-        this.objectIDs = { 'Plane': 0 , 'Pyramid': 1, 'Cone': 2};
+        this.objectIDs = { 'Plane': 0 , 'Pyramid': 1, 'Cone': 2, 'Tangram' : 3, 'Cube' : 4, 'Prism' : 5, 'Cylinder':6};
 
         //Other variables connected to MyInterface
         this.selectedObject = 0;
@@ -45,6 +55,10 @@ export class MyScene extends CGFscene {
         this.scaleFactor = 2.0;
         this.ambientLight = 0.3;
 
+        //Prism specific variables
+        this.prismSlices = 6;
+        this.prismStacks = 4;
+        this.displayPrismLines = false;
     }
     initLights() {
         this.setGlobalAmbientLight(0.3, 0.3, 0.3, 1.0);
@@ -65,6 +79,11 @@ export class MyScene extends CGFscene {
     }
     initCameras() {
         this.camera = new CGFcamera(0.4, 0.1, 500, vec3.fromValues(10, 10, 10), vec3.fromValues(0, 0, 0));
+    }
+    updatePrism() {
+        this.prism = new MyPrism(this, this.prismSlices, this.prismStacks);
+        this.prismLines = new MyPrismLines(this, this.prismSlices, this.prismStacks);
+        this.objects[this.objectIDs['Prism']] = this.prism;
     }
 
     hexToRgbA(hex)
@@ -129,6 +148,12 @@ export class MyScene extends CGFscene {
         this.material3.setSpecular(1, 0, 0, 1.0);
         this.material3.setShininess(10.0);
 
+        this.materialWood = new CGFappearance(this);
+        this.materialWood.setAmbient(0.3, 0.2, 0.1, 1.0);
+        this.materialWood.setDiffuse(0.7, 0.5, 0.3, 1.0);
+        this.materialWood.setSpecular(0.2, 0.15, 0.1, 1.0);
+        this.materialWood.setShininess(5.0);
+
         // Custom material (can be changed in the interface)
         // initially midrange values on ambient, diffuse and specular, on R, G and B respectively
 
@@ -142,11 +167,14 @@ export class MyScene extends CGFscene {
 
         this.updateCustomMaterial();
 
-        this.materials = [this.material1, this.material2, this.material3, this.customMaterial];
+        this.materials = [this.material1, this.material2, this.material3, this.materialWood ,this.customMaterial];
 
         // Labels and ID's for object selection on MyInterface
-        this.materialIDs = {'Red Ambient': 0, 'Red Diffuse': 1, 'Red Specular': 2, 'Custom': 3 };
+        this.materialIDs = {'Red Ambient': 0, 'Red Diffuse': 1, 'Red Specular': 2, 'Wood': 3, 'Custom': 4};
     }
+
+
+    
     display() {
         // ---- BEGIN Background, camera and axis setup
         // Clear image and depth buffer everytime we update the scene
@@ -178,6 +206,10 @@ export class MyScene extends CGFscene {
             this.objects[this.selectedObject].disableNormalViz();
         
         this.objects[this.selectedObject].display();
+
+        if (this.selectedObject == this.objectIDs['Prism'] && this.displayPrismLines) {
+            this.prismLines.display();
+        }
         this.updateAmbientLight();
         this.popMatrix();
         // ---- END Primitive drawing section
