@@ -66,14 +66,14 @@ export class MyTangram extends CGFobject {
         this.redMaterial.setSpecular(0.1, 0.1, 0.1, 1);
         this.redMaterial.setShininess(10.0);
         this.redMaterial.loadTexture('images/tangram.png');
-
-        // Purple Triangle (Small)
-        this.purpleMaterial = new CGFappearance(this.scene);
-        this.purpleMaterial.setAmbient(0.1, 0.1, 0.1, 1);
-        this.purpleMaterial.setDiffuse(0.9, 0.9, 0.9, 1);
-        this.purpleMaterial.setSpecular(0.1, 0.1, 0.1, 1);
-        this.purpleMaterial.setShininess(10.0);
-        this.purpleMaterial.loadTexture('images/tangram.png');
+        
+        // violet Triangle (Small)
+        this.violetMaterial = new CGFappearance(this.scene);
+        this.violetMaterial.setAmbient(0.1, 0.1, 0.1, 1);
+        this.violetMaterial.setDiffuse(0.9, 0.9, 0.9, 1);
+        this.violetMaterial.setSpecular(0.1, 0.1, 0.1, 1);
+        this.violetMaterial.setShininess(10.0);
+        this.violetMaterial.loadTexture('images/tangram.png');
 
     }
 
@@ -102,6 +102,18 @@ export class MyTangram extends CGFobject {
     blueTriangle() {
         this.scene.pushMatrix();
         this.blueMaterial.apply();
+
+        // Update tex coords specifically for the blue triangle (big triangle)
+        this.triangleBig.updateTexCoords([
+            1.0, 0.0,
+            0.0, 0.0,
+            0.5, 0.5,
+
+            1.0, 0.0,
+            0.0, 0.0,
+            0.5, 0.5,
+        ])
+
         this.scene.translate(-1, 1+Math.sqrt(2), 0);
         this.scene.rotate( -Math.PI /4, 0, 0, 1);
         this.triangleBig.display();
@@ -110,6 +122,18 @@ export class MyTangram extends CGFobject {
     orangeTriangle() {
         this.scene.pushMatrix();
         this.orangeMaterial.apply();
+
+        // Update tex coords specifically for the orange triangle (big triangle)
+        this.triangleBig.updateTexCoords([
+            1.0, 1.0,
+            1.0, 0.0,
+            0.5, 0.5,
+
+            1.0, 1.0,
+            1.0, 0.0,
+            0.5, 0.5,
+        ])
+
         this.scene.translate(-1, 1+ 3*Math.sqrt(2), 0);
         this.scene.rotate( 3*Math.PI /4, 0, 0, 1);
         this.triangleBig.display();
@@ -118,14 +142,38 @@ export class MyTangram extends CGFobject {
     redTriangle() {
         this.scene.pushMatrix();
         this.redMaterial.apply();
+
+        // Update tex coords specifically for the red triangle (small triangle)
+        this.triangleSmall.updateTexCoords([
+            0.25, 0.75,
+            0.75, 0.75,
+            0.5, 0.5,
+
+            0.25, 0.75,
+            0.75, 0.75,
+            0.5, 0.5,
+        ])
+
         this.scene.translate(-1-Math.sqrt(2), Math.PI/2 +2, 0);
         this.scene.rotate( Math.PI /2, 0, 0, 1);
         this.triangleSmall.display();
         this.scene.popMatrix();
     }
-    purpleTriangle() {
+    violetTriangle() {
         this.scene.pushMatrix();
-        this.purpleMaterial.apply();
+        this.violetMaterial.apply();
+
+        // Update tex coords specifically for the violet triangle (small triangle)
+        this.triangleSmall.updateTexCoords([
+            0, 0,
+			0, 0.5,
+			0.25, 0.25,
+
+			0, 0,
+			0, 0.5,
+			0.25, 0.25,
+        ])
+      
         this.scene.translate(0.01-Math.PI, 1+ 4* Math.sqrt(2), 0);
         this.scene.rotate( -3*Math.PI /4, 0, 0, 1);
         this.triangleSmall.display();
@@ -144,7 +192,7 @@ export class MyTangram extends CGFobject {
         this.blueTriangle();
         this.orangeTriangle();
         this.redTriangle();
-        this.purpleTriangle();
+        this.violetTriangle();
         this.scene.popMatrix();
     }
 

@@ -11,4 +11,9 @@ export class MyTriangleBig extends MyTriangleSmall {
         super.display();
         this.scene.popMatrix();
     }
+
+    updateTexCoords(coords) {
+		this.texCoords = coords;
+		this.updateTexCoordsGLBuffers();
+	}
 }
