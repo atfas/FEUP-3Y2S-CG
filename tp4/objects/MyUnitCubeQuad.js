@@ -7,9 +7,15 @@ import {MyQuad} from './MyQuad.js'
  * @param scene - Reference to MyScene object
  */
 export class MyUnitCubeQuad extends CGFobject {
-    constructor(scene) {
+    constructor(scene, topTex, frontTex, rightTex, backTex, leftTex, bottomTex) {
         super(scene);
         this.MyQuad = new MyQuad(scene);
+        this.top = topTex;
+        this.front = frontTex;
+        this.right = rightTex;
+        this.back = backTex;
+        this.left = leftTex;
+        this.bottom = bottomTex;
     }
     
     displayBase(){
