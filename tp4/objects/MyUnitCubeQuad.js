@@ -17,46 +17,65 @@ export class MyUnitCubeQuad extends CGFobject {
         this.left = leftTex;
         this.bottom = bottomTex;
     }
-    
+
+    displayHorizontalFace() {
+        this.scene.pushMatrix();
+        this.scene.rotate(Math.PI / 2, 1, 0, 0);
+        this.MyQuad.display();
+        this.scene.popMatrix();
+    }
+
+    displayVerticalFace(){
+        this.scene.pushMatrix();
+        this.scene.rotate(-Math.PI/2,0,1,0);
+        this.MyQuad.display();
+        this.scene.popMatrix();
+    }
+
     displayBase(){
         this.scene.pushMatrix();
         this.scene.translate(0,-0.5,0);
-        this.scene.rotate(Math.PI/2,1,0,0);
-        this.MyQuad.display();
+        this.bottom.bind();
+        this.displayHorizontalFace();
         this.scene.popMatrix();        
     }
 
     displayTop(){
         this.scene.pushMatrix();
-        this.scene.translate(0,1,0);
-        this.displayBase();
+        this.scene.translate(0,0.5,0);
+        this.top.bind();
+        this.displayHorizontalFace();
         this.scene.popMatrix();
     }
     displayFront(){
         this.scene.pushMatrix();
         this.scene.translate(0,0,0.5)
+        this.front.bind();
         this.MyQuad.display();
         this.scene.popMatrix();      
     }
+
     displayBack(){
         this.scene.pushMatrix();
-        this.scene.translate(0,0,-1);
-        this.displayFront();
+        this.scene.translate(0,0,-0.5);
+        this.back.bind();
+        this.MyQuad.display();
         this.scene.popMatrix();
     }
 
     displayLeft(){
         this.scene.pushMatrix();
         this.scene.translate(-0.5,0,0);
-        this.scene.rotate(-Math.PI/2,0,1,0);
-        this.MyQuad.display();
+        this.left.bind();
+        this.displayVerticalFace();
         this.scene.popMatrix();
     }
 
     displayRight(){
         this.scene.pushMatrix();
-        this.scene.translate(1,0,0);
-        this.displayLeft();
+        this.scene.translate(0.5,0,0);
+        this.right.bind();
+        this.displayVerticalFace();
         this.scene.popMatrix();
     }
 
