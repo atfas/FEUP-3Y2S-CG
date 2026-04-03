@@ -1,0 +1,101 @@
+import {CGFobject} from '../../lib/CGF.js';
+import {MyQuad} from './MyQuad.js'
+
+/**
+ * MyUnitCubeQuad
+ * @constructor
+ * @param scene - Reference to MyScene object
+ */
+export class MyUnitCubeQuad extends CGFobject {
+    constructor(scene, topTex, frontTex, rightTex, backTex, leftTex, bottomTex) {
+        super(scene);
+        this.MyQuad = new MyQuad(scene);
+        this.top = topTex;
+        this.front = frontTex;
+        this.right = rightTex;
+        this.back = backTex;
+        this.left = leftTex;
+        this.bottom = bottomTex;
+    }
+
+    displayHorizontalFace() {
+        this.scene.pushMatrix();
+        this.scene.rotate(Math.PI / 2, 1, 0, 0);
+        this.MyQuad.display();
+        this.scene.popMatrix();
+    }
+
+    displayVerticalFace(){
+        this.scene.pushMatrix();
+        this.scene.rotate(-Math.PI/2,0,1,0);
+        this.MyQuad.display();
+        this.scene.popMatrix();
+    }
+
+    displayBase(){
+        this.scene.pushMatrix();
+        this.scene.translate(0,-0.5,0);
+        this.bottom.bind();
+        this.scene.gl.texParameteri(this.scene.gl.TEXTURE_2D, this.scene.gl.TEXTURE_MAG_FILTER, this.scene.gl.NEAREST);
+        this.displayHorizontalFace();
+        this.scene.popMatrix();        
+    }
+
+    displayTop(){
+        this.scene.pushMatrix();
+        this.scene.translate(0,0.5,0);
+        this.top.bind();
+        this.scene.gl.texParameteri(this.scene.gl.TEXTURE_2D, this.scene.gl.TEXTURE_MAG_FILTER, this.scene.gl.NEAREST);
+        this.displayHorizontalFace();
+        this.scene.popMatrix();
+    }
+    displayFront(){
+        this.scene.pushMatrix();
+        this.scene.translate(0,0,0.5)
+        this.front.bind();
+        this.scene.gl.texParameteri(this.scene.gl.TEXTURE_2D, this.scene.gl.TEXTURE_MAG_FILTER, this.scene.gl.NEAREST);
+        this.MyQuad.display();
+        this.scene.popMatrix();      
+    }
+
+    displayBack(){
+        this.scene.pushMatrix();
+        this.scene.translate(0,0,-0.5);
+        this.back.bind();
+        this.scene.gl.texParameteri(this.scene.gl.TEXTURE_2D, this.scene.gl.TEXTURE_MAG_FILTER, this.scene.gl.NEAREST);
+        this.MyQuad.display();
+        this.scene.popMatrix();
+    }
+
+    displayLeft(){
+        this.scene.pushMatrix();
+        this.scene.translate(-0.5,0,0);
+        this.left.bind();
+        this.scene.gl.texParameteri(this.scene.gl.TEXTURE_2D, this.scene.gl.TEXTURE_MAG_FILTER, this.scene.gl.NEAREST);
+        this.displayVerticalFace();
+        this.scene.popMatrix();
+    }
+
+    displayRight(){
+        this.scene.pushMatrix();
+        this.scene.translate(0.5,0,0);
+        this.right.bind();
+        this.scene.gl.texParameteri(this.scene.gl.TEXTURE_2D, this.scene.gl.TEXTURE_MAG_FILTER, this.scene.gl.NEAREST);
+        this.displayVerticalFace();
+        this.scene.popMatrix();
+    }
+
+    displaySides(){
+        this.displayFront();
+        this.displayBack();
+        this.displayLeft();
+        this.displayRight();
+    }
+
+    display(){
+        this.displayBase();
+        this.displayTop();
+        this.displaySides();
+    }
+}
+
