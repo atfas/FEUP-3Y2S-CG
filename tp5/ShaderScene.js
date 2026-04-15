@@ -90,7 +90,8 @@ export class ShaderScene extends CGFscene {
 			new CGFshader(this.gl, "shaders/texture1.vert", "shaders/sepia.frag"),
 			new CGFshader(this.gl, "shaders/texture1.vert", "shaders/convolution.frag"),
 			new CGFshader(this.gl, "shaders/yellowblue.vert", "shaders/yellowblue.frag"),
-			new CGFshader(this.gl, "shaders/texture1.vert", "shaders/grey.frag")			
+			new CGFshader(this.gl, "shaders/texture1.vert", "shaders/grey.frag"),
+			new CGFshader(this.gl, "shaders/water.vert", "shaders/water.frag")
 		];
 
 		// additional texture will have to be bound to texture unit 1 later, when using the shader, with "this.texture2.bind(1);"
@@ -98,7 +99,9 @@ export class ShaderScene extends CGFscene {
 		this.testShaders[5].setUniformsValues({ uSampler2: 1 });
 		this.testShaders[6].setUniformsValues({ uSampler2: 1 });
 		this.testShaders[6].setUniformsValues({ timeFactor: 0 });
-
+		
+		this.testShaders[11].setUniformsValues({ uSampler2: 1 });
+		this.testShaders[11].setUniformsValues({ timeFactor: 0 });
 
 		// Shaders interface variables
 
@@ -114,6 +117,7 @@ export class ShaderScene extends CGFscene {
 			'Convolution': 8,
 			'Yellow Blue': 9,
 			'GreyScale': 10,
+			'Water': 11,
 		};
 
 		// shader code panels references
