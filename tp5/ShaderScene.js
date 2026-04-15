@@ -77,6 +77,9 @@ export class ShaderScene extends CGFscene {
 
 		this.texture2 = new CGFtexture(this, "textures/FEUP.jpg");
 
+		this.waterTexture = new CGFtexture(this, "textures/waterTex.jpg");
+		this.waterMap = new CGFtexture(this, "textures/waterMap.jpg");
+
 		// shaders initialization
 
 		this.testShaders = [
@@ -99,7 +102,7 @@ export class ShaderScene extends CGFscene {
 		this.testShaders[5].setUniformsValues({ uSampler2: 1 });
 		this.testShaders[6].setUniformsValues({ uSampler2: 1 });
 		this.testShaders[6].setUniformsValues({ timeFactor: 0 });
-		
+
 		this.testShaders[11].setUniformsValues({ uSampler2: 1 });
 		this.testShaders[11].setUniformsValues({ timeFactor: 0 });
 
@@ -225,15 +228,26 @@ export class ShaderScene extends CGFscene {
 		// Draw axis
 		this.axis.display();
 
-		// aplly main appearance (including texture in default texture unit 0)
+		// swap textures if water shader is selected
+		if (this.selectedExampleShader == 11) {
+			this.appearance.setTexture(this.waterTexture);
+			this.appearance.setTextureWrap('REPEAT', 'REPEAT');
+		} else {
+			this.appearance.setTexture(this.texture);
+			this.appearance.setTextureWrap('REPEAT', 'REPEAT');
+		}
 		this.appearance.apply();
 
 		// activate selected shader
 		this.setActiveShader(this.testShaders[this.selectedExampleShader]);
 		this.pushMatrix();
 
-		// bind additional texture to texture unit 1
-		this.texture2.bind(1);
+		// bind texture unit 1
+		if (this.selectedExampleShader == 11) {
+			this.waterMap.bind(1);
+		} else {
+			this.texture2.bind(1);
+		}
 
 		if (this.selectedObject==0) {
 			// teapot (scaled and rotated to conform to our axis)
