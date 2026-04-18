@@ -6,6 +6,56 @@
 
 ---
 
+### Exercise 1: Shaders
+
+#### 1.1 - Teapot Color Shader (Yellow/Blue by Position)
+
+Created new vertex and fragment shaders to color the teapot based on the fragment's position in the window: yellow on the top half, blue on the bottom half. 
+
+```
+new CGFshader(this.gl, "shaders/yellowblue.vert", "shaders/yellowblue.frag"),
+```
+
+A `varying` variable was added to the vertex shader to pass `gl_Position` to the fragment shader, which then applies yellow if `y > 0.5` and blue otherwise.
+
+``` js
+ if(coords.y > 0.5){
+    gl_FragColor =  normal;
+    gl_FragColor.rgb = vec3(1.0, 1.0, 0.0); // yellow
+}
+else{
+    gl_FragColor =  normal;
+    gl_FragColor.rgb = vec3(0.0, 0.0, 1.0); //blue
+}
+```
+![Teapot yellow/blue shader](screenshots/cg-t05g08-tp5-1.png)
+
+#### 1.2 - Animation Shader: Sinusoidal Translation on X Axis
+
+Modified the animation shader to produce a back-and-forth translation effect along the X axis following a sinusoidal wave. The translation amplitude is controlled by the `scaleFactor` from the interface, applied as an offset to `aVertexPosition` in the vertex shader.
+
+``` js
+vec3 translation = vec3(sin(timeFactor) * normScale, 0.0, 0.0);
+	
+gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition+offset+translation, 1.0);
+```
+
+#### 1.3 - Grayscale Fragment Shader
+
+Created a new fragment shader based on the Sepia shader that converts colors to grayscale. Each RGB component is replaced by the luminance value `L = 0.299R + 0.587G + 0.114B`.
+
+``` js
+vec4 colorSepia = color;
+colorSepia.r = color.r * 0.299 + color.g *0.587 + color.b * 0.114;
+colorSepia.g = color.r * 0.299 + color.g *0.587 + color.b * 0.114;
+colorSepia.b = color.r * 0.299 + color.g *0.587 + color.b * 0.114;
+
+gl_FragColor = colorSepia;
+```
+
+![Grayscale shader](screenshots/cg-t05g08-tp5-2.png)
+
+
 ### Exercise 2: Shaders – Water Effect on Plane
 
 #### Description
