@@ -1,4 +1,4 @@
-import { CGFscene, CGFcamera, CGFaxis, CGFappearance } from "../lib/CGF.js";
+import { CGFscene, CGFcamera, CGFaxis, CGFappearance, CGFtexture, CGFshader } from "../lib/CGF.js";
 import { Sphere } from "./objects/sphere.js";
 import { Plane } from "./objects/plane.js";
 
@@ -20,6 +20,7 @@ export class MyScene extends CGFscene {
     this.gl.depthFunc(this.gl.LEQUAL);
 
     this.setUpdatePeriod(50);
+    this.enableTextures(true);
 
     this.axis = new CGFaxis(this);
     
@@ -27,12 +28,19 @@ export class MyScene extends CGFscene {
     this.sun = new Sphere(this, 16, 8, 1.0, false);
     this.terrain = new Plane(this, 5, 1, 0, 1);
 
+    // Textures
+    this.skyTexture = new CGFtexture(this,"textures/skyTex.png");
+    this.skyMap = new CGFtexture(this, "textures/skyMap.png");
+
     // Sky Appearance
     this.skyAppearance = new CGFappearance(this);
-    this.skyAppearance.setEmission(0.22, 0.55, 0.90, 1.0);
+    this.skyAppearance.setEmission(1, 1, 1, 1);
     this.skyAppearance.setAmbient(0.0, 0.0, 0.0, 1.0);
     this.skyAppearance.setDiffuse(0.0, 0.0, 0.0, 1.0);
     this.skyAppearance.setSpecular(0.0, 0.0, 0.0, 1.0);
+    this.skyAppearance.setTexture(this.skyTexture);
+		this.skyAppearance.setTextureWrap('MIRRORED_REPEAT', 'MIRRORED_REPEAT');
+    this.skyMap.bind(1);
 
     // Sun Appearance
     this.sunAppearance = new CGFappearance(this);
@@ -48,11 +56,21 @@ export class MyScene extends CGFscene {
     this.terrainAppearance.setSpecular(0.05, 0.1, 0.05, 1.0);
     this.terrainAppearance.setShininess(5.0);
 
+
+    // Shaders
+    this.skyShader=new CGFshader(this.gl, "shaders/sky.vert", "shaders/sky.frag");
+    this.skyShader.setUniformsValues({ uSampler2: 1 });
+		this.skyShader.setUniformsValues({ timeFactor: 0 });
+    this.skyShader.setUniformsValues({ normScale: 1});
+
+
     // GUI parameters
     this.sunElevation  = 20;   
     this.sunDegree     = 180;   
-    this.displayAxis   = true;
-    this.displayNormals = false;
+    this.displayAxis           = false;
+    this.displaySkyNormals     = false;
+    this.displayTerrainNormals = false;
+    this.displaySunNormals     = false;
 
   }
 
@@ -96,6 +114,7 @@ export class MyScene extends CGFscene {
     const [sx, sy, sz] = this.getSunDirection();
     this.lights[1].setPosition(sx, sy, sz, 0);
     this.lights[1].update();
+		this.skyShader.setUniformsValues({ timeFactor: t / 8000 % 100 });
   }
 
   setDefaultAppearance() {
@@ -109,8 +128,9 @@ export class MyScene extends CGFscene {
     const cx = this.camera.position[0];
     const cz = this.camera.position[2];
 
-    this.skyAppearance.apply();
+    this.setActiveShader(this.skyShader);
     this.pushMatrix();
+      this.skyAppearance.apply();
       this.translate(cx, -10, cz);
       this.scale(200, 200, 200);
       this.rotate(-Math.PI / 2, 1, 0, 0);
@@ -124,9 +144,10 @@ export class MyScene extends CGFscene {
     const [sx, sy, sz] = this.getSunDirection();
     this.pushMatrix();
       this.translate(cx + sx * 180, sy * 180, cz + sz * 180);
-      this.scale(6, 6, 6);
+      this.scale(10, 10, 10);
       this.sun.display();
     this.popMatrix();
+
   }
 
   drawTerrain() {
@@ -156,12 +177,14 @@ export class MyScene extends CGFscene {
     this.setDefaultAppearance();
     this.drawTerrain();
 
-    if (this.displayNormals) {
-      this.sky.enableNormalViz();
-      this.terrain.enableNormalViz();
-    } else {
-      this.sky.disableNormalViz();
-      this.terrain.disableNormalViz();
+
+    // Normals display
+    for (const [obj, show] of [
+      [this.sky,     this.displaySkyNormals],
+      [this.terrain, this.displayTerrainNormals],
+      [this.sun,     this.displaySunNormals],
+    ]) {
+      show ? obj.enableNormalViz() : obj.disableNormalViz();
     }
   }
 }
