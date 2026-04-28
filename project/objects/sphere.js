@@ -1,13 +1,13 @@
 import {CGFobject} from '../../lib/CGF.js';
 
 export class Sphere extends CGFobject {
-    constructor(scene, slices, stacks, percentage = 1, invert=false) {
+    constructor(scene, slices, stacks, percentage = 1, invert = false) {
         super(scene);
 
         this.slices = slices;
         this.stacks = stacks;
-        this.percentage= percentage;
-        this.invert=invert;
+        this.percentage = percentage;
+        this.invert = invert;
 
         this.initBuffers();
     }
@@ -18,40 +18,48 @@ export class Sphere extends CGFobject {
         this.normals = [];
         this.texCoords = [];
 
-        const dPhi   = (Math.PI * this.percentage)/ this.stacks;        // vertical angle step (top → bottom)
-        const dTheta = 2 * Math.PI / this.slices;    // horizontal angle step (around)
+        const sectorStep = 2 * Math.PI / this.slices;
+        const stackStep  = Math.PI * this.percentage / this.stacks;
 
-        // Generate vertices
-        for (let j = 0; j <= this.stacks; j++) {
-            const phi = j * dPhi;                    // 0 → pi
+        for (let i = 0; i <= this.stacks; i++) {
+            const stackAngle = Math.PI / 2 - i * stackStep;
+            const xy = Math.cos(stackAngle);
+            const z  = Math.sin(stackAngle);
 
-            for (let i = 0; i <= this.slices; i++) {
-                const theta = i * dTheta;            // 0 → 2pi
-
-                const x = Math.sin(phi) * Math.cos(theta);
-                const y = Math.sin(phi) * Math.sin(theta);
-                const z = Math.cos(phi);
+            for (let j = 0; j <= this.slices; j++) {
+                const sectorAngle = j * sectorStep;
+                const x = xy * Math.cos(sectorAngle);
+                const y = xy * Math.sin(sectorAngle);
 
                 this.vertices.push(x, y, z);
-                if(this.invert){
-                    this.normals.push(-x, -y, -z); //normals faced inside
-                }else{
-                    this.normals.push(x, y, z); //normals faced outside
-                }       
-                this.texCoords.push(i / this.slices, j / this.stacks);
+                if (this.invert)
+                    this.normals.push(-x, -y, -z);
+                else
+                    this.normals.push(x, y, z);
+                this.texCoords.push(j / this.slices, i / this.stacks);
             }
         }
 
-        // Generate indices
-        for (let j = 0; j < this.stacks; j++) {
-            for (let i = 0; i < this.slices; i++) {
-                const a = j * (this.slices + 1) + i;
-                const b = a + 1;
-                const c = a + (this.slices + 1);
-                const d = c + 1;
+        let k1, k2;
+        for (let i = 0; i < this.stacks; i++) {
+            k1 = i * (this.slices + 1);
+            k2 = k1 + this.slices + 1;
 
-                this.indices.push(a, b, c);
-                this.indices.push(b, d, c);
+            for (let j = 0; j < this.slices; j++, k1++, k2++) {
+                if (i !== 0) {
+                    if (this.invert)
+                        this.indices.push(k1 + 1, k2, k1);
+                    else
+                        this.indices.push(k1, k2, k1 + 1);
+                }
+                if (i !== this.stacks - 1) {
+                    if (this.invert)
+                        this.indices.push(k2 + 1, k2, k1 + 1);
+                    else
+                        this.indices.push(k1 + 1, k2, k2 + 1);
+                }
+
+
             }
         }
 
