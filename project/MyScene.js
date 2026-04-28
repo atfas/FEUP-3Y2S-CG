@@ -39,7 +39,7 @@ export class MyScene extends CGFscene {
     this.skyAppearance.setDiffuse(0.0, 0.0, 0.0, 1.0);
     this.skyAppearance.setSpecular(0.0, 0.0, 0.0, 1.0);
     this.skyAppearance.setTexture(this.skyTexture);
-		this.skyAppearance.setTextureWrap('MIRRORED_REPEAT', 'MIRRORED_REPEAT');
+		this.skyAppearance.setTextureWrap('REPEAT', 'REPEAT');
     this.skyMap.bind(1);
 
     // Sun Appearance
