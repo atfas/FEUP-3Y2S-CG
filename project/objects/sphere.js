@@ -40,6 +40,8 @@ export class Sphere extends CGFobject {
             }
         }
 
+        const isLastRingDegenerate = this.percentage >= 1;
+
         let k1, k2;
         for (let i = 0; i < this.stacks; i++) {
             k1 = i * (this.slices + 1);
@@ -52,14 +54,12 @@ export class Sphere extends CGFobject {
                     else
                         this.indices.push(k1, k2, k1 + 1);
                 }
-                if (i !== this.stacks - 1) {
+                if (i !== this.stacks - 1 || !isLastRingDegenerate) {
                     if (this.invert)
                         this.indices.push(k2 + 1, k2, k1 + 1);
                     else
                         this.indices.push(k1 + 1, k2, k2 + 1);
                 }
-
-
             }
         }
 
