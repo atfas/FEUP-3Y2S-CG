@@ -75,7 +75,7 @@
 
       // Add terrain shader
       this.terrainShader = new CGFshader(this.gl, "shaders/terrain.vert", "shaders/terrain.frag");
-      this.terrainShader.setUniformsValues({ uHeightMap: 1, uHeightScale: 0.07 });
+      this.terrainShader.setUniformsValues({ uHeightMap: 1, uHeightScale: 0.03 });
       //                                                              ^^^^
       //                            tune this: 0.05 = subtle, 0.15 = dramatic hills
 
@@ -115,11 +115,11 @@
     }
 
     initCameras() {
-      this.camera = new CGFcamera(
-        1.2, 0.1, 500,
-        vec3.fromValues(0, 1.7, 0),
-        vec3.fromValues(0, 1.7, -1)
-      );
+    this.camera = new CGFcamera(
+            1.2, 0.1, 500,
+            vec3.fromValues(0, 1.7, 0),   // back to original eye height
+            vec3.fromValues(0, 1.7, -1)
+        );
     }
     
     getSunDirection() {
@@ -172,22 +172,10 @@
 
     }
 
-    // drawTerrain() {
-    //   const cx = this.camera.position[0];
-    //   const cz = this.camera.position[2];
-    //   this.terrainAppearance.apply();
-    //   this.pushMatrix();
-    //     this.translate(cx, 0, cz);
-    //     this.scale(400, 400, 400);
-    //     this.rotate(-Math.PI / 2, 1, 0, 0);
-    //     this.terrain.display();
-    //   this.popMatrix();
-    // }
-  // Replace drawTerrain()
   drawTerrain() {
-    this.gl.disable(this.gl.CULL_FACE);
+    // Remove gl.disable(CULL_FACE)
 
-    // Disable CGF lights so they don't try to update terrain shader
+
     this.lights[0].disable();
     this.lights[1].disable();
 
@@ -204,19 +192,17 @@
     });
 
     this.pushMatrix();
-        this.translate(0, -20, 0);
+        this.translate(0, -10, 0);
         this.scale(400, 400, 400);
         this.rotate(-Math.PI / 2, 1, 0, 0);
         this.terrain.display();
     this.popMatrix();
 
-    // Re-enable lights for everything else
     this.lights[0].enable();
     this.lights[1].enable();
     this.lights[0].update();
     this.lights[1].update();
 
-    this.gl.enable(this.gl.CULL_FACE);
     this.setActiveShader(this.defaultShader);
 }
 
@@ -230,8 +216,8 @@
       if (this.displayAxis) this.axis.display();
 
       this.drawSky();
-      this.drawTerrain();  // ← removed the setActiveShader/setDefaultAppearance before this
-
+      this.drawTerrain(); 
+      
       // Normals display
       for (const [obj, show] of [
           [this.sky,     this.displaySkyNormals],
