@@ -147,39 +147,45 @@
     }
 
     drawSky() {
-      const cx = this.camera.position[0];
-      const cz = this.camera.position[2];
+    const cx = this.camera.position[0];
+    const cz = this.camera.position[2];
 
-      this.setActiveShader(this.skyShader);
-      this.pushMatrix();
+    this.setActiveShader(this.skyShader);
+    this.pushMatrix();
         this.skyAppearance.apply();
         this.translate(cx, -10, cz);
         this.scale(200, 200, 200);
         this.rotate(-Math.PI / 2, 1, 0, 0);
         this.sky.display();
-      this.popMatrix();
+    this.popMatrix();
+ 
+  }
 
+  drawSun() {
+    const cx = this.camera.position[0];
+    const cz = this.camera.position[2];
+    const [sx, sy, sz] = this.getSunDirection();
 
-      // Sun: emissive sphere placed along the sun direction
-      this.setActiveShader(this.defaultShader);
-      this.sunAppearance.apply();
-      const [sx, sy, sz] = this.getSunDirection();
-      this.pushMatrix();
-        this.translate(cx + sx * 180, sy * 180, cz + sz * 180);
-        this.scale(10, 10, 10);
+    this.setActiveShader(this.defaultShader);
+    this.sunAppearance.apply();
+    this.pushMatrix();
+        // Place sun at the horizon distance (same as sky radius)
+        // but clamp its Y to stay near the mountain tops
+        const sunDist = 190;
+        const sunY = sy * sunDist - 10;  // -10 to align with terrain base
+        this.translate(cx + sx * sunDist, sunY, cz + sz * sunDist);
+        this.scale(8, 8, 8);
         this.sun.display();
-      this.popMatrix();
-
-    }
+    this.popMatrix();
+}
 
   drawTerrain() {
-    // Remove gl.disable(CULL_FACE)
-
-
     this.lights[0].disable();
     this.lights[1].disable();
 
     const sunDir = this.getSunDirection();
+    const cx = this.camera.position[0];  // follow camera
+    const cz = this.camera.position[2];
 
     this.setActiveShader(this.terrainShader);
     this.terrainAppearance.apply();
@@ -188,11 +194,10 @@
     this.terrainShader.setUniformsValues({ 
         uHeightMap: 1,
         uSunDir: sunDir,
-        uSunElevation: this.sunElevation
     });
 
     this.pushMatrix();
-        this.translate(0, -10, 0);
+        this.translate(cx, -10, cz);   // follow camera like sky does
         this.scale(400, 400, 400);
         this.rotate(-Math.PI / 2, 1, 0, 0);
         this.terrain.display();
@@ -207,24 +212,24 @@
 }
 
   display() {
-      this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
-      this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-      this.updateProjectionMatrix();
-      this.loadIdentity();
-      this.applyViewMatrix();
+    this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+    this.updateProjectionMatrix();
+    this.loadIdentity();
+    this.applyViewMatrix();
 
-      if (this.displayAxis) this.axis.display();
+    if (this.displayAxis) this.axis.display();
 
-      this.drawSky();
-      this.drawTerrain(); 
-      
-      // Normals display
-      for (const [obj, show] of [
-          [this.sky,     this.displaySkyNormals],
-          [this.terrain, this.displayTerrainNormals],
-          [this.sun,     this.displaySunNormals],
-      ]) {
-          show ? obj.enableNormalViz() : obj.disableNormalViz();
-      }
-  }
+    this.drawSky();      // 1. sky sphere (no depth write needed)
+    this.drawTerrain();  // 2. terrain writes to depth buffer
+    this.drawSun();      // 3. sun tested against terrain depth — gets hidden behind mountains!
+
+    for (const [obj, show] of [
+        [this.sky,     this.displaySkyNormals],
+        [this.terrain, this.displayTerrainNormals],
+        [this.sun,     this.displaySunNormals],
+    ]) {
+        show ? obj.enableNormalViz() : obj.disableNormalViz();
+    }
+}
 }
