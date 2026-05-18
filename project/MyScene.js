@@ -27,6 +27,8 @@ export class MyScene extends CGFscene {
     this.sky = new Sphere(this, 64, 32, 0.5, true);
     this.sun = new Sphere(this, 16, 8, 1.0, false);
     this.terrain = new Plane(this, 5, 1, 0, 1);
+    this.rock = new Sphere(this, 16, 16, 0.5);
+    this.rocks = this._generateRocks(28, 30, 0.8);
 
     // Textures
     this.skyTexture = new CGFtexture(this,"textures/skyTex.png");
@@ -59,10 +61,8 @@ export class MyScene extends CGFscene {
 
     // Shaders
     this.skyShader=new CGFshader(this.gl, "shaders/sky.vert", "shaders/sky.frag");
-    this.skyShader.setUniformsValues({ uSampler2: 1 });
-		this.skyShader.setUniformsValues({ timeFactor: 0 });
-    this.skyShader.setUniformsValues({ normScale: 1});
-
+    this.skyShader.setUniformsValues({ uSampler2: 1 , timeFactor: 0 , normScale: 1});
+    this.rockShader = new CGFshader(this.gl, "shaders/rock.vert","shaders/rock.frag");
 
     // GUI parameters
     this.sunElevation  = 20;   
@@ -71,9 +71,24 @@ export class MyScene extends CGFscene {
     this.displaySkyNormals     = false;
     this.displayTerrainNormals = false;
     this.displaySunNormals     = false;
+    this.displayRockNormals    = false;
 
   }
+  
+  _generateRocks(count, spread, minDist) {
+    const rocks = [];
+    while (rocks.length < count) {
+      const x = (Math.random() - 0.5) * 2 * spread;
+      const z = (Math.random() - 0.5) * 2 * spread;
+      if (rocks.some(([rx, , rz]) => Math.hypot(x - rx, z - rz) < minDist)) continue;
+      const scale = 0.35 + Math.random() * 1.3;
+      const type  = Math.floor(Math.random() * 4);
+      rocks.push([x, 0, z, scale, type]);
+    }
+    return rocks;
+  }
 
+  
   initLights() {
     // Ambient light
     this.lights[0].setPosition(0, 10, 0, 1);
@@ -177,12 +192,26 @@ export class MyScene extends CGFscene {
     this.setDefaultAppearance();
     this.drawTerrain();
 
-
+    this.setActiveShader(this.rockShader);
+    const sunDir = this.getSunDirection();
+    this.rockShader.setUniformsValues({ uSunDir: sunDir });
+    for (let i = 0; i < this.rocks.length; i++) {
+      const [x, y, z, s, type] = this.rocks[i];
+      const seed = [i * 47.3 + 13.1, i * 31.7 + 59.3, i * 53.9 + 7.4];
+      this.rockShader.setUniformsValues({ uSeed: seed, uRockType: type });
+      this.pushMatrix();
+        this.translate(x, y, z);
+        this.scale(s, s, s);
+        this.rotate(-Math.PI / 2, 1, 0, 0);
+        this.rock.display();
+      this.popMatrix();
+    }
     // Normals display
     for (const [obj, show] of [
       [this.sky,     this.displaySkyNormals],
       [this.terrain, this.displayTerrainNormals],
       [this.sun,     this.displaySunNormals],
+      [this.rock,    this.displayRockNormals],
     ]) {
       show ? obj.enableNormalViz() : obj.disableNormalViz();
     }

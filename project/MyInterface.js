@@ -15,6 +15,7 @@ export class MyInterface extends CGFinterface {
     normalsFolder.add(this.scene, 'displaySkyNormals').name("Sky Normals");
     normalsFolder.add(this.scene, 'displayTerrainNormals').name("Terrain Normals");
     normalsFolder.add(this.scene, 'displaySunNormals').name("Sun Normals");
+    normalsFolder.add(this.scene, 'displayRockNormals').name("Rock Normals");
     normalsFolder.open();
 
     const skyFolder = this.gui.addFolder('Sky');
