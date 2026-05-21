@@ -11,6 +11,7 @@ uniform float uHeightScale;
 varying vec2 vTextureCoord;
 varying vec3 vTransformedNormal;
 varying vec4 vPosition;
+varying float vEdgeFactor;
 
 void main() {
     vTextureCoord = aTextureCoord;
@@ -26,21 +27,20 @@ void main() {
     float h  = texture2D(uHeightMap, heightUV).r;
 
     // Distance from center (0..1), 0=center, 1=corner
-    vec2 centered = heightUV * 2.0 - 1.0;   // remap to -1..1
-    float dist = length(centered);           // circular distance
+    vec2 centered = heightUV * 2.0 - 1.0;
+    float dist = length(centered);
 
-    // Edge mountain ring: starts rising at 70% from center, peaks at border
-   float edgeStart = 0.85;                          // start closer to the very edge
+    // Edge mountain ring
+    float edgeStart = 0.85;
     float edgeFactor = smoothstep(edgeStart, 1.0, dist);
+    vEdgeFactor = edgeFactor;  // pass to frag shader
 
     // Sample heightmap at higher frequency for jagged peaks
     vec2 mountainUV = heightUV * 4.0;
     float mountainNoise = texture2D(uHeightMap, mountainUV).r;
 
-    float noiseVariation = mountainNoise * 0.7 + 0.3;  // 30%-100% variation
+    float noiseVariation = mountainNoise * 0.7 + 0.3;
     float edgeHeight = edgeFactor * edgeFactor * 0.3 * noiseVariation;
-    //                                           ^^^^
-    //                          was 0.4 (=160 units), now 0.05 (=20 units)
 
     float totalHeight = h * uHeightScale + edgeHeight;
     vec3 displaced = aVertexPosition + vec3(0.0, 0.0, totalHeight);
