@@ -2,6 +2,7 @@ import { CGFscene, CGFcamera, CGFaxis, CGFappearance, CGFtexture, CGFshader } fr
 import { Sphere } from "./objects/sphere.js";
 import { Plane } from "./objects/plane.js";
 import { Wagon } from "./objects/wagon.js";
+import { WagonController } from "./WagonController.js";
 
 export class MyScene extends CGFscene {
   constructor() {
@@ -43,6 +44,7 @@ export class MyScene extends CGFscene {
     this.woodAppearance.setTextureWrap('REPEAT', 'REPEAT');
 
     this.wagon = new Wagon(this);
+    this.wagonController = new WagonController(this.wagon, this.freeCamera, this.wagonCamera);
 
     // Sky Appearance
     this.skyAppearance = new CGFappearance(this);
@@ -106,11 +108,19 @@ export class MyScene extends CGFscene {
   }
 
   initCameras() {
-    this.camera = new CGFcamera(
+    this.freeCamera = new CGFcamera(
       1.2, 0.1, 500,
-      vec3.fromValues(0, 1.7, 0),
-      vec3.fromValues(0, 1.7, -1)
+      vec3.fromValues(0, 8, -20),
+      vec3.fromValues(0, 1.5,  0)
     );
+
+    this.wagonCamera = new CGFcamera(
+      1.2, 0.1, 500,
+      vec3.fromValues(0, 4, -10),
+      vec3.fromValues(0, 1.5,  0)
+    );
+
+    this.camera = this.wagonCamera;
   }
 
   getSunDirection() {
@@ -124,10 +134,19 @@ export class MyScene extends CGFscene {
   }
 
   update(t) {
+    // Delta time in seconds, capped to avoid large jumps on tab switch
+    if (this.lastTime === undefined) this.lastTime = t;
+    const dt = Math.min((t - this.lastTime) / 1000, 0.1);
+    this.lastTime = t;
+
+    // Sun & sky
     const [sx, sy, sz] = this.getSunDirection();
     this.lights[1].setPosition(sx, sy, sz, 0);
     this.lights[1].update();
 		this.skyShader.setUniformsValues({ timeFactor: t / 8000 % 100 });
+
+    this.wagonController.update(dt);
+    this.camera = this.wagonController.activeCamera;
   }
 
   setDefaultAppearance() {

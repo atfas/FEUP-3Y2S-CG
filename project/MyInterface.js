@@ -10,6 +10,8 @@ export class MyInterface extends CGFinterface {
 
     this.gui = new dat.GUI();
 
+    this.gui.add(this.scene.wagonController, 'cameraMode', { 'Follow Wagon': 'wagon', 'Free Camera': 'free' }).name("Camera");
+
     this.gui.add(this.scene, 'displayAxis').name("Display Axis");
     const normalsFolder= this.gui.addFolder('Normals');
     normalsFolder.add(this.scene, 'displaySkyNormals').name("Sky Normals");
@@ -23,5 +25,9 @@ export class MyInterface extends CGFinterface {
     skyFolder.open();
 
     return true;
+  }
+
+  update() {
+    this.setActiveCamera(this.scene.camera);
   }
 }
