@@ -30,10 +30,7 @@ export class MyScene extends CGFscene {
     this.sun = new Sphere(this, 16, 8, 1.0, false);
     this.terrain = new Plane(this, 5, 1, 0, 1);
     this._placedObjects = [];
-    this.rocks = this._spawnRandom(100, (x, z) => {
-      const rock = new Rock(this, x, z);
-      return { obj: rock, r: rock.scale * 1.2 };
-    });
+    this.rocks = this._spawnRandom(100, (x, z) => new Rock(this, x, z));
 
     // Textures
     this.skyTexture = new CGFtexture(this,"textures/skyTex.png");
@@ -70,10 +67,7 @@ export class MyScene extends CGFscene {
     this.rockShader = new CGFshader(this.gl, "shaders/rock.vert","shaders/rock.frag");
 
     // Flora
-    this.flowers = this._spawnRandom(60, (x, z) => ({
-      obj: new Flower(this, x, z),
-      r: 0.4,
-    }));
+    this.flowers = this._spawnRandom(60, (x, z) => new Flower(this, x, z));
 
     // GUI parameters
     this.sunElevation  = 20;
@@ -94,9 +88,9 @@ export class MyScene extends CGFscene {
       const a = Math.random() * 2 * Math.PI;
       const x = Math.cos(a) * Math.random() * 200;
       const z = Math.sin(a) * Math.random() * 200;
-      const { obj, r } = createFn(x, z);
-      if (this._placedObjects.some(o => Math.hypot(x - o.x, z - o.z) < o.r + r)) continue;
-      this._placedObjects.push({ x, z, r });
+      const obj = createFn(x, z);
+      if (this._placedObjects.some(o => Math.hypot(x - o.x, z - o.z) < o.r + obj.r)) continue;
+      this._placedObjects.push({ x, z, r: obj.r });
       result.push(obj);
     }
     return result;
