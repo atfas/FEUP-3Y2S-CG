@@ -23,11 +23,11 @@ export class MyInterface extends CGFinterface {
     skyFolder.add(this.scene, 'sunDegree', 0, 360).name("Sun Degree");
     skyFolder.open();
 
-    // ── Grass ─────────────────────────────────────────────────────────────────
+    //  Grass
     const grassFolder = this.gui.addFolder('Grass');
 
     const liveFolder = grassFolder.addFolder('Live Grass');
-    liveFolder.add(this.scene, 'liveCount',       10, 800, 1   ).name("Clumps");
+    liveFolder.add(this.scene, 'liveCount',       10, 400, 1   ).name("Clumps");
     liveFolder.add(this.scene, 'liveHeightScale',  0.2, 4.0    ).name("Height Scale");
     liveFolder.add(this.scene, 'liveSpread',        5,  200    ).name("Clump Spread");
     liveFolder.open();
@@ -38,8 +38,8 @@ export class MyInterface extends CGFinterface {
     deadFolder.add(this.scene, 'deadSpread',        5,  200    ).name("Clump Spread");
     deadFolder.open();
 
+    grassFolder.add(this.scene, 'windStrength', 0.0, 2.0).name("Wind Strength");
     grassFolder.open();
-    // ─────────────────────────────────────────────────────────────────────────
 
     return true;
   }
