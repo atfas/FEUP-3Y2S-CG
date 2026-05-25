@@ -7,16 +7,25 @@ import { CGFobject } from '../../lib/CGF.js';
  * giving a natural clump look with no texture needed.
  *
  * @param scene        - MyScene reference
- * @param count        - number of grass clumps (default 600)
+ * @param count        - number of grass clumps (default 300)
  * @param pathMaskImg  - HTMLImageElement of path1.png (white=path, black=grass)
  * @param seed         - RNG seed for deterministic layout (default 42)
+ * @param heightScale  - multiplier on blade height H (default 1.0)
+ * @param clumpSpread  - offset spread factor, replaces hardcoded 75.0 (default 75.0)
  */
 export class Grass extends CGFobject {
-    constructor(scene, count = 600, pathMaskImg = null, seed = 42) {
+    constructor(scene, count = 300, pathMaskImg = null, seed = 42, heightScale = 1.0, clumpSpread = 75.0) {
         super(scene);
         this.count       = count;
         this.pathMaskImg = pathMaskImg;
         this.seed        = seed;
+        this.heightScale = heightScale;
+        this.clumpSpread = clumpSpread;
+        this.initBuffers();
+    }
+
+    /** Regenerate vertex buffers after changing count / heightScale / clumpSpread. */
+    rebuild() {
         this.initBuffers();
     }
 
@@ -56,8 +65,8 @@ export class Grass extends CGFobject {
         this.texCoords = [];
 
         const BLADES_PER_CLUMP = 100;  // blades fanned around each clump centre
-        const W = 0.0008;             // half-width at blade base (in plane local space, scaled ×400 in scene)
-        const H = 0.006;              // blade height (same space)
+        const W = 0.0008;              // half-width at blade base (plane local space, ×400 in scene)
+        const H = 0.006 * this.heightScale; // blade height, scaled by GUI param
 
         let rng = { state: this.seed };
         let vertexOffset = 0;
@@ -105,35 +114,31 @@ export class Grass extends CGFobject {
                 const hw  = W  * bladeScale;
                 const hh  = H  * bladeScale;
 
-                // Small random offset within the clump so blades don't all share the same root
+                // Random offset within the clump — spread controlled by clumpSpread param
                 rng = this._rng(rng.state);
-                const ox = (rng.val - 0.5) * hw * 75.0;
+                const ox = (rng.val - 0.5) * hw * this.clumpSpread;
                 rng = this._rng(rng.state);
-                const oy = (rng.val - 0.5) * hw * 75.0;
+                const oy = (rng.val - 0.5) * hw * this.clumpSpread;
 
                 const bx = cx + ox;
                 const by = cy + oy;
 
                 // Triangle: base-left, base-right, tip
-                // Plane local space: XY = ground, Z = up (after scene's -90° X rotation)
-                const Z_OFFSET = 0.025; // lift blades above terrain surface to avoid z-fighting
-                const bl  = [bx + (-hw) * cos,        by + (-hw) * sin,        Z_OFFSET];
-                const br  = [bx + ( hw) * cos,        by + ( hw) * sin,        Z_OFFSET];
-                const tip = [bx + lean  * cos,        by + lean  * sin,        hh + Z_OFFSET];
+                const Z_OFFSET = 0.025;
+                const bl  = [bx + (-hw) * cos, by + (-hw) * sin, Z_OFFSET];
+                const br  = [bx + ( hw) * cos, by + ( hw) * sin, Z_OFFSET];
+                const tip = [bx + lean  * cos, by + lean  * sin, hh + Z_OFFSET];
 
                 this.vertices.push(...bl, ...br, ...tip);
 
-                // Normal faces perpendicular to the blade in the XY plane
                 const nx = -sin;
                 const ny =  cos;
                 for (let i = 0; i < 3; i++) this.normals.push(nx, ny, 0.0);
 
-                // Repurpose texCoords to carry (unused_u, height_factor) for the shader
-                // height_factor: 0 = base, 1 = tip
                 this.texCoords.push(
-                    0.0, 0.0,   // bl  — base
-                    1.0, 0.0,   // br  — base
-                    0.5, 1.0,   // tip — top
+                    0.0, 0.0,
+                    1.0, 0.0,
+                    0.5, 1.0,
                 );
 
                 const v0 = vertexOffset;

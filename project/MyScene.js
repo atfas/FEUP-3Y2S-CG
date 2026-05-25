@@ -37,7 +37,6 @@ export class MyScene extends CGFscene {
     this.pathMask       = new CGFtexture(this, "textures/path1.png");
     this.pathTex        = new CGFtexture(this, "textures/pathTex.jpg");
 
-
     // Sky Appearance
     this.skyAppearance = new CGFappearance(this);
     this.skyAppearance.setEmission(1, 1, 1, 1);
@@ -64,9 +63,7 @@ export class MyScene extends CGFscene {
     this.terrainAppearance.setTexture(this.terrainTexture);
     this.terrainAppearance.setTextureWrap('REPEAT', 'REPEAT');
 
-    // Grass has no appearance — color is handled entirely in grass.frag
-
-    // Terrain shader — unit 0=grass, 1=heightmap, 2=path mask, 3=path texture
+    // Terrain shader
     this.terrainShader = new CGFshader(this.gl, "shaders/terrain.vert", "shaders/terrain.frag");
     this.terrainShader.setUniformsValues({
       uHeightMap:   1,
@@ -82,9 +79,21 @@ export class MyScene extends CGFscene {
     // Grass shader
     this.grassShader = new CGFshader(this.gl, "shaders/grass.vert", "shaders/grass.frag");
 
-    // Load path mask image on CPU for grass placement, then build Grass objects
+    // ── Grass GUI parameters ──────────────────────────────────────────────────
+    // These back the dat.GUI controls; setters trigger a rebuild() on the
+    // relevant Grass object so changes are reflected immediately.
+    this._liveCount       = 300;
+    this._liveHeightScale = 1.0;
+    this._liveSpread      = 75.0;
+
+    this._deadCount       = 80;
+    this._deadHeightScale = 0.75;   // dead grass slightly shorter by default
+    this._deadSpread      = 75.0;
+    // ─────────────────────────────────────────────────────────────────────────
+
     this.grass     = null;
     this.deadGrass = null;
+    this._pathMaskImg = null;
     this._loadGrass();
 
     // GUI parameters
@@ -96,20 +105,39 @@ export class MyScene extends CGFscene {
     this.displaySunNormals     = false;
   }
 
-  /**
-   * Load path1.png as an HTMLImageElement on the CPU so Grass can
-   * sample it to avoid placing blades on the path.
-   */
-    _loadGrass() {
+  // ── Grass property setters — each rebuilds the affected object ──────────────
+
+  get liveCount()            { return this._liveCount; }
+  set liveCount(v)           { this._liveCount = v;        if (this.grass)     { this.grass.count = v;            this.grass.rebuild(); } }
+
+  get liveHeightScale()      { return this._liveHeightScale; }
+  set liveHeightScale(v)     { this._liveHeightScale = v;   if (this.grass)     { this.grass.heightScale = v;      this.grass.rebuild(); } }
+
+  get liveSpread()           { return this._liveSpread; }
+  set liveSpread(v)          { this._liveSpread = v;        if (this.grass)     { this.grass.clumpSpread = v;      this.grass.rebuild(); } }
+
+  get deadCount()            { return this._deadCount; }
+  set deadCount(v)           { this._deadCount = v;         if (this.deadGrass) { this.deadGrass.count = v;        this.deadGrass.rebuild(); } }
+
+  get deadHeightScale()      { return this._deadHeightScale; }
+  set deadHeightScale(v)     { this._deadHeightScale = v;   if (this.deadGrass) { this.deadGrass.heightScale = v;  this.deadGrass.rebuild(); } }
+
+  get deadSpread()           { return this._deadSpread; }
+  set deadSpread(v)          { this._deadSpread = v;        if (this.deadGrass) { this.deadGrass.clumpSpread = v;  this.deadGrass.rebuild(); } }
+
+  // ───────────────────────────────────────────────────────────────────────────
+
+  _loadGrass() {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
-      this.grass     = new Grass(this, 300, img, 42);
-      this.deadGrass = new Grass(this, 80,  img, 17); // fewer, different seed
+      this._pathMaskImg = img;
+      this.grass     = new Grass(this, this._liveCount, img, 42, this._liveHeightScale, this._liveSpread);
+      this.deadGrass = new Grass(this, this._deadCount, img, 17, this._deadHeightScale, this._deadSpread);
     };
     img.onerror = () => {
-      this.grass     = new Grass(this, 300, null, 42);
-      this.deadGrass = new Grass(this, 80,  null, 17);
+      this.grass     = new Grass(this, this._liveCount, null, 42, this._liveHeightScale, this._liveSpread);
+      this.deadGrass = new Grass(this, this._deadCount, null, 17, this._deadHeightScale, this._deadSpread);
     };
     img.src = "textures/path1.png";
   }
@@ -201,10 +229,10 @@ export class MyScene extends CGFscene {
     const cz = this.camera.position[2];
 
     this.setActiveShader(this.terrainShader);
-    this.terrainAppearance.apply(); // grass texture → unit 0
-    this.hillMap.bind(1);           // heightmap → unit 1
-    this.pathMask.bind(2);          // path mask → unit 2
-    this.pathTex.bind(3);           // path texture → unit 3
+    this.terrainAppearance.apply();
+    this.hillMap.bind(1);
+    this.pathMask.bind(2);
+    this.pathTex.bind(3);
 
     this.terrainShader.setUniformsValues({
       uHeightMap: 1,
