@@ -1,5 +1,6 @@
 attribute vec3 aVertexPosition;
 attribute vec3 aVertexNormal;
+attribute vec2 aTextureCoord;
 
 uniform mat4 uMVMatrix;
 uniform mat4 uPMatrix;
@@ -8,6 +9,7 @@ uniform vec3 uSeed;
 
 varying vec3 vNormal;
 varying vec3 vPosition;
+varying vec2 vTexCoord;
 
 float hash(vec3 p) {
     p = fract(p * 0.3183099 + 0.1);
@@ -34,5 +36,6 @@ void main() {
 
     vNormal   = normalize((uNMatrix * vec4(aVertexNormal, 0.0)).xyz);
     vPosition = aVertexPosition;
+    vTexCoord = aTextureCoord;
     gl_Position = uPMatrix * uMVMatrix * vec4(displaced, 1.0);
 }

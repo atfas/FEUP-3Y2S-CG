@@ -36,6 +36,7 @@ export class MyScene extends CGFscene {
     // Textures
     this.skyTexture = new CGFtexture(this,"textures/skyTex.png");
     this.skyMap = new CGFtexture(this, "textures/skyMap.png");
+    this.rockTexture = new CGFtexture(this, "textures/rock.jpg");
 
     // Sky Appearance
     this.skyAppearance = new CGFappearance(this);
@@ -103,7 +104,8 @@ export class MyScene extends CGFscene {
 
   drawRocks() {
     this.setActiveShader(this.rockShader);
-    this.rockShader.setUniformsValues({ uSunDir: this.getSunDirection() });
+    this.rockTexture.bind(0);
+    this.rockShader.setUniformsValues({ uSampler: 0, uSunDir: this.getSunDirection() });
     for (const rock of this.rocks) {
       this.pushMatrix();
         this.translate(rock.x, rock.y, rock.z);

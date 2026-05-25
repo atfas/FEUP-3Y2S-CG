@@ -6,7 +6,7 @@ export class Rock extends Sphere {
         this.x = x;
         this.y = 0;
         this.z = z;
-        this.scale = 0.5 + Math.random();
+        this.scale = 0.1 + Math.random();
         this.r = this.scale * 1.2;
         this._type = Math.floor(Math.random() * 4);
     }
