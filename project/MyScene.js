@@ -2,6 +2,7 @@ import { CGFscene, CGFcamera, CGFaxis, CGFappearance, CGFtexture, CGFshader } fr
 import { Sphere } from "./objects/sphere.js";
 import { Plane } from "./objects/plane.js";
 import { Grass } from "./objects/grass.js";
+import { Barn } from "./objects/barn/barn.js";
 
 export class MyScene extends CGFscene {
   constructor() {
@@ -28,6 +29,9 @@ export class MyScene extends CGFscene {
     this.sky     = new Sphere(this, 64, 32, 0.5, true);
     this.sun     = new Sphere(this, 16, 8,  1.0, false);
     this.terrain = new Plane(this, 50, 0, 30, 0, 30);
+
+    this.barn = new Barn(this);
+
 
     // Textures
     this.skyTexture     = new CGFtexture(this, "textures/skyTex.png");
@@ -283,6 +287,34 @@ export class MyScene extends CGFscene {
     this.setActiveShader(this.defaultShader);
   }
 
+drawBarn() {
+  if (!this.barn) return;
+
+  const cx = this.camera.position[0];
+  const cz = this.camera.position[2];
+
+  const BARN_U     =  0.05;
+  const BARN_V     =  0.04;
+  const BARN_SCALE =  0.025;
+
+  this.setActiveShader(this.defaultShader);
+  this.pushMatrix();
+    // Match terrain base transform
+    this.translate(cx - 5, 2, cz - 30);
+    this.scale(400, 400, 400);
+    this.rotate(-Math.PI / 2, 1 , 0, 0);
+
+    // Place in plane-local UV space
+    this.translate(BARN_U, BARN_V, 0);
+
+    // *** Undo the terrain rotation so the barn stands upright ***
+    this.rotate(Math.PI / 2, 1, 0, 0);
+
+    this.scale(BARN_SCALE, BARN_SCALE, BARN_SCALE);
+    this.barn.display();
+  this.popMatrix();
+}
+
   display() {
     this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
@@ -296,6 +328,7 @@ export class MyScene extends CGFscene {
     this.drawTerrain();
     this.drawGrass();
     this.drawSun();
+    this.drawBarn();
 
     for (const [obj, show] of [
       [this.sky,     this.displaySkyNormals],
