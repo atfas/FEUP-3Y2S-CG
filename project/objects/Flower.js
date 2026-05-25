@@ -1,6 +1,6 @@
 import { CGFobject, CGFappearance } from '../../lib/CGF.js';
 import { Sphere } from './sphere.js';
-import { Plane } from './plane.js';
+import { MyQuad } from './MyQuad.js';
 
 export class Flower extends CGFobject {
     constructor(scene, x, z) {
@@ -15,7 +15,7 @@ export class Flower extends CGFobject {
         this._petalColor = [Math.random(), Math.random(), Math.random()];
 
         this._stem   = new Sphere(scene, 8, 8, 1.0, false);
-        this._petal  = new Plane(scene, 2, 0, 1, 0, 1);
+        this._petal  = new MyQuad(scene);
         this._center = new Sphere(scene, 8, 8, 1.0, false);
 
         this._material = new CGFappearance(scene);
