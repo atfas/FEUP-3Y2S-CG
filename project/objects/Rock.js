@@ -1,28 +1,22 @@
-import { CGFobject } from '../../lib/CGF.js';
 import { Sphere } from './sphere.js';
 
-export class Rock extends CGFobject {
+export class Rock extends Sphere {
     constructor(scene, x, z) {
-        super(scene);
+        super(scene, 16, 16, 0.5);
         this.x = x;
         this.y = 0;
         this.z = z;
         this.scale = 1 + Math.random();
         this._type = Math.floor(Math.random() * 4);
-        this._seed = [Math.random() * 100, Math.random() * 100, Math.random() * 100];
-        this._sphere = new Sphere(scene, 16, 16, 0.5);
     }
-
-    enableNormalViz()  { this._sphere.enableNormalViz(); }
-    disableNormalViz() { this._sphere.disableNormalViz(); }
 
     display() {
         const scene = this.scene;
-        scene.rockShader.setUniformsValues({ uSeed: this._seed, uRockType: this._type });
+        scene.rockShader.setUniformsValues({ uSeed: [this.x, this.y, this.z], uRockType: this._type });
         scene.pushMatrix();
             scene.scale(this.scale, this.scale, this.scale);
             scene.rotate(-Math.PI / 2, 1, 0, 0);
-            this._sphere.display();
+            super.display();
         scene.popMatrix();
     }
 }
