@@ -250,4 +250,16 @@ export class Wagon extends CGFobject {
             this.displayCover();
         this.scene.popMatrix();
     }
+
+    enableNormalViz(){
+        this.cube.enableNormalViz();
+        this.cube.enableNormalViz();
+        this.cover.enableNormalViz();
+    }
+
+    disableNormalViz(){
+        this.cube.disableNormalViz();
+        this.cube.disableNormalViz();
+        this.cover.disableNormalViz();
+    }
 }

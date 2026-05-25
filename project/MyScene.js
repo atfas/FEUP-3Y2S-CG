@@ -87,6 +87,7 @@ export class MyScene extends CGFscene {
     this.displaySkyNormals     = false;
     this.displayTerrainNormals = false;
     this.displaySunNormals     = false;
+    this.displayWagonNormals   = false;
   }
 
   initLights() {
@@ -215,6 +216,7 @@ export class MyScene extends CGFscene {
       [this.sky,     this.displaySkyNormals],
       [this.terrain, this.displayTerrainNormals],
       [this.sun,     this.displaySunNormals],
+      [this.wagon,   this.displayWagonNormals],
     ]) {
       show ? obj.enableNormalViz() : obj.disableNormalViz();
     }
