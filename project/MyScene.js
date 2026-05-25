@@ -1,6 +1,8 @@
 import { CGFscene, CGFcamera, CGFaxis, CGFappearance, CGFtexture, CGFshader } from "../lib/CGF.js";
 import { Sphere } from "./objects/sphere.js";
 import { Plane } from "./objects/plane.js";
+import { Flower } from "./objects/Flower.js";
+import { Rock } from "./objects/Rock.js";
 
 export class MyScene extends CGFscene {
   constructor() {
@@ -27,8 +29,11 @@ export class MyScene extends CGFscene {
     this.sky = new Sphere(this, 64, 32, 0.5, true);
     this.sun = new Sphere(this, 16, 8, 1.0, false);
     this.terrain = new Plane(this, 5, 1, 0, 1);
-    this.rock = new Sphere(this, 16, 16, 0.5);
-    this.rocks = this._generateRocks(28, 30, 0.8);
+    this._placedObjects = [];
+    this.rocks = this._spawnRandom(100, (x, z) => {
+      const rock = new Rock(this, x, z);
+      return { obj: rock, r: rock.scale * 1.2 };
+    });
 
     // Textures
     this.skyTexture = new CGFtexture(this,"textures/skyTex.png");
@@ -64,9 +69,15 @@ export class MyScene extends CGFscene {
     this.skyShader.setUniformsValues({ uSampler2: 1 , timeFactor: 0 , normScale: 1});
     this.rockShader = new CGFshader(this.gl, "shaders/rock.vert","shaders/rock.frag");
 
+    // Flora
+    this.flowers = this._spawnRandom(60, (x, z) => ({
+      obj: new Flower(this, x, z),
+      r: 0.4,
+    }));
+
     // GUI parameters
-    this.sunElevation  = 20;   
-    this.sunDegree     = 180;   
+    this.sunElevation  = 20;
+    this.sunDegree     = 180;
     this.displayAxis           = false;
     this.displaySkyNormals     = false;
     this.displayTerrainNormals = false;
@@ -75,18 +86,45 @@ export class MyScene extends CGFscene {
 
   }
   
-  _generateRocks(count, spread, minDist) {
-    const rocks = [];
-    while (rocks.length < count) {
-      const x = (Math.random() - 0.5) * 2 * spread;
-      const z = (Math.random() - 0.5) * 2 * spread;
-      if (rocks.some(([rx, , rz]) => Math.hypot(x - rx, z - rz) < minDist)) continue;
-      const scale = 0.35 + Math.random() * 1.3;
-      const type  = Math.floor(Math.random() * 4);
-      rocks.push([x, 0, z, scale, type]);
+  _spawnRandom(count, createFn) {
+    const result = [];
+    let attempts = 0;
+    while (result.length < count && attempts < count * 10) {
+      attempts++;
+      const a = Math.random() * 2 * Math.PI;
+      const x = Math.cos(a) * Math.random() * 200;
+      const z = Math.sin(a) * Math.random() * 200;
+      const { obj, r } = createFn(x, z);
+      if (this._placedObjects.some(o => Math.hypot(x - o.x, z - o.z) < o.r + r)) continue;
+      this._placedObjects.push({ x, z, r });
+      result.push(obj);
     }
-    return rocks;
+    return result;
   }
+
+  drawRocks() {
+    this.setActiveShader(this.rockShader);
+    this.rockShader.setUniformsValues({ uSunDir: this.getSunDirection() });
+    for (const rock of this.rocks) {
+      this.pushMatrix();
+        this.translate(rock.x, rock.y, rock.z);
+        rock.display();
+      this.popMatrix();
+    }
+  }
+
+  drawFlora() {
+    this.setActiveShader(this.defaultShader);
+    for (const f of this.flowers) {
+      this.pushMatrix();
+        this.translate(f.x, f.y, f.z);
+        this.scale(f.scale, f.scale, f.scale);
+        this.rotate(f.rotY, 0, 1, 0);
+        f.display();
+      this.popMatrix();
+    }
+  }
+
 
   
   initLights() {
@@ -191,29 +229,19 @@ export class MyScene extends CGFscene {
     this.setActiveShader(this.defaultShader);
     this.setDefaultAppearance();
     this.drawTerrain();
+    this.drawFlora();
 
-    this.setActiveShader(this.rockShader);
-    const sunDir = this.getSunDirection();
-    this.rockShader.setUniformsValues({ uSunDir: sunDir });
-    for (let i = 0; i < this.rocks.length; i++) {
-      const [x, y, z, s, type] = this.rocks[i];
-      const seed = [i * 47.3 + 13.1, i * 31.7 + 59.3, i * 53.9 + 7.4];
-      this.rockShader.setUniformsValues({ uSeed: seed, uRockType: type });
-      this.pushMatrix();
-        this.translate(x, y, z);
-        this.scale(s, s, s);
-        this.rotate(-Math.PI / 2, 1, 0, 0);
-        this.rock.display();
-      this.popMatrix();
-    }
+    this.drawRocks();
+
     // Normals display
     for (const [obj, show] of [
       [this.sky,     this.displaySkyNormals],
       [this.terrain, this.displayTerrainNormals],
       [this.sun,     this.displaySunNormals],
-      [this.rock,    this.displayRockNormals],
     ]) {
       show ? obj.enableNormalViz() : obj.disableNormalViz();
     }
+    for (const rock of this.rocks)
+      this.displayRockNormals ? rock.enableNormalViz() : rock.disableNormalViz();
   }
 }
