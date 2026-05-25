@@ -1,6 +1,7 @@
 import { CGFscene, CGFcamera, CGFaxis, CGFappearance, CGFtexture, CGFshader } from "../lib/CGF.js";
 import { Sphere } from "./objects/sphere.js";
 import { Plane } from "./objects/plane.js";
+import { Grass } from "./objects/grass.js";
 
 export class MyScene extends CGFscene {
   constructor() {
@@ -36,6 +37,7 @@ export class MyScene extends CGFscene {
     this.pathMask       = new CGFtexture(this, "textures/path1.png");
     this.pathTex        = new CGFtexture(this, "textures/pathTex.jpg");
 
+
     // Sky Appearance
     this.skyAppearance = new CGFappearance(this);
     this.skyAppearance.setEmission(1, 1, 1, 1);
@@ -62,6 +64,8 @@ export class MyScene extends CGFscene {
     this.terrainAppearance.setTexture(this.terrainTexture);
     this.terrainAppearance.setTextureWrap('REPEAT', 'REPEAT');
 
+    // Grass has no appearance — color is handled entirely in grass.frag
+
     // Terrain shader — unit 0=grass, 1=heightmap, 2=path mask, 3=path texture
     this.terrainShader = new CGFshader(this.gl, "shaders/terrain.vert", "shaders/terrain.frag");
     this.terrainShader.setUniformsValues({
@@ -75,6 +79,14 @@ export class MyScene extends CGFscene {
     this.skyShader = new CGFshader(this.gl, "shaders/sky.vert", "shaders/sky.frag");
     this.skyShader.setUniformsValues({ uSampler2: 1, timeFactor: 0, normScale: 1 });
 
+    // Grass shader
+    this.grassShader = new CGFshader(this.gl, "shaders/grass.vert", "shaders/grass.frag");
+
+    // Load path mask image on CPU for grass placement, then build Grass objects
+    this.grass     = null;
+    this.deadGrass = null;
+    this._loadGrass();
+
     // GUI parameters
     this.sunElevation          = 20;
     this.sunDegree             = 180;
@@ -82,6 +94,24 @@ export class MyScene extends CGFscene {
     this.displaySkyNormals     = false;
     this.displayTerrainNormals = false;
     this.displaySunNormals     = false;
+  }
+
+  /**
+   * Load path1.png as an HTMLImageElement on the CPU so Grass can
+   * sample it to avoid placing blades on the path.
+   */
+    _loadGrass() {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      this.grass     = new Grass(this, 300, img, 42);
+      this.deadGrass = new Grass(this, 80,  img, 17); // fewer, different seed
+    };
+    img.onerror = () => {
+      this.grass     = new Grass(this, 300, null, 42);
+      this.deadGrass = new Grass(this, 80,  null, 17);
+    };
+    img.src = "textures/path1.png";
   }
 
   initLights() {
@@ -198,6 +228,45 @@ export class MyScene extends CGFscene {
     this.setActiveShader(this.defaultShader);
   }
 
+  drawGrass() {
+    if (!this.grass) return;
+
+    const cx = this.camera.position[0];
+    const cz = this.camera.position[2];
+    const sunDir = this.getSunDirection();
+
+    this.gl.disable(this.gl.CULL_FACE);
+    this.gl.enable(this.gl.BLEND);
+    this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+
+    this.setActiveShader(this.grassShader);
+
+    // — Living green grass —
+    this.grassShader.setUniformsValues({ uSunDir: sunDir, uDeadGrass: 0.0 });
+    this.pushMatrix();
+      this.translate(cx, -10, cz);
+      this.scale(400, 400, 400);
+      this.rotate(-Math.PI / 2, 1, 0, 0);
+      this.grass.display();
+    this.popMatrix();
+
+    // — Dead brown grass —
+    if (this.deadGrass) {
+      this.grassShader.setUniformsValues({ uSunDir: sunDir, uDeadGrass: 1.0 });
+      this.pushMatrix();
+        this.translate(cx, -10, cz);
+        this.scale(400, 400, 400);
+        this.rotate(-Math.PI / 2, 1, 0, 0);
+        this.deadGrass.display();
+      this.popMatrix();
+    }
+
+    this.gl.disable(this.gl.BLEND);
+    this.gl.enable(this.gl.CULL_FACE);
+
+    this.setActiveShader(this.defaultShader);
+  }
+
   display() {
     this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
@@ -209,6 +278,7 @@ export class MyScene extends CGFscene {
 
     this.drawSky();
     this.drawTerrain();
+    this.drawGrass();
     this.drawSun();
 
     for (const [obj, show] of [
