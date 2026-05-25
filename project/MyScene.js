@@ -1,6 +1,7 @@
 import { CGFscene, CGFcamera, CGFaxis, CGFappearance, CGFtexture, CGFshader } from "../lib/CGF.js";
 import { Sphere } from "./objects/sphere.js";
 import { Plane } from "./objects/plane.js";
+import { Wagon } from "./objects/wagon.js";
 
 export class MyScene extends CGFscene {
   constructor() {
@@ -23,7 +24,7 @@ export class MyScene extends CGFscene {
     this.enableTextures(true);
 
     this.axis = new CGFaxis(this);
-    
+
     this.sky = new Sphere(this, 64, 32, 0.5, true);
     this.sun = new Sphere(this, 16, 8, 1.0, false);
     this.terrain = new Plane(this, 5, 1, 0, 1);
@@ -31,6 +32,17 @@ export class MyScene extends CGFscene {
     // Textures
     this.skyTexture = new CGFtexture(this,"textures/skyTex.png");
     this.skyMap = new CGFtexture(this, "textures/skyMap.png");
+    this.woodTexture = new CGFtexture(this, "textures/wood.jpg");
+
+    // Wood Material
+    this.woodAppearance = new CGFappearance(this);
+    this.woodAppearance.setAmbient(0.35, 0.22, 0.10, 1.0);
+    this.woodAppearance.setDiffuse(0.55, 0.35, 0.16, 1.0);
+    this.woodAppearance.setSpecular(0.08, 0.05, 0.02, 1.0);
+    this.woodAppearance.setTexture(this.woodTexture);
+    this.woodAppearance.setTextureWrap('REPEAT', 'REPEAT');
+
+    this.wagon = new Wagon(this);
 
     // Sky Appearance
     this.skyAppearance = new CGFappearance(this);
@@ -63,15 +75,16 @@ export class MyScene extends CGFscene {
 		this.skyShader.setUniformsValues({ timeFactor: 0 });
     this.skyShader.setUniformsValues({ normScale: 1});
 
+    this.woodShader = new CGFshader(this.gl, "shaders/wood.vert", "shaders/wood.frag");
+    this.woodShader.setUniformsValues({ uSunDirection: this.getSunDirection() });
 
     // GUI parameters
-    this.sunElevation  = 20;   
-    this.sunDegree     = 180;   
+    this.sunElevation  = 20;
+    this.sunDegree     = 180;
     this.displayAxis           = false;
     this.displaySkyNormals     = false;
     this.displayTerrainNormals = false;
     this.displaySunNormals     = false;
-
   }
 
   initLights() {
@@ -176,7 +189,7 @@ export class MyScene extends CGFscene {
     this.setActiveShader(this.defaultShader);
     this.setDefaultAppearance();
     this.drawTerrain();
-
+    this.wagon.display();
 
     // Normals display
     for (const [obj, show] of [
