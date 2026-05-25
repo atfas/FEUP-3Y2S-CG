@@ -20,23 +20,26 @@ export class MyCylinder extends CGFobject {
         const angleStep       = 2 * Math.PI * this.percentage / this.slices;
         const heightStep      = 1 / this.stacks;
 
-        this.vertices = [];
-        this.indices  = [];
-        this.normals  = [];
+        this.vertices  = [];
+        this.indices   = [];
+        this.normals   = [];
+        this.texCoords = [];
 
-        for (let stack = 0; stack < this.stacks; stack++) {
+        for (let stack = 0; stack <= this.stacks; stack++) {
             const height = stack * heightStep;
+            const texV   = stack / this.stacks;
             for (let slice = 0; slice < vertsPerRing; slice++) {
-                const angle   = slice * angleStep;
+                const angle    = slice * angleStep;
                 const cosAngle = Math.cos(angle);
                 const sinAngle = Math.sin(angle);
 
                 this.vertices.push(cosAngle, sinAngle, height);
                 this.normals.push(cosAngle, sinAngle, 0);
+                this.texCoords.push(slice / this.slices, texV);
             }
         }
 
-        for (let stack = 0; stack < this.stacks - 1; stack++) {
+        for (let stack = 0; stack < this.stacks; stack++) {
             for (let slice = 0; slice < this.slices; slice++) {
 
                 var bottomLeft  = stack * vertsPerRing + slice;
