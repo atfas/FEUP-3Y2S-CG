@@ -74,6 +74,21 @@ export class MyUnitCube extends CGFobject {
             20, 21, 22,  20, 22, 23,  // Bottom
         ];
 
+        this.texCoords = [
+            // Front
+            0, 0,  1, 0,  1, 1,  0, 1,
+            // Back
+            0, 0,  1, 0,  1, 1,  0, 1,
+            // Left
+            0, 0,  1, 0,  1, 1,  0, 1,
+            // Right
+            0, 0,  1, 0,  1, 1,  0, 1,
+            // Top
+            0, 0,  1, 0,  1, 1,  0, 1,
+            // Bottom
+            0, 0,  1, 0,  1, 1,  0, 1,
+        ];
+
         this.primitiveType = this.scene.gl.TRIANGLES;
         this.initGLBuffers();
     }
