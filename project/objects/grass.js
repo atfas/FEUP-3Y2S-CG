@@ -1,26 +1,23 @@
 import { CGFobject } from '../../lib/CGF.js';
 
-// ── Tuning constants ──────────────────────────────────────────────────────────
+//  Tuning constants 
 const BLADES_PER_CLUMP = 100;     // triangles per clump (smaller = tighter, more distinct patches)
 const BLADE_WIDTH      = 0.0008; // base half-width of a blade (plane-local units)
 const BLADE_HEIGHT     = 0.006;  // base height of a blade (scaled by heightScale)
 const BASE_PINCH       = 0.3;    // fraction of hw used for base corners (0=point, 1=flat)
-const CLUMP_MARGIN     = 0.40;   // clump centres kept within ±this from origin
+const CLUMP_MARGIN     = 0.75;   // clump centres kept within ±this from origin
 const BLADE_LIMIT      = 0.70;   // individual blades hard-clamped to ±this
 const Z_OFFSET         = 0.025;  // tiny lift off the plane to avoid z-fighting
-// ─────────────────────────────────────────────────────────────────────────────
 
 /**
  * Grass
- * Scatters triangle-based grass clumps across the terrain plane.
  * Each clump is a fan of BLADES_PER_CLUMP slim triangles at varied angles,
- * producing a natural tuft look with no texture required.
- *
+ 
  * @param {CGFscene} scene       - MyScene reference
- * @param {number}   count       - number of grass clumps  (default 300)
- * @param {number}   seed        - RNG seed for deterministic layout (default 42)
- * @param {number}   heightScale - multiplier on blade height (default 1.0)
- * @param {number}   clumpSpread - how far blades scatter within a clump (default 20)
+ * @param {number}   count       - number of grass clumps
+ * @param {number}   seed        - RNG seed for deterministic layout
+ * @param {number}   heightScale - multiplier on blade height
+ * @param {number}   clumpSpread - how far blades scatter within a clump
  */
 export class Grass extends CGFobject {
 
@@ -33,22 +30,16 @@ export class Grass extends CGFobject {
         this.initBuffers();
     }
 
-    // ── Public API ────────────────────────────────────────────────────────────
-
     /** Regenerate GPU buffers after changing any parameter. */
     rebuild() {
         this.initBuffers();
     }
-
-    // ── RNG ───────────────────────────────────────────────────────────────────
 
     /** LCG pseudo-random number generator. Returns { val in [0,1), state }. */
     _rng(state) {
         state = (Math.imul(1664525, state) + 1013904223) >>> 0;
         return { val: state / 4294967296, state };
     }
-
-    // ── Buffer generation ─────────────────────────────────────────────────────
 
     initBuffers() {
         this.vertices  = [];
@@ -66,8 +57,8 @@ export class Grass extends CGFobject {
             rng = this._rng(rng.state); const v = rng.val;
 
             // Clump centre — kept inside CLUMP_MARGIN so edge blades don't pile up
-            const cx = (u - 0.5) * (CLUMP_MARGIN * 2);
-            const cy = (v - 0.5) * (CLUMP_MARGIN * 2);
+            const cx = (u - 0.5) * (CLUMP_MARGIN);
+            const cy = (v - 0.5) * (CLUMP_MARGIN);
 
             rng = this._rng(rng.state);
             const baseAngle  = rng.val * Math.PI;
@@ -76,7 +67,7 @@ export class Grass extends CGFobject {
             const clumpScale = 0.7 + rng.val * 0.8;  // [0.7 – 1.5]
 
             for (let b = 0; b < BLADES_PER_CLUMP; b++) {
-                // ── Per-blade randomness ──────────────────────────────────────
+                // Per-blade randomness
 
                 rng = this._rng(rng.state);
                 const jitter     = (rng.val - 0.5) * (Math.PI / BLADES_PER_CLUMP);
@@ -88,7 +79,7 @@ export class Grass extends CGFobject {
                 rng = this._rng(rng.state);
                 const lean       = (rng.val - 0.5) * BLADE_WIDTH * bladeScale * 4.0;
 
-                // ── Blade geometry ────────────────────────────────────────────
+                // Blade geometry
 
                 const cos = Math.cos(angle);
                 const sin = Math.sin(angle);
@@ -129,4 +120,5 @@ export class Grass extends CGFobject {
         this.primitiveType = this.scene.gl.TRIANGLES;
         this.initGLBuffers();
     }
+    
 }

@@ -79,9 +79,7 @@ export class MyScene extends CGFscene {
     // Grass shader
     this.grassShader = new CGFshader(this.gl, "shaders/grass.vert", "shaders/grass.frag");
 
-    // ── Grass GUI parameters ──────────────────────────────────────────────────
-    // These back the dat.GUI controls; setters trigger a rebuild() on the
-    // relevant Grass object so changes are reflected immediately.
+    // Grass GUI parameters
     this._liveCount       = 300;
     this._liveHeightScale = 0.8;
     this._liveSpread         = 50.0;
@@ -90,7 +88,6 @@ export class MyScene extends CGFscene {
     this._deadCount       = 150;
     this._deadHeightScale = 0.75;
     this._deadSpread      = 40.0;
-    // ─────────────────────────────────────────────────────────────────────────
 
     this.grass     = new Grass(this, this._liveCount, 42,  this._liveHeightScale, this._liveSpread, this._bladesPerClump);
     this.deadGrass = new Grass(this, this._deadCount, 137, this._deadHeightScale, this._deadSpread, this._bladesPerClump);
@@ -105,7 +102,7 @@ export class MyScene extends CGFscene {
     this.windStrength          = 0.5;
   }
 
-  // ── Grass property setters — each rebuilds the affected object ──────────────
+  // Grass property setters for each rebuilds the affected object 
 
   get liveCount()            { return this._liveCount; }
   set liveCount(v)           { this._liveCount = v;        if (this.grass)     { this.grass.count = v;            this.grass.rebuild(); } }
@@ -131,7 +128,6 @@ export class MyScene extends CGFscene {
     if (this.deadGrass) { this.deadGrass.bladesPerClump = v; this.deadGrass.rebuild(); }
   }
 
-  // ───────────────────────────────────────────────────────────────────────────
 
   initLights() {
     this.lights[0].setPosition(0, 10, 0, 1);
