@@ -29,8 +29,9 @@ export class MyScene extends CGFscene {
     this.sky = new Sphere(this, 64, 32, 0.5, true);
     this.sun = new Sphere(this, 16, 8, 1.0, false);
     this.terrain = new Plane(this, 5, 1, 0, 1);
-    this._placedObjects = [];
-    this.rocks = this._spawnRandom(100, (x, z) => new Rock(this, x, z));
+    this.rockCount   = 100;
+    this.flowerCount = 100;
+    this._regenerate();
 
     // Textures
     this.skyTexture = new CGFtexture(this,"textures/skyTex.png");
@@ -66,8 +67,6 @@ export class MyScene extends CGFscene {
     this.skyShader.setUniformsValues({ uSampler2: 1 , timeFactor: 0 , normScale: 1});
     this.rockShader = new CGFshader(this.gl, "shaders/rock.vert","shaders/rock.frag");
 
-    // Flora
-    this.flowers = this._spawnRandom(60, (x, z) => new Flower(this, x, z));
 
     // GUI parameters
     this.sunElevation  = 20;
@@ -80,6 +79,12 @@ export class MyScene extends CGFscene {
 
   }
   
+  _regenerate() {
+    this._placedObjects = [];
+    this.rocks   = this._spawnRandom(this.rockCount,   (x, z) => new Rock(this, x, z));
+    this.flowers = this._spawnRandom(this.flowerCount, (x, z) => new Flower(this, x, z));
+  }
+
   _spawnRandom(count, createFn) {
     const result = [];
     let attempts = 0;
