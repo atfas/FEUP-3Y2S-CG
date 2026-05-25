@@ -2,7 +2,7 @@ import { CGFscene, CGFcamera, CGFaxis, CGFappearance, CGFtexture, CGFshader } fr
 import { Sphere } from "./objects/sphere.js";
 import { Plane } from "./objects/plane.js";
 import { Wagon } from "./objects/wagon.js";
-import { WagonController } from "./WagonController.js";
+import { WagonController } from "./controllers/WagonController.js";
 
 export class MyScene extends CGFscene {
   constructor() {
