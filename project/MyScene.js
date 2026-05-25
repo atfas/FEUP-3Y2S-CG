@@ -24,7 +24,7 @@ export class MyScene extends CGFscene {
     this.enableTextures(true);
 
     this.axis = new CGFaxis(this);
-    
+
     this.sky     = new Sphere(this, 64, 32, 0.5, true);
     this.sun     = new Sphere(this, 16, 8,  1.0, false);
     this.terrain = new Plane(this, 50, 0, 30, 0, 30);
@@ -65,12 +65,7 @@ export class MyScene extends CGFscene {
 
     // Terrain shader
     this.terrainShader = new CGFshader(this.gl, "shaders/terrain.vert", "shaders/terrain.frag");
-    this.terrainShader.setUniformsValues({
-      uHeightMap:   1,
-      uPathMask:    2,
-      uPathTex:     3,
-      uHeightScale: 0.07
-    });
+    this.terrainShader.setUniformsValues({ uHeightMap: 1, uPathMask: 2, uPathTex: 3, uHeightScale: 0.07 });
 
     // Sky shader
     this.skyShader = new CGFshader(this.gl, "shaders/sky.vert", "shaders/sky.frag");
@@ -79,22 +74,16 @@ export class MyScene extends CGFscene {
     // Grass shader
     this.grassShader = new CGFshader(this.gl, "shaders/grass.vert", "shaders/grass.frag");
 
-    // ── Grass GUI parameters ──────────────────────────────────────────────────
-    // These back the dat.GUI controls; setters trigger a rebuild() on the
-    // relevant Grass object so changes are reflected immediately.
+    // Grass GUI backing fields
     this._liveCount       = 300;
     this._liveHeightScale = 1.0;
     this._liveSpread      = 75.0;
-
     this._deadCount       = 80;
-    this._deadHeightScale = 0.75;   // dead grass slightly shorter by default
+    this._deadHeightScale = 0.75;
     this._deadSpread      = 75.0;
-    // ─────────────────────────────────────────────────────────────────────────
 
-    this.grass     = null;
-    this.deadGrass = null;
-    this._pathMaskImg = null;
-    this._loadGrass();
+    this.grass     = new Grass(this, this._liveCount, 42, this._liveHeightScale, this._liveSpread);
+    this.deadGrass = new Grass(this, this._deadCount, 17, this._deadHeightScale, this._deadSpread);
 
     // GUI parameters
     this.sunElevation          = 20;
@@ -105,42 +94,27 @@ export class MyScene extends CGFscene {
     this.displaySunNormals     = false;
   }
 
-  // ── Grass property setters — each rebuilds the affected object ──────────────
+  // ── Grass setters — each triggers a rebuild on the affected object ──────────
 
-  get liveCount()            { return this._liveCount; }
-  set liveCount(v)           { this._liveCount = v;        if (this.grass)     { this.grass.count = v;            this.grass.rebuild(); } }
+  get liveCount()        { return this._liveCount; }
+  set liveCount(v)       { this._liveCount = v;       this.grass.count = v;           this.grass.rebuild(); }
 
-  get liveHeightScale()      { return this._liveHeightScale; }
-  set liveHeightScale(v)     { this._liveHeightScale = v;   if (this.grass)     { this.grass.heightScale = v;      this.grass.rebuild(); } }
+  get liveHeightScale()  { return this._liveHeightScale; }
+  set liveHeightScale(v) { this._liveHeightScale = v;  this.grass.heightScale = v;     this.grass.rebuild(); }
 
-  get liveSpread()           { return this._liveSpread; }
-  set liveSpread(v)          { this._liveSpread = v;        if (this.grass)     { this.grass.clumpSpread = v;      this.grass.rebuild(); } }
+  get liveSpread()       { return this._liveSpread; }
+  set liveSpread(v)      { this._liveSpread = v;       this.grass.clumpSpread = v;     this.grass.rebuild(); }
 
-  get deadCount()            { return this._deadCount; }
-  set deadCount(v)           { this._deadCount = v;         if (this.deadGrass) { this.deadGrass.count = v;        this.deadGrass.rebuild(); } }
+  get deadCount()        { return this._deadCount; }
+  set deadCount(v)       { this._deadCount = v;        this.deadGrass.count = v;       this.deadGrass.rebuild(); }
 
-  get deadHeightScale()      { return this._deadHeightScale; }
-  set deadHeightScale(v)     { this._deadHeightScale = v;   if (this.deadGrass) { this.deadGrass.heightScale = v;  this.deadGrass.rebuild(); } }
+  get deadHeightScale()  { return this._deadHeightScale; }
+  set deadHeightScale(v) { this._deadHeightScale = v;  this.deadGrass.heightScale = v; this.deadGrass.rebuild(); }
 
-  get deadSpread()           { return this._deadSpread; }
-  set deadSpread(v)          { this._deadSpread = v;        if (this.deadGrass) { this.deadGrass.clumpSpread = v;  this.deadGrass.rebuild(); } }
+  get deadSpread()       { return this._deadSpread; }
+  set deadSpread(v)      { this._deadSpread = v;       this.deadGrass.clumpSpread = v; this.deadGrass.rebuild(); }
 
   // ───────────────────────────────────────────────────────────────────────────
-
-  _loadGrass() {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => {
-      this._pathMaskImg = img;
-      this.grass     = new Grass(this, this._liveCount, img, 42, this._liveHeightScale, this._liveSpread);
-      this.deadGrass = new Grass(this, this._deadCount, img, 17, this._deadHeightScale, this._deadSpread);
-    };
-    img.onerror = () => {
-      this.grass     = new Grass(this, this._liveCount, null, 42, this._liveHeightScale, this._liveSpread);
-      this.deadGrass = new Grass(this, this._deadCount, null, 17, this._deadHeightScale, this._deadSpread);
-    };
-    img.src = "textures/path1.png";
-  }
 
   initLights() {
     this.lights[0].setPosition(0, 10, 0, 1);
@@ -193,7 +167,6 @@ export class MyScene extends CGFscene {
   drawSky() {
     const cx = this.camera.position[0];
     const cz = this.camera.position[2];
-
     this.setActiveShader(this.skyShader);
     this.pushMatrix();
       this.skyAppearance.apply();
@@ -208,13 +181,11 @@ export class MyScene extends CGFscene {
     const cx = this.camera.position[0];
     const cz = this.camera.position[2];
     const [sx, sy, sz] = this.getSunDirection();
-
     this.setActiveShader(this.defaultShader);
     this.sunAppearance.apply();
     this.pushMatrix();
       const sunDist = 190;
-      const sunY = sy * sunDist - 10;
-      this.translate(cx + sx * sunDist, sunY, cz + sz * sunDist);
+      this.translate(cx + sx * sunDist, sy * sunDist - 10, cz + sz * sunDist);
       this.scale(8, 8, 8);
       this.sun.display();
     this.popMatrix();
@@ -233,13 +204,7 @@ export class MyScene extends CGFscene {
     this.hillMap.bind(1);
     this.pathMask.bind(2);
     this.pathTex.bind(3);
-
-    this.terrainShader.setUniformsValues({
-      uHeightMap: 1,
-      uPathMask:  2,
-      uPathTex:   3,
-      uSunDir:    sunDir,
-    });
+    this.terrainShader.setUniformsValues({ uHeightMap: 1, uPathMask: 2, uPathTex: 3, uSunDir: sunDir });
 
     this.pushMatrix();
       this.translate(cx, -10, cz);
@@ -252,13 +217,10 @@ export class MyScene extends CGFscene {
     this.lights[1].enable();
     this.lights[0].update();
     this.lights[1].update();
-
     this.setActiveShader(this.defaultShader);
   }
 
   drawGrass() {
-    if (!this.grass) return;
-
     const cx = this.camera.position[0];
     const cz = this.camera.position[2];
     const sunDir = this.getSunDirection();
@@ -269,7 +231,6 @@ export class MyScene extends CGFscene {
 
     this.setActiveShader(this.grassShader);
 
-    // — Living green grass —
     this.grassShader.setUniformsValues({ uSunDir: sunDir, uDeadGrass: 0.0 });
     this.pushMatrix();
       this.translate(cx, -10, cz);
@@ -278,20 +239,16 @@ export class MyScene extends CGFscene {
       this.grass.display();
     this.popMatrix();
 
-    // — Dead brown grass —
-    if (this.deadGrass) {
-      this.grassShader.setUniformsValues({ uSunDir: sunDir, uDeadGrass: 1.0 });
-      this.pushMatrix();
-        this.translate(cx, -10, cz);
-        this.scale(400, 400, 400);
-        this.rotate(-Math.PI / 2, 1, 0, 0);
-        this.deadGrass.display();
-      this.popMatrix();
-    }
+    this.grassShader.setUniformsValues({ uSunDir: sunDir, uDeadGrass: 1.0 });
+    this.pushMatrix();
+      this.translate(cx, -10, cz);
+      this.scale(400, 400, 400);
+      this.rotate(-Math.PI / 2, 1, 0, 0);
+      this.deadGrass.display();
+    this.popMatrix();
 
     this.gl.disable(this.gl.BLEND);
     this.gl.enable(this.gl.CULL_FACE);
-
     this.setActiveShader(this.defaultShader);
   }
 
