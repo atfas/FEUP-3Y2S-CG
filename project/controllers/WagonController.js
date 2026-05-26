@@ -19,17 +19,18 @@ export class WagonController {
             this.keys['KeyD'] || false,
         );
 
-        const wx = this.wagon.posX;
-        const wz = this.wagon.posZ;
+        const scale = 3;
+        const wx = this.wagon.posX * scale;
+        const wz = this.wagon.posZ * scale;
         const wa = this.wagon.angle;
-        const followDist   = 10;
-        const followHeight = 4;
+        const followDist   = 10*scale;
+        const followHeight = 4*scale;
         this.wagonCamera.setPosition(vec3.fromValues(
             wx + Math.sin(wa) * followDist,
             followHeight,
             wz - Math.cos(wa) * followDist,
         ));
-        this.wagonCamera.setTarget(vec3.fromValues(wx, 1.5, wz));
+        this.wagonCamera.setTarget(vec3.fromValues(wx, 1.5*scale, wz));
     }
 
     get activeCamera() {

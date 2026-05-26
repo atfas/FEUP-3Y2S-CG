@@ -337,7 +337,7 @@ export class MyScene extends CGFscene {
 
   drawWagon(){
     this.pushMatrix();
-      this.scale(5,5,5);
+      this.scale(3,3,3);
       this.wagon.display();
     this.popMatrix();
   }
