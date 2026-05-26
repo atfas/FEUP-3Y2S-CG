@@ -223,20 +223,20 @@ export class MyScene extends CGFscene {
     this.setShininess(10.0);
   }
 
-  drawSky() {
-    const cx = this.camera.position[0];
-    const cz = this.camera.position[2];
 
+  drawSky() {
+    // const cx = this.camera.position[0];
+    // const cz = this.camera.position[2];
     this.setActiveShader(this.skyShader);
     this.pushMatrix();
       this.skyAppearance.apply();
-      this.translate(cx, -10, cz);
+      this.translate(0, -10, 0);
+      // this.translate(cx, -10, cz);
       this.scale(200, 200, 200);
       this.rotate(-Math.PI / 2, 1, 0, 0);
       this.sky.display();
     this.popMatrix();
   }
-
   drawSun() {
     const [sx, sy, sz] = this.getSunDirection();
     const cx = this.camera.position[0];
