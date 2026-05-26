@@ -261,7 +261,7 @@ export class MyScene extends CGFscene {
 
     this.setActiveShader(this.grassShader);
 
-    // — Living green grass —
+    // Living green grass
     this.grassShader.setUniformsValues({ uSunDir: sunDir, uDeadGrass: 0.0 });
     this.pushMatrix();
       this.translate(cx, -10, cz);
@@ -270,7 +270,7 @@ export class MyScene extends CGFscene {
       this.grass.display();
     this.popMatrix();
 
-    // — Dead brown grass —
+    // Dead brown grass
     if (this.deadGrass) {
       this.grassShader.setUniformsValues({ uSunDir: sunDir, uDeadGrass: 1.0 });
       this.pushMatrix();
@@ -293,26 +293,22 @@ drawBarn() {
   const cx = this.camera.position[0];
   const cz = this.camera.position[2];
 
-  const BARN_U     =  0.05;
-  const BARN_V     =  0.04;
-  const BARN_SCALE =  0.025;
-
+  const BARN_SCALE = 10;
+  const BARN_X = cx + 30;   
+  const BARN_Y = 2;     
+  const BARN_Z = cz +10;  
   this.setActiveShader(this.defaultShader);
+
+  // Enable GL_NORMALIZE so normals stay unit-length after scaling.
+  this.gl.enable(this.gl.NORMALIZE);
+
   this.pushMatrix();
-    // Match terrain base transform
-    this.translate(cx - 5, 2, cz - 30);
-    this.scale(400, 400, 400);
-    this.rotate(-Math.PI / 2, 1 , 0, 0);
-
-    // Place in plane-local UV space
-    this.translate(BARN_U, BARN_V, 0);
-
-    // *** Undo the terrain rotation so the barn stands upright ***
-    this.rotate(Math.PI / 2, 1, 0, 0);
-
+    this.translate(BARN_X, BARN_Y, BARN_Z);
     this.scale(BARN_SCALE, BARN_SCALE, BARN_SCALE);
     this.barn.display();
   this.popMatrix();
+
+  this.gl.disable(this.gl.NORMALIZE);
 }
 
   display() {

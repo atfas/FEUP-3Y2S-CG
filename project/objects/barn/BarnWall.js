@@ -34,17 +34,17 @@ export class BarnWall extends CGFobject {
         ];
 
         this.texCoords = [
-            0, 1,  
-            1, 1,  
-            1, 0,  
-            0, 0,
-        ];
+    0,1,
+    3,1,
+    3,0,
+    0,0,
+];
 
         this.indices = [
             0, 1, 2,  
             0, 2, 3,   // front
             2, 1, 0, 
-            3, 2, 0,   // back (flipped)
+            3, 2, 0,   // back
         ];
 
         this.primitiveType = this.scene.gl.TRIANGLES;
