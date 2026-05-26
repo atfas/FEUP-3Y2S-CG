@@ -114,7 +114,7 @@ export class MyScene extends CGFscene {
     this.deadGrass = new Grass(this, this._deadCount, 137, this._deadHeightScale, this._deadSpread, this._bladesPerClump);
 
     // GUI parameters
-    this.sunElevation          = 20;
+    this.sunElevation          = 40;
     this.sunDegree             = 180;
     this.displayAxis           = false;
     this.displaySkyNormals     = false;
