@@ -233,12 +233,14 @@ export class MyScene extends CGFscene {
 
   drawSun() {
     const [sx, sy, sz] = this.getSunDirection();
+    const cx = this.camera.position[0];
+    const cz = this.camera.position[2];
 
     this.setActiveShader(this.defaultShader);
     this.sunAppearance.apply();
     this.pushMatrix();
       const sunDist = 190;
-      this.translate(sx * sunDist, sy * sunDist, sz * sunDist);
+      this.translate(cx + sx * sunDist, sy * sunDist, cz + sz * sunDist);
       this.scale(8, 8, 8);
       this.sun.display();
     this.popMatrix();
