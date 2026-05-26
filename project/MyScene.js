@@ -5,6 +5,7 @@ import { Wagon } from "./objects/wagon.js";
 import { WagonController } from "./controllers/WagonController.js";
 import { Grass } from "./objects/grass.js";
 import { Barn } from "./objects/barn/barn.js";
+import { HayBales } from "./objects/hayBales.js";
 
 export class MyScene extends CGFscene {
   constructor() {
@@ -33,6 +34,9 @@ export class MyScene extends CGFscene {
     this.terrain = new Plane(this, 50, 0, 30, 0, 30);
 
     this.barn = new Barn(this);
+
+    this._baleCount = 8;
+    this.hayBales   = new HayBales(this, this._baleCount, 77);
 
     // Textures
     this.skyTexture     = new CGFtexture(this, "textures/skyTex.png");
@@ -150,6 +154,8 @@ export class MyScene extends CGFscene {
     if (this.deadGrass) { this.deadGrass.bladesPerClump = v; this.deadGrass.rebuild(); }
   }
 
+  get baleCount()  { return this._baleCount; }
+  set baleCount(v) { this._baleCount = v; if (this.hayBales) { this.hayBales.count = v; this.hayBales.rebuild(); } }
 
   initLights() {
     this.lights[0].setPosition(0, 10, 0, 1);
@@ -344,6 +350,11 @@ export class MyScene extends CGFscene {
     this.popMatrix();
   }
 
+  drawHayBales() {
+     if (!this.hayBales) return;
+     this.setActiveShader(this.defaultShader);
+     this.hayBales.display();
+  }
 
   display() {
     this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
@@ -360,6 +371,7 @@ export class MyScene extends CGFscene {
     this.drawSun();
     this.drawBarn();
     this.drawWagon();
+    this.drawHayBales();
 
     for (const [obj, show] of [
       [this.sky,     this.displaySkyNormals],

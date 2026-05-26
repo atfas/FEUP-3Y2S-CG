@@ -44,6 +44,9 @@ export class MyInterface extends CGFinterface {
     grassFolder.add(this.scene, 'windStrength', 0.0, 2.0).name("Wind Strength");
     grassFolder.open();
 
+    const balesFolder = this.gui.addFolder('Hay Bales');
+    balesFolder.add(this.scene, 'baleCount', 1, 20, 1).name("Count");
+    balesFolder.open();
     return true;
   }
 
