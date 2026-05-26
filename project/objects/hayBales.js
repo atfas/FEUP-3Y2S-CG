@@ -1,5 +1,5 @@
 import { CGFobject } from '../../lib/CGF.js';
-import { HayBale } from './HayBale.js';
+import { HayBale } from './hayBale.js';
 
 // ── Placement constants (all in world units) ──────────────────────────────────
 
