@@ -33,7 +33,7 @@ export class MyScene extends CGFscene {
     this.sky     = new Sphere(this, 64, 32, 0.5, true);
     this.sun     = new Sphere(this, 16, 8,  1.0, false);
     this.terrain = new Plane(this, 50, 0, 30, 0, 30);
-    this.rockCount   = 100;
+    this.rockCount   = 50;
     this.flowerCount = 100;
     this._regenerate();
 

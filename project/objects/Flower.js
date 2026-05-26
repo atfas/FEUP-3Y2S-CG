@@ -8,10 +8,10 @@ export class Flower extends CGFobject {
         this.x = x;
         this.y = 0;
         this.z = z;
-        this.scale = 0.5;
+        this.scale = 2.5;
         this.r = 0.4;
         this.rotY = Math.random() * 2 * Math.PI;
-        this.petalCount = 4 + Math.floor(Math.random() * 4);
+        this.petalCount = 6 + Math.floor(Math.random() * 4);
         this._petalColor = [Math.random(), Math.random(), Math.random()];
 
         this._stem   = new Sphere(scene, 8, 8, 1.0, false);
