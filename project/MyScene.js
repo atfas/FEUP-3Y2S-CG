@@ -6,6 +6,8 @@ import { WagonController } from "./controllers/WagonController.js";
 import { Grass } from "./objects/grass.js";
 import { Barn } from "./objects/barn/barn.js";
 import { HayBales } from "./objects/hayBales.js";
+import { Flower } from "./objects/Flower.js";
+import { Rock } from "./objects/Rock.js";
 
 export class MyScene extends CGFscene {
   constructor() {
@@ -32,6 +34,8 @@ export class MyScene extends CGFscene {
     this.sky     = new Sphere(this, 64, 32, 0.5, true);
     this.sun     = new Sphere(this, 16, 8,  1.0, false);
     this.terrain = new Plane(this, 50, 0, 30, 0, 30);
+    this.rockCount   = 50;
+    this.flowerCount = 100;
 
     this.barn = new Barn(this);
 
@@ -46,6 +50,7 @@ export class MyScene extends CGFscene {
     this.pathMask       = new CGFtexture(this, "textures/path1.png");
     this.pathTex        = new CGFtexture(this, "textures/pathTex.jpg");
     this.woodTexture    = new CGFtexture(this, "textures/wood.jpg");
+    this.rockTexture = new CGFtexture(this, "textures/rock.jpg");
 
     // Wood Material
     this.woodAppearance = new CGFappearance(this);
@@ -57,6 +62,8 @@ export class MyScene extends CGFscene {
 
     this.wagon = new Wagon(this);
     this.wagonController = new WagonController(this.wagon, this.freeCamera, this.wagonCamera);
+
+    this._regenerate();
 
     // Sky Appearance
     this.skyAppearance = new CGFappearance(this);
@@ -96,6 +103,9 @@ export class MyScene extends CGFscene {
     // Sky shader
     this.skyShader = new CGFshader(this.gl, "shaders/sky.vert", "shaders/sky.frag");
     this.skyShader.setUniformsValues({ uSampler2: 1, timeFactor: 0, normScale: 1 });
+    
+    // Rock shader
+    this.rockShader = new CGFshader(this.gl, "shaders/rock.vert","shaders/rock.frag");
 
     // Wood shader
     this.woodShader = new CGFshader(this.gl, "shaders/wood.vert", "shaders/wood.frag");
@@ -125,9 +135,61 @@ export class MyScene extends CGFscene {
     this.displayTerrainNormals = false;
     this.displaySunNormals     = false;
     this.displayWagonNormals   = false;
+    this.displayRockNormals    = false;
     this.windStrength          = 0.5;
   }
+  
+  _regenerate() {
+    this._placedObjects = [
+      { x: this.barn.x,    z: this.barn.z,    r: this.barn.r },
+      { x: this.wagon.posX, z: this.wagon.posZ, r: this.wagon.r },
+    ];
+    this.rocks   = this._spawnRandom(this.rockCount,   (x, z) => new Rock(this, x, z));
+    this.flowers = this._spawnRandom(this.flowerCount, (x, z) => new Flower(this, x, z));
+  }
 
+  _spawnRandom(count, createFn) {
+    const result = [];
+    let attempts = 0;
+    while (result.length < count && attempts < count * 10) {
+      attempts++;
+      const a = Math.random() * 2 * Math.PI;
+      const x = Math.cos(a) * Math.random() * 200;
+      const z = Math.sin(a) * Math.random() * 200;
+      const obj = createFn(x, z);
+      if (this._placedObjects.some(o => Math.hypot(x - o.x, z - o.z) < o.r + obj.r)) continue;
+      this._placedObjects.push({ x, z, r: obj.r });
+      result.push(obj);
+    }
+    return result;
+  }
+
+  drawRocks() {
+    this.setActiveShader(this.rockShader);
+    this.rockTexture.bind(0);
+    this.rockShader.setUniformsValues({ uSampler: 0, uSunDir: this.getSunDirection() });
+    for (const rock of this.rocks) {
+      this.pushMatrix();
+        this.translate(rock.x, rock.y, rock.z);
+        rock.display();
+      this.popMatrix();
+    }
+  }
+
+  drawFlora() {
+    this.setActiveShader(this.defaultShader);
+    for (const f of this.flowers) {
+      this.pushMatrix();
+        this.translate(f.x, f.y, f.z);
+        this.scale(f.scale, f.scale, f.scale);
+        this.rotate(f.rotY, 0, 1, 0);
+        f.display();
+      this.popMatrix();
+    }
+  }
+
+
+  
   // Grass property setters for each rebuilds the affected object
 
   get liveCount()            { return this._liveCount; }
@@ -326,17 +388,13 @@ export class MyScene extends CGFscene {
   drawBarn() {
     if (!this.barn) return;
 
-    const BARN_SCALE = 10;
-    const BARN_X = 30;
-    const BARN_Y = 2;
-    const BARN_Z = 10;
     this.setActiveShader(this.defaultShader);
-
     this.gl.enable(this.gl.NORMALIZE);
 
+    const { x, y, z, scale } = this.barn;
     this.pushMatrix();
-      this.translate(BARN_X, BARN_Y, BARN_Z);
-      this.scale(BARN_SCALE, BARN_SCALE, BARN_SCALE);
+      this.translate(x, y, z);
+      this.scale(scale, scale, scale);
       this.barn.display();
     this.popMatrix();
 
@@ -344,8 +402,9 @@ export class MyScene extends CGFscene {
   }
 
   drawWagon(){
+    const scale = this.wagon.scale;
     this.pushMatrix();
-      this.scale(3,3,3);
+      this.scale(scale, scale, scale);
       this.wagon.display();
     this.popMatrix();
   }
@@ -372,7 +431,10 @@ export class MyScene extends CGFscene {
     this.drawBarn();
     this.drawWagon();
     this.drawHayBales();
-
+    this.drawFlora();
+    this.drawRocks();
+    
+    // Normals display
     for (const [obj, show] of [
       [this.sky,     this.displaySkyNormals],
       [this.terrain, this.displayTerrainNormals],
@@ -381,5 +443,7 @@ export class MyScene extends CGFscene {
     ]) {
       show ? obj.enableNormalViz() : obj.disableNormalViz();
     }
+    for (const rock of this.rocks)
+      this.displayRockNormals ? rock.enableNormalViz() : rock.disableNormalViz();
   }
 }
