@@ -35,7 +35,6 @@ export class MyScene extends CGFscene {
     this.terrain = new Plane(this, 50, 0, 30, 0, 30);
     this.rockCount   = 50;
     this.flowerCount = 100;
-    this._regenerate();
 
     this.barn = new Barn(this);
 
@@ -59,6 +58,8 @@ export class MyScene extends CGFscene {
 
     this.wagon = new Wagon(this);
     this.wagonController = new WagonController(this.wagon, this.freeCamera, this.wagonCamera);
+
+    this._regenerate();
 
     // Sky Appearance
     this.skyAppearance = new CGFappearance(this);
@@ -135,7 +136,10 @@ export class MyScene extends CGFscene {
   }
   
   _regenerate() {
-    this._placedObjects = [];
+    this._placedObjects = [
+      { x: this.barn.x,    z: this.barn.z,    r: this.barn.r },
+      { x: this.wagon.posX, z: this.wagon.posZ, r: this.wagon.r },
+    ];
     this.rocks   = this._spawnRandom(this.rockCount,   (x, z) => new Rock(this, x, z));
     this.flowers = this._spawnRandom(this.flowerCount, (x, z) => new Flower(this, x, z));
   }
@@ -378,17 +382,13 @@ export class MyScene extends CGFscene {
   drawBarn() {
     if (!this.barn) return;
 
-    const BARN_SCALE = 10;
-    const BARN_X = 30;
-    const BARN_Y = 2;
-    const BARN_Z = 10;
     this.setActiveShader(this.defaultShader);
-
     this.gl.enable(this.gl.NORMALIZE);
 
+    const { x, y, z, scale } = this.barn;
     this.pushMatrix();
-      this.translate(BARN_X, BARN_Y, BARN_Z);
-      this.scale(BARN_SCALE, BARN_SCALE, BARN_SCALE);
+      this.translate(x, y, z);
+      this.scale(scale, scale, scale);
       this.barn.display();
     this.popMatrix();
 
@@ -396,8 +396,9 @@ export class MyScene extends CGFscene {
   }
 
   drawWagon(){
+    const scale = this.wagon.scale;
     this.pushMatrix();
-      this.scale(3,3,3);
+      this.scale(scale, scale, scale);
       this.wagon.display();
     this.popMatrix();
   }

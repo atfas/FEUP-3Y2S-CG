@@ -11,8 +11,15 @@ const B_ROOF_H = 0.55;
 const B_OVHG   = 0.12;
 
 export class Barn extends CGFobject {
-    constructor(scene) {
+    constructor(scene, x = 30, y = 2, z = 10, scale = 10) {
         super(scene);
+
+        this.x     = x;
+        this.y     = y;
+        this.z     = z;
+        this.scale = scale;
+        this.r     = Math.hypot(B_WIDTH, B_DEPTH) * scale;
+
         this._buildParts();
         this._buildAppearances();
     }

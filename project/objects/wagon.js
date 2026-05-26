@@ -19,6 +19,8 @@ export class Wagon extends CGFobject {
         this.posX  = 0;
         this.posZ  = 0;
         this.angle = 0;
+        this.scale = 3;
+        this.r     = Math.hypot(1.5, 1.1) * this.scale;
 
         // Motion state
         this.speed      = 0;   // units/s
