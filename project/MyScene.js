@@ -26,7 +26,7 @@ export class MyScene extends CGFscene {
     this.gl.enable(this.gl.CULL_FACE);
     this.gl.depthFunc(this.gl.LEQUAL);
 
-    this.setUpdatePeriod(50);
+    this.setUpdatePeriod(1);
     this.enableTextures(true);
 
     this.axis = new CGFaxis(this);
@@ -108,6 +108,7 @@ export class MyScene extends CGFscene {
     this.rockShader = new CGFshader(this.gl, "shaders/rock.vert","shaders/rock.frag");
 
     // Wood shader
+    const initialSunDir = this.getSunDirection();
     this.woodShader = new CGFshader(this.gl, "shaders/wood.vert", "shaders/wood.frag");
     this.woodShader.setUniformsValues({ uSunDirection: this.getSunDirection() });
 
@@ -137,8 +138,15 @@ export class MyScene extends CGFscene {
     this.displayWagonNormals   = false;
     this.displayRockNormals    = false;
     this.windStrength          = 0.5;
+
+    // uniform values
+    this._uSkyTime   = { timeFactor: 0 };
+    this._uGrassWind = { uTime: 0, uWindStrength: this.windStrength };
+    this._uTerrainLighting  = { uSunDir: initialSunDir };
+    this._uGrassLive = { uSunDir: initialSunDir, uDeadGrass: 0.0 };
+    this._uGrassDead = { uSunDir: initialSunDir, uDeadGrass: 1.0 };
+    this._uRock      = { uSampler: 0, uSunDir: initialSunDir };
   }
-  
   _regenerate() {
     this._placedObjects = [
       { x: this.barn.x,    z: this.barn.z,    r: this.barn.r },
@@ -165,9 +173,10 @@ export class MyScene extends CGFscene {
   }
 
   drawRocks() {
-    this.setActiveShader(this.rockShader);
+    this.setActiveShaderSimple(this.rockShader);
     this.rockTexture.bind(0);
-    this.rockShader.setUniformsValues({ uSampler: 0, uSunDir: this.getSunDirection() });
+    this._uRock.uSunDir = this.getSunDirection();
+    this.rockShader.setUniformsValues(this._uRock);
     for (const rock of this.rocks) {
       this.pushMatrix();
         this.translate(rock.x, rock.y, rock.z);
@@ -177,7 +186,7 @@ export class MyScene extends CGFscene {
   }
 
   drawFlora() {
-    this.setActiveShader(this.defaultShader);
+    this.setActiveShaderSimple(this.defaultShader);
     for (const f of this.flowers) {
       this.pushMatrix();
         this.translate(f.x, f.y, f.z);
@@ -271,8 +280,9 @@ export class MyScene extends CGFscene {
     const [sx, sy, sz] = this.getSunDirection();
     this.lights[1].setPosition(sx, sy, sz, 0);
     this.lights[1].update();
-    this.skyShader.setUniformsValues({ timeFactor: t / 8000 % 100 });
-    this.grassShader.setUniformsValues({ uTime: (t / 1000) % 1000, uWindStrength: this.windStrength });
+    this._uSkyTime.timeFactor = t / 8000 % 100;
+    this._uGrassWind.uTime = (t / 1000) % 1000;
+    this._uGrassWind.uWindStrength = this.windStrength;
 
     this.wagonController.update(dt);
     this.camera = this.wagonController.activeCamera;
@@ -287,13 +297,11 @@ export class MyScene extends CGFscene {
 
 
   drawSky() {
-    // const cx = this.camera.position[0];
-    // const cz = this.camera.position[2];
-    this.setActiveShader(this.skyShader);
+    this.setActiveShaderSimple(this.skyShader);
+    this.skyShader.setUniformsValues(this._uSkyTime);
     this.pushMatrix();
       this.skyAppearance.apply();
       this.translate(0, -10, 0);
-      // this.translate(cx, -10, cz);
       this.scale(200, 200, 200);
       this.rotate(-Math.PI / 2, 1, 0, 0);
       this.sky.display();
@@ -304,7 +312,7 @@ export class MyScene extends CGFscene {
     const cx = this.camera.position[0];
     const cz = this.camera.position[2];
 
-    this.setActiveShader(this.defaultShader);
+    this.setActiveShaderSimple(this.defaultShader);
     this.sunAppearance.apply();
     this.pushMatrix();
       const sunDist = 190;
@@ -320,18 +328,14 @@ export class MyScene extends CGFscene {
 
     const sunDir = this.getSunDirection();
 
-    this.setActiveShader(this.terrainShader);
+    this.setActiveShaderSimple(this.terrainShader);
     this.terrainAppearance.apply();
     this.hillMap.bind(1);
     this.pathMask.bind(2);
     this.pathTex.bind(3);
 
-    this.terrainShader.setUniformsValues({
-      uHeightMap: 1,
-      uPathMask:  2,
-      uPathTex:   3,
-      uSunDir:    sunDir,
-    });
+    this._uTerrainLighting.uSunDir = sunDir;
+    this.terrainShader.setUniformsValues(this._uTerrainLighting );
 
     this.pushMatrix();
       this.translate(0, -10, 0);
@@ -345,7 +349,7 @@ export class MyScene extends CGFscene {
     this.lights[0].update();
     this.lights[1].update();
 
-    this.setActiveShader(this.defaultShader);
+    this.setActiveShaderSimple(this.defaultShader);
   }
 
   drawGrass() {
@@ -357,10 +361,12 @@ export class MyScene extends CGFscene {
     this.gl.enable(this.gl.BLEND);
     this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
 
-    this.setActiveShader(this.grassShader);
+    this.setActiveShaderSimple(this.grassShader);
+    this.grassShader.setUniformsValues(this._uGrassWind);
 
     // Living green grass
-    this.grassShader.setUniformsValues({ uSunDir: sunDir, uDeadGrass: 0.0 });
+    this._uGrassLive.uSunDir = sunDir;
+    this.grassShader.setUniformsValues(this._uGrassLive);
     this.pushMatrix();
       this.translate(0, -10, 0);
       this.scale(400, 400, 400);
@@ -370,7 +376,8 @@ export class MyScene extends CGFscene {
 
     // Dead brown grass
     if (this.deadGrass) {
-      this.grassShader.setUniformsValues({ uSunDir: sunDir, uDeadGrass: 1.0 });
+      this._uGrassDead.uSunDir = sunDir;
+      this.grassShader.setUniformsValues(this._uGrassDead);
       this.pushMatrix();
         this.translate(0, -10, 0);
         this.scale(400, 400, 400);
@@ -382,13 +389,13 @@ export class MyScene extends CGFscene {
     this.gl.disable(this.gl.BLEND);
     this.gl.enable(this.gl.CULL_FACE);
 
-    this.setActiveShader(this.defaultShader);
+    this.setActiveShaderSimple(this.defaultShader);
   }
 
   drawBarn() {
     if (!this.barn) return;
 
-    this.setActiveShader(this.defaultShader);
+    this.setActiveShaderSimple(this.defaultShader);
     this.gl.enable(this.gl.NORMALIZE);
 
     const { x, y, z, scale } = this.barn;
@@ -411,7 +418,7 @@ export class MyScene extends CGFscene {
 
   drawHayBales() {
      if (!this.hayBales) return;
-     this.setActiveShader(this.defaultShader);
+     this.setActiveShaderSimple(this.defaultShader);
      this.hayBales.display();
   }
 
