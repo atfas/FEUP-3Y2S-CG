@@ -221,11 +221,20 @@ export class MyScene extends CGFscene {
   _spawnRandom(count, createFn) {
     const result = [];
     let attempts = 0;
+    
+    // 120 keeps objects perfectly distributed across the flat valley 
+    // right up until the mountains start climbing around 130!
+    const MAX_RADIUS = 140; 
+
     while (result.length < count && attempts < count * 10) {
       attempts++;
       const a = Math.random() * 2 * Math.PI;
-      const x = Math.cos(a) * Math.random() * 60;
-      const z = Math.sin(a) * Math.random() * 60;
+      
+      // Scale up the uniform distance distribution to our new maximum boundary
+      const r = Math.sqrt(Math.random()) * MAX_RADIUS; 
+      const x = Math.cos(a) * r;
+      const z = Math.sin(a) * r;
+
       const obj = createFn(x, z);
       if (this._placedObjects.some(o => Math.hypot(x - o.x, z - o.z) < o.r + obj.r)) continue;
       this._placedObjects.push({ x, z, r: obj.r });
@@ -233,6 +242,7 @@ export class MyScene extends CGFscene {
     }
     return result;
   }
+
 
   drawRocks() {
     this.setActiveShader(this.rockShader);
@@ -480,7 +490,7 @@ export class MyScene extends CGFscene {
 
     // 1. Barn Drop-Off Indicator Zone
     this.pushMatrix();
-      this.translate(this.barnRingX, 0.26, this.barnRingZ); // Placed slightly above ground floor to avoid flickering
+      this.translate(this.barnRingX, 2, this.barnRingZ); // Placed slightly above ground floor to avoid flickering
       this.scale(this.barnRingRadius, 0.01, this.barnRingRadius); 
       
       if (this.isInsideRing) {
