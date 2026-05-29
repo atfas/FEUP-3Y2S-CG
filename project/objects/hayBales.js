@@ -1,5 +1,5 @@
 import { CGFobject } from '../../lib/CGF.js';
-import { HayBale } from './HayBale.js';
+import { HayBale } from './hayBale.js';
 
 const SPAWN_LIMIT = 110;          // bales kept within ±this on X and Z
 
