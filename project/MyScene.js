@@ -37,10 +37,34 @@ export class MyScene extends CGFscene {
     this.rockCount   = 50;
     this.flowerCount = 100;
 
+    // --- Barn Setup ---
     this.barn = new Barn(this);
+    this.barn.x = 0;
+    this.barn.z = 30;
+    this.barn.r = 8; 
+    
+    // Barn proximity ring properties
+    this.barnRingX = this.barn.x;
+    this.barnRingZ = this.barn.z - 12; 
+    this.barnRingRadius = 8.0;
+    this.isInsideRing = false;
 
+    // --- HayBales Setup ---
     this._baleCount = 8;
     this.hayBales   = new HayBales(this, this._baleCount, 77);
+
+    // ==================== GAME MECHANICS STATE ====================
+    this.hp = 100;
+    this.instantDamage = 0;
+    this.instantHeal = 0;
+    this.balesDropped = 0;
+    this.score = 0; 
+    this.gameOver = false;
+    
+    this.collectedBalesCount = 0; 
+    this.lastSecondTime = 0;
+    this.cooldowns = {}; 
+    // ==============================================================
 
     // Textures
     this.skyTexture     = new CGFtexture(this, "textures/skyTex.png");
@@ -50,9 +74,8 @@ export class MyScene extends CGFscene {
     this.pathMask       = new CGFtexture(this, "textures/path1.png");
     this.pathTex        = new CGFtexture(this, "textures/pathTex.jpg");
     this.woodTexture    = new CGFtexture(this, "textures/wood.jpg");
-    this.rockTexture = new CGFtexture(this, "textures/rock.jpg");
+    this.rockTexture    = new CGFtexture(this, "textures/rock.jpg");
 
-    // Wood Material
     this.woodAppearance = new CGFappearance(this);
     this.woodAppearance.setAmbient(0.35, 0.22, 0.10, 1.0);
     this.woodAppearance.setDiffuse(0.55, 0.35, 0.16, 1.0);
@@ -61,11 +84,15 @@ export class MyScene extends CGFscene {
     this.woodAppearance.setTextureWrap('REPEAT', 'REPEAT');
 
     this.wagon = new Wagon(this);
+    this.wagon.posX = 0;
+    this.wagon.posZ = 0;
+    this.wagon.r = 2.5; 
+
     this.wagonController = new WagonController(this.wagon, this.freeCamera, this.wagonCamera);
 
     this._regenerate();
 
-    // Sky Appearance
+    // Appearances Setup
     this.skyAppearance = new CGFappearance(this);
     this.skyAppearance.setEmission(1, 1, 1, 1);
     this.skyAppearance.setAmbient(0.0, 0.0, 0.0, 1.0);
@@ -73,16 +100,13 @@ export class MyScene extends CGFscene {
     this.skyAppearance.setSpecular(0.0, 0.0, 0.0, 1.0);
     this.skyAppearance.setTexture(this.skyTexture);
     this.skyAppearance.setTextureWrap('REPEAT', 'REPEAT');
-    this.skyMap.bind(1);
 
-    // Sun Appearance
     this.sunAppearance = new CGFappearance(this);
     this.sunAppearance.setEmission(1.0, 0.95, 0.5, 1.0);
     this.sunAppearance.setAmbient(1.0, 0.95, 0.5, 1.0);
     this.sunAppearance.setDiffuse(0.0, 0.0, 0.0, 1.0);
     this.sunAppearance.setSpecular(0.0, 0.0, 0.0, 1.0);
 
-    // Terrain Appearance
     this.terrainAppearance = new CGFappearance(this);
     this.terrainAppearance.setAmbient(0.3, 0.3, 0.3, 1.0);
     this.terrainAppearance.setDiffuse(0.8, 0.8, 0.8, 1.0);
@@ -91,7 +115,6 @@ export class MyScene extends CGFscene {
     this.terrainAppearance.setTexture(this.terrainTexture);
     this.terrainAppearance.setTextureWrap('REPEAT', 'REPEAT');
 
-    // Terrain shader
     this.terrainShader = new CGFshader(this.gl, "shaders/terrain.vert", "shaders/terrain.frag");
     this.terrainShader.setUniformsValues({
       uHeightMap:   1,
@@ -100,21 +123,16 @@ export class MyScene extends CGFscene {
       uHeightScale: 0.07
     });
 
-    // Sky shader
     this.skyShader = new CGFshader(this.gl, "shaders/sky.vert", "shaders/sky.frag");
     this.skyShader.setUniformsValues({ uSampler2: 1, timeFactor: 0, normScale: 1 });
     
-    // Rock shader
     this.rockShader = new CGFshader(this.gl, "shaders/rock.vert","shaders/rock.frag");
 
-    // Wood shader
     this.woodShader = new CGFshader(this.gl, "shaders/wood.vert", "shaders/wood.frag");
     this.woodShader.setUniformsValues({ uSunDirection: this.getSunDirection() });
 
-    // Grass shader
     this.grassShader = new CGFshader(this.gl, "shaders/grass.vert", "shaders/grass.frag");
 
-    // Grass GUI parameters
     this._liveCount       = 300;
     this._liveHeightScale = 0.8;
     this._liveSpread      = 50.0;
@@ -127,7 +145,6 @@ export class MyScene extends CGFscene {
     this.grass     = new Grass(this, this._liveCount, 42,  this._liveHeightScale, this._liveSpread, this._bladesPerClump);
     this.deadGrass = new Grass(this, this._deadCount, 137, this._deadHeightScale, this._deadSpread, this._bladesPerClump);
 
-    // GUI parameters
     this.sunElevation          = 40;
     this.sunDegree             = 180;
     this.displayAxis           = false;
@@ -142,10 +159,63 @@ export class MyScene extends CGFscene {
   _regenerate() {
     this._placedObjects = [
       { x: this.barn.x,    z: this.barn.z,    r: this.barn.r },
-      { x: this.wagon.posX, z: this.wagon.posZ, r: this.wagon.r },
+      { x: this.wagon.posX * 3, z: this.wagon.posZ * 3, r: this.wagon.r },
     ];
-    this.rocks   = this._spawnRandom(this.rockCount,   (x, z) => new Rock(this, x, z));
+    this.rocks   = this._spawnRandom(this.rockCount,   (x, z) => {
+      let r = new Rock(this, x, z);
+      r.r = 1.8; 
+      return r;
+    });
     this.flowers = this._spawnRandom(this.flowerCount, (x, z) => new Flower(this, x, z));
+
+    this.syncHayBalesState();
+  }
+
+  syncHayBalesState() {
+    if (!this.hayBales || !this.hayBales._positions) {
+      this.balesList = [];
+      return;
+    }
+    // Fixed: Maps from the real '_positions' array generated deterministically inside HayBales
+    this.balesList = this.hayBales._positions.map(pos => ({
+      x: pos.x,
+      z: pos.z,
+      r: 2.0,
+      active: pos.active !== undefined ? pos.active : true
+    }));
+  }
+
+  tryPickUpBale() {
+    const currentWagonX = this.wagon.posX * 3;
+    const currentWagonZ = this.wagon.posZ * 3;
+
+    for (let i = 0; i < this.balesList.length; i++) {
+      let bale = this.balesList[i];
+      if (bale.active) {
+        let dist = Math.hypot(currentWagonX - bale.x, currentWagonZ - bale.z);
+        if (dist < 5.0) { 
+          bale.active = false;
+          // Set active to false directly in the rendering class so it disappears instantly!
+          if (this.hayBales._positions[i]) {
+            this.hayBales._positions[i].active = false;
+          }
+          this.collectedBalesCount++;
+          break;
+        }
+      }
+    }
+  }
+
+  tryDropOffBales() {
+    if (this.isInsideRing && this.collectedBalesCount > 0) {
+      let restoredAmount = this.collectedBalesCount * 18;
+      this.hp = Math.min(100, this.hp + restoredAmount);
+      this.instantHeal = restoredAmount;
+      this.balesDropped += this.collectedBalesCount;
+      this.collectedBalesCount = 0;
+
+      setTimeout(() => { this.instantHeal = 0; }, 1500);
+    }
   }
 
   _spawnRandom(count, createFn) {
@@ -154,8 +224,8 @@ export class MyScene extends CGFscene {
     while (result.length < count && attempts < count * 10) {
       attempts++;
       const a = Math.random() * 2 * Math.PI;
-      const x = Math.cos(a) * Math.random() * 200;
-      const z = Math.sin(a) * Math.random() * 200;
+      const x = Math.cos(a) * Math.random() * 60;
+      const z = Math.sin(a) * Math.random() * 60;
       const obj = createFn(x, z);
       if (this._placedObjects.some(o => Math.hypot(x - o.x, z - o.z) < o.r + obj.r)) continue;
       this._placedObjects.push({ x, z, r: obj.r });
@@ -170,7 +240,7 @@ export class MyScene extends CGFscene {
     this.rockShader.setUniformsValues({ uSampler: 0, uSunDir: this.getSunDirection() });
     for (const rock of this.rocks) {
       this.pushMatrix();
-        this.translate(rock.x, rock.y, rock.z);
+        this.translate(rock.x, 0.25, rock.z); // Fixed: Sitting cleanly at requested height y = 0.25
         rock.display();
       this.popMatrix();
     }
@@ -180,7 +250,7 @@ export class MyScene extends CGFscene {
     this.setActiveShader(this.defaultShader);
     for (const f of this.flowers) {
       this.pushMatrix();
-        this.translate(f.x, f.y, f.z);
+        this.translate(f.x, 0.25, f.z); // Fixed: Sitting cleanly at requested height y = 0.25
         this.scale(f.scale, f.scale, f.scale);
         this.rotate(f.rotY, 0, 1, 0);
         f.display();
@@ -188,36 +258,33 @@ export class MyScene extends CGFscene {
     }
   }
 
-
-  
-  // Grass property setters for each rebuilds the affected object
-
   get liveCount()            { return this._liveCount; }
   set liveCount(v)           { this._liveCount = v;        if (this.grass)     { this.grass.count = v;            this.grass.rebuild(); } }
-
   get liveHeightScale()      { return this._liveHeightScale; }
   set liveHeightScale(v)     { this._liveHeightScale = v;   if (this.grass)     { this.grass.heightScale = v;      this.grass.rebuild(); } }
-
   get liveSpread()           { return this._liveSpread; }
   set liveSpread(v)          { this._liveSpread = v;        if (this.grass)     { this.grass.clumpSpread = v;      this.grass.rebuild(); } }
-
   get deadCount()            { return this._deadCount; }
   set deadCount(v)           { this._deadCount = v;         if (this.deadGrass) { this.deadGrass.count = v;        this.deadGrass.rebuild(); } }
-
   get deadHeightScale()      { return this._deadHeightScale; }
   set deadHeightScale(v)     { this._deadHeightScale = v;   if (this.deadGrass) { this.deadGrass.heightScale = v;  this.deadGrass.rebuild(); } }
-
   get deadSpread()           { return this._deadSpread; }
   set deadSpread(v)          { this._deadSpread = v;        if (this.deadGrass) { this.deadGrass.clumpSpread = v;  this.deadGrass.rebuild(); } }
-
   get bladesPerClump()       { return this._bladesPerClump; }
   set bladesPerClump(v)      { this._bladesPerClump = v;
     if (this.grass)     { this.grass.bladesPerClump = v;     this.grass.rebuild(); }
     if (this.deadGrass) { this.deadGrass.bladesPerClump = v; this.deadGrass.rebuild(); }
   }
-
-  get baleCount()  { return this._baleCount; }
-  set baleCount(v) { this._baleCount = v; if (this.hayBales) { this.hayBales.count = v; this.hayBales.rebuild(); } }
+  
+  get baleCount() { return this._baleCount; }
+  set baleCount(v) { 
+    this._baleCount = v; 
+    if (this.hayBales) { 
+      this.hayBales.count = v; 
+      this.hayBales.rebuild(); 
+    } 
+    this.syncHayBalesState(); 
+  }
 
   initLights() {
     this.lights[0].setPosition(0, 10, 0, 1);
@@ -236,45 +303,67 @@ export class MyScene extends CGFscene {
   }
 
   initCameras() {
-    this.freeCamera = new CGFcamera(
-      1.2, 0.1, 500,
-      vec3.fromValues(0, 8, -20),
-      vec3.fromValues(0, 1.5,  0)
-    );
-
-    this.wagonCamera = new CGFcamera(
-      1.2, 0.1, 500,
-      vec3.fromValues(0, 4, -10),
-      vec3.fromValues(0, 1.5,  0)
-    );
-
+    this.freeCamera = new CGFcamera(1.2, 0.1, 500, vec3.fromValues(0, 8, -20), vec3.fromValues(0, 1.5, 0));
+    this.wagonCamera = new CGFcamera(1.2, 0.1, 500, vec3.fromValues(0, 4, -10), vec3.fromValues(0, 1.5, 0));
     this.camera = this.wagonCamera;
   }
 
   getSunDirection() {
     const elev = this.sunElevation * Math.PI / 180;
     const deg  = this.sunDegree   * Math.PI / 180;
-    return [
-      Math.cos(elev) * Math.sin(deg),
-      Math.sin(elev),
-      Math.cos(elev) * Math.cos(deg),
-    ];
+    return [Math.cos(elev) * Math.sin(deg), Math.sin(elev), Math.cos(elev) * Math.cos(deg)];
   }
 
   update(t) {
-    // Delta time in seconds, capped to avoid large jumps on tab switch
     if (this.lastTime === undefined) this.lastTime = t;
     const dt = Math.min((t - this.lastTime) / 1000, 0.1);
     this.lastTime = t;
 
-    // Sun & sky
+    if (this.gameOver) return;
+
+    if (t - this.lastSecondTime >= 1000) {
+      this.hp = Math.max(0, this.hp - 1);
+      this.score++;
+      this.lastSecondTime = t;
+      
+      if (this.hp <= 0) {
+        this.gameOver = true;
+        alert("Game Over! Out of health. Final Score: " + this.score);
+      }
+    }
+
+    const currentWagonX = this.wagon.posX * 3;
+    const currentWagonZ = this.wagon.posZ * 3;
+
+    let distToRing = Math.hypot(currentWagonX - this.barnRingX, currentWagonZ - this.barnRingZ);
+    this.isInsideRing = (distToRing <= this.barnRingRadius);
+
+    for (let rock of this.rocks) {
+      let distToRock = Math.hypot(currentWagonX - rock.x, currentWagonZ - rock.z);
+      if (distToRock < 3.2) { 
+        let now = Date.now();
+        if (!this.cooldowns[rock.x + "_" + rock.z] || now - this.cooldowns[rock.x + "_" + rock.z] > 1500) {
+          this.hp = Math.max(0, this.hp - 15);
+          this.instantDamage = 15;
+          this.cooldowns[rock.x + "_" + rock.z] = now;
+          
+          setTimeout(() => { this.instantDamage = 0; }, 1500);
+
+          if (this.hp <= 0) {
+            this.gameOver = true;
+            alert("Game Over! Crashed into Rock. Final Score: " + this.score);
+          }
+        }
+      }
+    }
+
     const [sx, sy, sz] = this.getSunDirection();
     this.lights[1].setPosition(sx, sy, sz, 0);
     this.lights[1].update();
     this.skyShader.setUniformsValues({ timeFactor: t / 8000 % 100 });
     this.grassShader.setUniformsValues({ uTime: (t / 1000) % 1000, uWindStrength: this.windStrength });
 
-    this.wagonController.update(dt);
+    this.wagonController.update(dt, this);
     this.camera = this.wagonController.activeCamera;
   }
 
@@ -285,30 +374,25 @@ export class MyScene extends CGFscene {
     this.setShininess(10.0);
   }
 
-
   drawSky() {
-    // const cx = this.camera.position[0];
-    // const cz = this.camera.position[2];
     this.setActiveShader(this.skyShader);
     this.pushMatrix();
       this.skyAppearance.apply();
       this.translate(0, -10, 0);
-      // this.translate(cx, -10, cz);
       this.scale(200, 200, 200);
       this.rotate(-Math.PI / 2, 1, 0, 0);
       this.sky.display();
     this.popMatrix();
   }
+  
   drawSun() {
     const [sx, sy, sz] = this.getSunDirection();
     const cx = this.camera.position[0];
     const cz = this.camera.position[2];
-
     this.setActiveShader(this.defaultShader);
     this.sunAppearance.apply();
     this.pushMatrix();
-      const sunDist = 190;
-      this.translate(cx + sx * sunDist, sy * sunDist, cz + sz * sunDist);
+      this.translate(cx + sx * 190, sy * 190, cz + sz * 190);
       this.scale(8, 8, 8);
       this.sun.display();
     this.popMatrix();
@@ -317,49 +401,33 @@ export class MyScene extends CGFscene {
   drawTerrain() {
     this.lights[0].disable();
     this.lights[1].disable();
-
-    const sunDir = this.getSunDirection();
-
     this.setActiveShader(this.terrainShader);
     this.terrainAppearance.apply();
     this.hillMap.bind(1);
     this.pathMask.bind(2);
     this.pathTex.bind(3);
-
-    this.terrainShader.setUniformsValues({
-      uHeightMap: 1,
-      uPathMask:  2,
-      uPathTex:   3,
-      uSunDir:    sunDir,
-    });
-
+    this.terrainShader.setUniformsValues({ uHeightMap: 1, uPathMask: 2, uPathTex: 3, uSunDir: this.getSunDirection() });
     this.pushMatrix();
       this.translate(0, -10, 0);
       this.scale(400, 400, 400);
       this.rotate(-Math.PI / 2, 1, 0, 0);
       this.terrain.display();
     this.popMatrix();
-
     this.lights[0].enable();
     this.lights[1].enable();
     this.lights[0].update();
     this.lights[1].update();
-
     this.setActiveShader(this.defaultShader);
   }
 
   drawGrass() {
     if (!this.grass) return;
-
     const sunDir = this.getSunDirection();
-
     this.gl.disable(this.gl.CULL_FACE);
     this.gl.enable(this.gl.BLEND);
     this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
-
     this.setActiveShader(this.grassShader);
 
-    // Living green grass
     this.grassShader.setUniformsValues({ uSunDir: sunDir, uDeadGrass: 0.0 });
     this.pushMatrix();
       this.translate(0, -10, 0);
@@ -368,7 +436,6 @@ export class MyScene extends CGFscene {
       this.grass.display();
     this.popMatrix();
 
-    // Dead brown grass
     if (this.deadGrass) {
       this.grassShader.setUniformsValues({ uSunDir: sunDir, uDeadGrass: 1.0 });
       this.pushMatrix();
@@ -378,35 +445,77 @@ export class MyScene extends CGFscene {
         this.deadGrass.display();
       this.popMatrix();
     }
-
     this.gl.disable(this.gl.BLEND);
     this.gl.enable(this.gl.CULL_FACE);
-
     this.setActiveShader(this.defaultShader);
   }
 
   drawBarn() {
     if (!this.barn) return;
-
     this.setActiveShader(this.defaultShader);
     this.gl.enable(this.gl.NORMALIZE);
-
     const { x, y, z, scale } = this.barn;
     this.pushMatrix();
       this.translate(x, y, z);
       this.scale(scale, scale, scale);
       this.barn.display();
     this.popMatrix();
-
     this.gl.disable(this.gl.NORMALIZE);
   }
 
   drawWagon(){
-    const scale = this.wagon.scale;
+    const scale = this.wagon.scale || 1;
     this.pushMatrix();
       this.scale(scale, scale, scale);
       this.wagon.display();
     this.popMatrix();
+  }
+
+  // Visualizes interaction rings perfectly on the ground plane at y = 0.26
+  drawInteractionRings() {
+    this.setActiveShader(this.defaultShader);
+    const ringAppearance = new CGFappearance(this);
+    const currentWagonX = this.wagon.posX * 3;
+    const currentWagonZ = this.wagon.posZ * 3;
+
+    // 1. Barn Drop-Off Indicator Zone
+    this.pushMatrix();
+      this.translate(this.barnRingX, 0.26, this.barnRingZ); // Placed slightly above ground floor to avoid flickering
+      this.scale(this.barnRingRadius, 0.01, this.barnRingRadius); 
+      
+      if (this.isInsideRing) {
+          ringAppearance.setAmbient(0.0, 1.0, 0.0, 1.0); 
+          ringAppearance.setDiffuse(0.0, 1.0, 0.0, 1.0);
+      } else {
+          ringAppearance.setAmbient(0.6, 0.6, 0.6, 1.0); 
+          ringAppearance.setDiffuse(0.6, 0.6, 0.6, 1.0);
+      }
+      ringAppearance.apply();
+      this.sun.display(); 
+    this.popMatrix();
+
+    // 2. Pickup indicators beneath active field haybales
+    if (this.balesList) {
+      for (let bale of this.balesList) {
+        if (bale.active) {
+          this.pushMatrix();
+            this.translate(bale.x, 0.26, bale.z);
+            this.scale(5.0, 0.01, 5.0); 
+            
+            let dist = Math.hypot(currentWagonX - bale.x, currentWagonZ - bale.z);
+            if (dist < 5.0) {
+                ringAppearance.setAmbient(1.0, 1.0, 0.0, 1.0); 
+                ringAppearance.setDiffuse(1.0, 1.0, 0.0, 1.0);
+            } else {
+                ringAppearance.setAmbient(1.0, 0.5, 0.0, 1.0); 
+                ringAppearance.setDiffuse(1.0, 0.5, 0.0, 1.0);
+            }
+            ringAppearance.apply();
+            this.sun.display();
+          this.popMatrix();
+        }
+      }
+    }
   }
 
   drawHayBales() {
@@ -428,22 +537,23 @@ export class MyScene extends CGFscene {
     this.drawTerrain();
     this.drawGrass();
     this.drawSun();
+    
+    this.drawInteractionRings(); 
     this.drawBarn();
     this.drawWagon();
-    this.drawHayBales();
-    this.drawFlora();
-    this.drawRocks();
+    this.drawHayBales();        
+    this.drawFlora();           
+    this.drawRocks();           
     
-    // Normals display
     for (const [obj, show] of [
       [this.sky,     this.displaySkyNormals],
       [this.terrain, this.displayTerrainNormals],
       [this.sun,     this.displaySunNormals],
       [this.wagon,   this.displayWagonNormals],
     ]) {
-      show ? obj.enableNormalViz() : obj.disableNormalViz();
+      if(obj) show ? obj.enableNormalViz() : obj.disableNormalViz();
     }
     for (const rock of this.rocks)
-      this.displayRockNormals ? rock.enableNormalViz() : rock.disableNormalViz();
+      if(rock) this.displayRockNormals ? rock.enableNormalViz() : rock.disableNormalViz();
   }
 }
