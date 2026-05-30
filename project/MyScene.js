@@ -9,6 +9,7 @@ import { Grass } from "./objects/grass.js";
 import { Barn } from "./objects/barn/barn.js";
 
 import { HayBale } from "./objects/hayBale.js";
+import { Arrow }   from "./objects/Arrow.js";
 import { Flower } from "./objects/Flower.js";
 import { Rock } from "./objects/Rock.js";
 import { Ring } from "./objects/Ring.js";
@@ -110,6 +111,28 @@ export class MyScene extends CGFscene {
     this.terrainAppearance.setTexture(this.terrainTexture);
     this.terrainAppearance.setTextureWrap('REPEAT', 'REPEAT');
 
+    this.arrowAppearance = new CGFappearance(this);
+    this.arrowAppearance.setEmission(1.0, 0.75, 0.0, 1.0);
+    this.arrowAppearance.setAmbient(1.0, 0.75, 0.0, 1.0);
+    this.arrowAppearance.setDiffuse(0.0, 0.0, 0.0, 1.0);
+    this.arrowAppearance.setSpecular(0.0, 0.0, 0.0, 1.0);
+
+    this.ringBarnActiveAppearance = new CGFappearance(this);
+    this.ringBarnActiveAppearance.setAmbient(0.0, 1.0, 0.0, 1.0);
+    this.ringBarnActiveAppearance.setDiffuse(0.0, 1.0, 0.0, 1.0);
+
+    this.ringBarnInactiveAppearance = new CGFappearance(this);
+    this.ringBarnInactiveAppearance.setAmbient(0.6, 0.6, 0.6, 1.0);
+    this.ringBarnInactiveAppearance.setDiffuse(0.6, 0.6, 0.6, 1.0);
+
+    this.ringBaleActiveAppearance = new CGFappearance(this);
+    this.ringBaleActiveAppearance.setAmbient(1.0, 1.0, 0.0, 1.0);
+    this.ringBaleActiveAppearance.setDiffuse(1.0, 1.0, 0.0, 1.0);
+
+    this.ringBaleInactiveAppearance = new CGFappearance(this);
+    this.ringBaleInactiveAppearance.setAmbient(1.0, 0.5, 0.0, 1.0);
+    this.ringBaleInactiveAppearance.setDiffuse(1.0, 0.5, 0.0, 1.0);
+
     // --- Shaders ---
     this.terrainShader = new CGFshader(this.gl, "shaders/terrain.vert", "shaders/terrain.frag");
     this.terrainShader.setUniformsValues({
@@ -129,6 +152,9 @@ export class MyScene extends CGFscene {
 
     this.grassShader = new CGFshader(this.gl, "shaders/grass.vert", "shaders/grass.frag");
 
+    this.arrowShader = new CGFshader(this.gl, "shaders/arrow.vert", "shaders/arrow.frag");
+    this.arrowShader.setUniformsValues({ uTimeFactor: 0 });
+
     // --- Objects ---
     this.axis    = new CGFaxis(this);
     this.sky     = new Sphere(this, 64, 32, 0.5, true);
@@ -145,6 +171,7 @@ export class MyScene extends CGFscene {
     );
 
     this.wagon     = new Wagon(this);
+    this.arrow     = new Arrow(this);
     this.grass     = new Grass(this, this._liveCount, 42,  this._liveHeightScale, this._liveSpread, this._bladesPerClump);
     this.deadGrass = new Grass(this, this._deadCount, 137, this._deadHeightScale, this._deadSpread, this._bladesPerClump);
 
@@ -158,6 +185,7 @@ export class MyScene extends CGFscene {
     this._uGrassLive           = { uSunDir: initialSunDir, uDeadGrass: 0.0 };
     this._uGrassDead           = { uSunDir: initialSunDir, uDeadGrass: 1.0 };
     this._uRock                = { uSampler: 0, uSunDir: initialSunDir };
+    this._uArrow               = { uTimeFactor: 0 };
 
     // --- Controllers ---
     this.wagonController = new WagonController(this.wagon, this.freeCamera, this.wagonCamera);
@@ -314,6 +342,7 @@ export class MyScene extends CGFscene {
     this._uSkyTime.timeFactor = t / 8000 % 100;
     this._uGrassWind.uTime = (t / 1000) % 1000;
     this._uGrassWind.uWindStrength = this.windStrength;
+    this._uArrow.uTimeFactor = (t / 1000) % 100;
 
     this.wagonController.update(dt, this);
     this.camera = this.wagonController.activeCamera;
@@ -448,31 +477,22 @@ export class MyScene extends CGFscene {
   drawInteractionRings() {
     if (!this.displayRings) return;
     this.setActiveShader(this.defaultShader);
-    const ringAppearance = new CGFappearance(this);
     const wx = this.wagon.posX * 3;
     const wz = this.wagon.posZ * 3;
 
     // 1. Barn drop-off zone
-    if (this.gameController.isInsideRing) {
-      ringAppearance.setAmbient(0.0, 1.0, 0.0, 1.0);
-      ringAppearance.setDiffuse(0.0, 1.0, 0.0, 1.0);
-    } else {
-      ringAppearance.setAmbient(0.6, 0.6, 0.6, 1.0);
-      ringAppearance.setDiffuse(0.6, 0.6, 0.6, 1.0);
-    }
-    ringAppearance.apply();
+    (this.gameController.isInsideRing
+      ? this.ringBarnActiveAppearance
+      : this.ringBarnInactiveAppearance
+    ).apply();
     this.barnRing.display(this);
 
     // 2. Pickup indicators beneath hay bales
     for (const bale of this.hayBales) {
-      if (bale.ring.contains(wx, wz)) {
-        ringAppearance.setAmbient(1.0, 1.0, 0.0, 1.0);
-        ringAppearance.setDiffuse(1.0, 1.0, 0.0, 1.0);
-      } else {
-        ringAppearance.setAmbient(1.0, 0.5, 0.0, 1.0);
-        ringAppearance.setDiffuse(1.0, 0.5, 0.0, 1.0);
-      }
-      ringAppearance.apply();
+      (bale.ring.contains(wx, wz)
+        ? this.ringBaleActiveAppearance
+        : this.ringBaleInactiveAppearance
+      ).apply();
       bale.ring.display(this);
     }
   }
@@ -487,6 +507,24 @@ export class MyScene extends CGFscene {
         bale.display();
       this.popMatrix();
     }
+  }
+
+  drawArrows() {
+    if (!this.hayBales || !this.arrow) return;
+    this.gl.disable(this.gl.CULL_FACE);
+    this.setActiveShaderSimple(this.arrowShader);
+    this.arrowShader.setUniformsValues(this._uArrow);
+
+    this.arrowAppearance.apply();
+
+    for (const bale of this.hayBales) {
+      this.pushMatrix();
+        this.translate(bale.x, 5.5, bale.z);
+        this.scale(7,7,7);
+        this.arrow.display();
+      this.popMatrix();
+    }
+    this.gl.enable(this.gl.CULL_FACE);
   }
 
   display() {
@@ -506,7 +544,8 @@ export class MyScene extends CGFscene {
     this.drawInteractionRings(); 
     this.drawBarn();
     this.drawWagon();
-    this.drawHayBales();        
+    this.drawHayBales();
+    this.drawArrows();
     this.drawFlora();           
     this.drawRocks();           
     
