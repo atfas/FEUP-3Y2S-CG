@@ -18,7 +18,7 @@ export class ObjectLoader {
 
         scene.horse = new CGFobjModel(scene, "objects/horse.obj");
 
-        scene.barn = new Barn(scene, 0, 2, 30);
+        scene.barn = new Barn(scene, 11, 1.3, 140);
         scene.barnRing = new Ring(
             scene,
             scene.barn.x,
