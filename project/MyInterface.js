@@ -65,6 +65,9 @@ export class MyInterface extends CGFinterface {
 
     grassFolder.add(this.scene, 'windStrength', 0.0, 2.0).name("Wind Strength");
 
+    const debugFolder = this.gui.addFolder('Debug');
+    debugFolder.add(this.scene, 'displayHitBoxes').name("Hit Boxes");
+
     const normalsFolder = this.gui.addFolder('Normals');
     normalsFolder.add(this.scene, 'displaySkyNormals').name("Sky Normals");
     normalsFolder.add(this.scene, 'displayTerrainNormals').name("Terrain Normals");

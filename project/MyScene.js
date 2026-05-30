@@ -52,6 +52,7 @@ export class MyScene extends CGFscene {
     this.displayRocks          = true;
     this.displayRings          = true;
     this.displayHorse          = true;
+    this.displayHitBoxes       = false;
 
     this.displaySkyNormals     = false;
     this.displayTerrainNormals = false;
@@ -141,6 +142,12 @@ export class MyScene extends CGFscene {
     this.horseAppearance.setSpecular(0.10, 0.07, 0.04, 1.0);
     this.horseAppearance.setShininess(12);
 
+    this.hitBoxAppearance = new CGFappearance(this);
+    this.hitBoxAppearance.setEmission(1.0, 0.0, 0.2, 1.0);
+    this.hitBoxAppearance.setAmbient(1.0, 0.0, 0.2, 1.0);
+    this.hitBoxAppearance.setDiffuse(0.0, 0.0, 0.0, 1.0);
+    this.hitBoxAppearance.setSpecular(0.0, 0.0, 0.0, 1.0);
+
     // --- Shaders ---
     this.terrainShader = new CGFshader(this.gl, "shaders/terrain.vert", "shaders/terrain.frag");
     this.terrainShader.setUniformsValues({
@@ -183,6 +190,8 @@ export class MyScene extends CGFscene {
     this.arrow     = new Arrow(this);
     this.grass     = new Grass(this, this._liveCount, 42,  this._liveHeightScale, this._liveSpread, this._bladesPerClump);
     this.deadGrass = new Grass(this, this._deadCount, 137, this._deadHeightScale, this._deadSpread, this._bladesPerClump);
+
+    this._hitBoxDisk = new MyDisk(this, 32);
 
     this._regenerate();
 
@@ -536,6 +545,41 @@ export class MyScene extends CGFscene {
     this.gl.enable(this.gl.CULL_FACE);
   }
 
+  _drawHitCircle(x, z, r) {
+    this.pushMatrix();
+      this.translate(x, 0.3, z);
+      this.rotate(-Math.PI / 2, 1, 0, 0);
+      this.scale(r, r, 1);
+      this._hitBoxDisk.display();
+    this.popMatrix();
+  }
+
+  drawHitBoxes() {
+    if (!this.displayHitBoxes) return;
+    this.setActiveShaderSimple(this.defaultShader);
+    this.gl.enable(this.gl.BLEND);
+    this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
+    this.gl.depthMask(false);
+    this.hitBoxAppearance.apply();
+
+    for (const rock of this.rocks)
+      this._drawHitCircle(rock.x, rock.z, rock.r);
+
+    for (const bale of this.hayBales)
+      this._drawHitCircle(bale.x, bale.z, bale.r);
+
+    for (const flower of this.flowers){
+        this._drawHitCircle(flower.x,flower.z,flower.r);
+    }
+
+    this._drawHitCircle(this.barn.x, this.barn.z, this.barn.r);
+
+    this._drawHitCircle(this.wagon.posX * 3, this.wagon.posZ * 3, this.wagon.r);
+
+    this.gl.depthMask(true);
+    this.gl.disable(this.gl.BLEND);
+  }
+
   display() {
     this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
@@ -557,7 +601,8 @@ export class MyScene extends CGFscene {
     this.drawArrows();
     this.drawFlora();
     this.drawRocks();
-    
+    this.drawHitBoxes();
+
     for (const [obj, show] of [
       [this.sky,     this.displaySkyNormals],
       [this.terrain, this.displayTerrainNormals],
