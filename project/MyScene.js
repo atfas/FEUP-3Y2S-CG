@@ -162,7 +162,7 @@ export class MyScene extends CGFscene {
     this.flowers  = this._spawnRandom(this.flowerCount, (x, z) => new Flower(this, x, z));
     this.hayBales = this._spawnRandom(this._baleCount,  (x, z) => {
       const b = new HayBale(this, x, z);
-      b.ring = new Ring(this, x, z, this._hayBaleRingRadius, 0.26);
+      b.ring = new Ring(this, x, z, this._hayBaleRingRadius, b.y);
       return b;
     });
     this.balesList = this.hayBales;
@@ -185,7 +185,7 @@ export class MyScene extends CGFscene {
     
     // 120 keeps objects perfectly distributed across the flat valley 
     // right up until the mountains start climbing around 130!
-    const MAX_RADIUS = 140; 
+    const MAX_RADIUS = 170; 
 
     while (result.length < count && attempts < count * 10) {
       attempts++;
