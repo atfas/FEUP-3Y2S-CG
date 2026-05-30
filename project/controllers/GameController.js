@@ -65,7 +65,7 @@ export class GameController {
 
     gainHp() {
         const amount = this.collectedBalesCount * this.healHP;
-        this.hp = Math.min(100, this.hp + amount);
+        this.hp = Math.min(this.maxHP, this.hp + amount);
         this.instantHeal = amount;
         setTimeout(() => { this.instantHeal = 0; }, 1500);
     }
