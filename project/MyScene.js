@@ -30,34 +30,28 @@ export class MyScene extends CGFscene {
     this.setUpdatePeriod(1);
     this.enableTextures(true);
 
-    this.axis = new CGFaxis(this);
+    // --- Variables ---
+    this.sunElevation          = 40;
+    this.sunDegree             = 180;
+    this.displayAxis           = false;
+    this.displaySkyNormals     = false;
+    this.displayTerrainNormals = false;
+    this.displaySunNormals     = false;
+    this.displayWagonNormals   = false;
+    this.displayRockNormals    = false;
+    this.windStrength          = 0.5;
+    this.rockCount             = 50;
+    this.flowerCount           = 100;
+    this._baleCount            = 8;
+    this._liveCount            = 300;
+    this._liveHeightScale      = 0.8;
+    this._liveSpread           = 50.0;
+    this._bladesPerClump       = 40;
+    this._deadCount            = 150;
+    this._deadHeightScale      = 0.75;
+    this._deadSpread           = 40.0;
 
-    this.sky     = new Sphere(this, 64, 32, 0.5, true);
-    this.sun     = new Sphere(this, 16, 8,  1.0, false);
-    this.terrain = new Plane(this, 50, 0, 30, 0, 30);
-    this.rockCount   = 50;
-    this.flowerCount = 100;
-
-    // --- Barn Setup ---
-    this.barn = new Barn(this);
-    this.barn.x = 0;
-    this.barn.z = 30;
-    this.barn.r = 8; 
-    
-    // Barn proximity ring properties
-    this.barnRingX = this.barn.x;
-    this.barnRingZ = this.barn.z - 12;
-    this.barnRingRadius = 8.0;
-
-    // --- HayBales Setup ---
-    this._baleCount = 8;
-    this.hayBales   = new HayBales(this, this._baleCount, 77);
-
-    // ==================== GAME MECHANICS STATE ====================
-    this.gameController = new GameController(this,100,2,15,18);
-    // ==============================================================
-
-    // Textures
+    // --- Textures ---
     this.skyTexture     = new CGFtexture(this, "textures/skyTex.png");
     this.skyMap         = new CGFtexture(this, "textures/skyMap.png");
     this.terrainTexture = new CGFtexture(this, "textures/terrain.jpg");
@@ -67,6 +61,7 @@ export class MyScene extends CGFscene {
     this.woodTexture    = new CGFtexture(this, "textures/wood.jpg");
     this.rockTexture    = new CGFtexture(this, "textures/rock.jpg");
 
+    // --- Appearances ---
     this.woodAppearance = new CGFappearance(this);
     this.woodAppearance.setAmbient(0.35, 0.22, 0.10, 1.0);
     this.woodAppearance.setDiffuse(0.55, 0.35, 0.16, 1.0);
@@ -74,16 +69,6 @@ export class MyScene extends CGFscene {
     this.woodAppearance.setTexture(this.woodTexture);
     this.woodAppearance.setTextureWrap('REPEAT', 'REPEAT');
 
-    this.wagon = new Wagon(this);
-    this.wagon.posX = 0;
-    this.wagon.posZ = 0;
-    this.wagon.r = 2.5; 
-
-    this.wagonController = new WagonController(this.wagon, this.freeCamera, this.wagonCamera);
-
-    this._regenerate();
-
-    // Appearances Setup
     this.skyAppearance = new CGFappearance(this);
     this.skyAppearance.setEmission(1, 1, 1, 1);
     this.skyAppearance.setAmbient(0.0, 0.0, 0.0, 1.0);
@@ -106,6 +91,7 @@ export class MyScene extends CGFscene {
     this.terrainAppearance.setTexture(this.terrainTexture);
     this.terrainAppearance.setTextureWrap('REPEAT', 'REPEAT');
 
+    // --- Shaders ---
     this.terrainShader = new CGFshader(this.gl, "shaders/terrain.vert", "shaders/terrain.frag");
     this.terrainShader.setUniformsValues({
       uHeightMap:   1,
@@ -116,45 +102,47 @@ export class MyScene extends CGFscene {
 
     this.skyShader = new CGFshader(this.gl, "shaders/sky.vert", "shaders/sky.frag");
     this.skyShader.setUniformsValues({ uSampler2: 1, timeFactor: 0, normScale: 1 });
-    
-    this.rockShader = new CGFshader(this.gl, "shaders/rock.vert","shaders/rock.frag");
 
-    // Wood shader
-    const initialSunDir = this.getSunDirection();
+    this.rockShader = new CGFshader(this.gl, "shaders/rock.vert", "shaders/rock.frag");
+
     this.woodShader = new CGFshader(this.gl, "shaders/wood.vert", "shaders/wood.frag");
     this.woodShader.setUniformsValues({ uSunDirection: this.getSunDirection() });
 
     this.grassShader = new CGFshader(this.gl, "shaders/grass.vert", "shaders/grass.frag");
 
-    this._liveCount       = 300;
-    this._liveHeightScale = 0.8;
-    this._liveSpread      = 50.0;
-    this._bladesPerClump  = 40;
+    // --- Objects ---
+    this.axis    = new CGFaxis(this);
+    this.sky     = new Sphere(this, 64, 32, 0.5, true);
+    this.sun     = new Sphere(this, 16, 8,  1.0, false);
+    this.terrain = new Plane(this, 50, 0, 30, 0, 30);
 
-    this._deadCount       = 150;
-    this._deadHeightScale = 0.75;
-    this._deadSpread      = 40.0;
+    this.barn   = new Barn(this);
+    this.barn.x = 0;
+    this.barn.z = 30;
+    this.barn.r = 8;
+    this.barnRingX      = this.barn.x;
+    this.barnRingZ      = this.barn.z - 12;
+    this.barnRingRadius = 8.0;
 
+    this.wagon     = new Wagon(this);
+    this.hayBales  = new HayBales(this, this._baleCount, 77);
     this.grass     = new Grass(this, this._liveCount, 42,  this._liveHeightScale, this._liveSpread, this._bladesPerClump);
     this.deadGrass = new Grass(this, this._deadCount, 137, this._deadHeightScale, this._deadSpread, this._bladesPerClump);
 
-    this.sunElevation          = 40;
-    this.sunDegree             = 180;
-    this.displayAxis           = false;
-    this.displaySkyNormals     = false;
-    this.displayTerrainNormals = false;
-    this.displaySunNormals     = false;
-    this.displayWagonNormals   = false;
-    this.displayRockNormals    = false;
-    this.windStrength          = 0.5;
+    this._regenerate();
 
-    // uniform values
-    this._uSkyTime   = { timeFactor: 0 };
-    this._uGrassWind = { uTime: 0, uWindStrength: this.windStrength };
-    this._uTerrainLighting  = { uSunDir: initialSunDir };
-    this._uGrassLive = { uSunDir: initialSunDir, uDeadGrass: 0.0 };
-    this._uGrassDead = { uSunDir: initialSunDir, uDeadGrass: 1.0 };
-    this._uRock      = { uSampler: 0, uSunDir: initialSunDir };
+    // --- Uniforms ---
+    const initialSunDir        = this.getSunDirection();
+    this._uSkyTime             = { timeFactor: 0 };
+    this._uGrassWind           = { uTime: 0, uWindStrength: this.windStrength };
+    this._uTerrainLighting     = { uSunDir: initialSunDir };
+    this._uGrassLive           = { uSunDir: initialSunDir, uDeadGrass: 0.0 };
+    this._uGrassDead           = { uSunDir: initialSunDir, uDeadGrass: 1.0 };
+    this._uRock                = { uSampler: 0, uSunDir: initialSunDir };
+
+    // --- Controllers ---
+    this.wagonController = new WagonController(this.wagon, this.freeCamera, this.wagonCamera);
+    this.gameController  = new GameController(this, 100, 2, 15, 18);
   }
   _regenerate() {
     this._placedObjects = [
