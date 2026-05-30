@@ -436,9 +436,6 @@ export class MyScene extends CGFscene {
   drawGrass() {
     if (!this.displayGrass || !this.grass) return;
     const sunDir = this.getSunDirection();
-    this.gl.disable(this.gl.CULL_FACE);
-    this.gl.enable(this.gl.BLEND);
-    this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
 
     this.setActiveShaderSimple(this.grassShader);
     this.grassShader.setUniformsValues(this._uGrassWind);
@@ -463,8 +460,6 @@ export class MyScene extends CGFscene {
         this.deadGrass.display();
       this.popMatrix();
     }
-    this.gl.disable(this.gl.BLEND);
-    this.gl.enable(this.gl.CULL_FACE);
 
     this.setActiveShaderSimple(this.defaultShader);
   }
@@ -473,14 +468,12 @@ export class MyScene extends CGFscene {
     if (!this.displayBarn || !this.barn) return;
 
     this.setActiveShaderSimple(this.defaultShader);
-    this.gl.enable(this.gl.NORMALIZE);
     const { x, y, z, scale } = this.barn;
     this.pushMatrix();
       this.translate(x, y, z);
       this.scale(scale, scale, scale);
       this.barn.display();
     this.popMatrix();
-    this.gl.disable(this.gl.NORMALIZE);
   }
 
   drawWagon(){
@@ -529,7 +522,6 @@ export class MyScene extends CGFscene {
 
   drawArrows() {
     if (!this.hayBales || !this.arrow) return;
-    this.gl.disable(this.gl.CULL_FACE);
     this.setActiveShaderSimple(this.arrowShader);
     this.arrowShader.setUniformsValues(this._uArrow);
 
@@ -542,7 +534,6 @@ export class MyScene extends CGFscene {
         this.arrow.display();
       this.popMatrix();
     }
-    this.gl.enable(this.gl.CULL_FACE);
   }
 
   _drawHitCircle(x, z, r) {
@@ -557,9 +548,6 @@ export class MyScene extends CGFscene {
   drawHitBoxes() {
     if (!this.displayHitBoxes) return;
     this.setActiveShaderSimple(this.defaultShader);
-    this.gl.enable(this.gl.BLEND);
-    this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
-    this.gl.depthMask(false);
     this.hitBoxAppearance.apply();
 
     for (const rock of this.rocks)
@@ -575,9 +563,6 @@ export class MyScene extends CGFscene {
     this._drawHitCircle(this.barn.x, this.barn.z, this.barn.r);
 
     this._drawHitCircle(this.wagon.posX * 3, this.wagon.posZ * 3, this.wagon.r);
-
-    this.gl.depthMask(true);
-    this.gl.disable(this.gl.BLEND);
   }
 
   display() {
