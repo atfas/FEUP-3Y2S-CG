@@ -96,20 +96,20 @@ export class AppearanceLoader {
         scene.barnWallAppearance.setDiffuse(1, 1, 1, 1);
         scene.barnWallAppearance.setSpecular(0.1, 0.1, 0.1, 1);
         scene.barnWallAppearance.setShininess(10);
-        scene.barnWallAppearance.loadTexture('textures/barnWallTex.jpg');
+        scene.barnWallAppearance.loadTexture('textures/barn/barnWallTex.jpg');
 
         scene.barnFrontAppearance = new CGFappearance(scene);
         scene.barnFrontAppearance.setAmbient(1, 1, 1, 1);
         scene.barnFrontAppearance.setDiffuse(1, 1, 1, 1);
         scene.barnFrontAppearance.setSpecular(0.1, 0.1, 0.1, 1);
         scene.barnFrontAppearance.setShininess(10);
-        scene.barnFrontAppearance.loadTexture('textures/barnFrontTex.png');
+        scene.barnFrontAppearance.loadTexture('textures/barn/barnFrontTex.png');
 
         scene.barnRoofAppearance = new CGFappearance(scene);
         scene.barnRoofAppearance.setAmbient(1, 1, 1, 1);
         scene.barnRoofAppearance.setDiffuse(1, 1, 1, 1);
         scene.barnRoofAppearance.setSpecular(0.1, 0.1, 0.1, 1);
         scene.barnRoofAppearance.setShininess(10);
-        scene.barnRoofAppearance.loadTexture('textures/barnRoofTex.jpg');
+        scene.barnRoofAppearance.loadTexture('textures/barn/barnRoofTex.jpg');
     }
 }
