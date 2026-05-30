@@ -14,12 +14,12 @@ export class MyInterface extends CGFinterface {
     const gameFolder = this.gui.addFolder('Game Status');
     
     // Listeners tell dat.GUI to update values automatically when referenced variables shift
-    this.hpController          = gameFolder.add(this.scene, 'hp').name("HP (Health)").listen();
-    this.dmgController         = gameFolder.add(this.scene, 'instantDamage').name("Inst. Damage").listen();
-    this.healController        = gameFolder.add(this.scene, 'instantHeal').name("Inst. Restored").listen();
-    this.heldBalesController   = gameFolder.add(this.scene, 'collectedBalesCount').name("Carried Bales").listen();
-    this.droppedBalesController= gameFolder.add(this.scene, 'balesDropped').name("Bales Dropped").listen();
-    this.scoreController       = gameFolder.add(this.scene, 'score').name("Score (Time)").listen();
+    this.hpController          = gameFolder.add(this.scene.gameController, 'hp').name("HP (Health)").listen();
+    this.dmgController         = gameFolder.add(this.scene.gameController, 'instantDamage').name("Inst. Damage").listen();
+    this.healController        = gameFolder.add(this.scene.gameController, 'instantHeal').name("Inst. Restored").listen();
+    this.heldBalesController   = gameFolder.add(this.scene.gameController, 'collectedBalesCount').name("Carried Bales").listen();
+    this.droppedBalesController= gameFolder.add(this.scene.gameController, 'balesDropped').name("Bales Dropped").listen();
+    this.scoreController       = gameFolder.add(this.scene.gameController, 'score').name("Score (Time)").listen();
     
     gameFolder.open();
 
