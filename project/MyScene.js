@@ -198,7 +198,7 @@ export class MyScene extends CGFscene {
 
     // --- Controllers ---
     this.wagonController = new WagonController(this.wagon, this.freeCamera, this.wagonCamera);
-    this.gameController  = new GameController(this, 100, 2, 15, 18);
+    this.gameController  = new GameController(this, 100, 2, 5,15, 18);
   }
   _regenerate() {
     this._placedObjects = [
@@ -239,9 +239,9 @@ export class MyScene extends CGFscene {
     const result = [];
     let attempts = 0;
     
-    // 120 keeps objects perfectly distributed across the flat valley 
+    // 120 keeps objects perfectly distributed across the flat valley
     // right up until the mountains start climbing around 130!
-    const MAX_RADIUS = 170; 
+    const MAX_RADIUS = 170;
 
     while (result.length < count && attempts < count * 10) {
       attempts++;

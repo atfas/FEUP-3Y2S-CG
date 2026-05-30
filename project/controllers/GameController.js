@@ -1,5 +1,5 @@
 export class GameController {
-    constructor(scene, maxHP, maxCollectedBales, colisionDamage, healHP) {
+    constructor(scene, maxHP, maxCollectedBales, minColisionDamage, maxColisionDamage, healHP) {
         this.scene = scene;
 
         this.hp = maxHP;
@@ -9,7 +9,8 @@ export class GameController {
         this.maxCollectedBales= maxCollectedBales;
         this.balesDropped = 0;
         this.instantDamage = 0;
-        this.colisionDamage = colisionDamage;
+        this.minColisionDamage = minColisionDamage;
+        this.maxColisionDamage = maxColisionDamage;
         this.instantHeal = 0;
         this.healHP = healHP;
         this.isInsideRing = false;
@@ -48,7 +49,7 @@ export class GameController {
                 const now = Date.now();
                 if (!this._cooldowns[key] || now - this._cooldowns[key] > 1500) {
                     this._cooldowns[key] = now;
-                    this.takeDamage(this.colisionDamage);
+                    this.takeDamage();
                     if (this.hp <= 0) this._triggerGameOver("Crashed into Rock");
                 }
             }
@@ -56,8 +57,9 @@ export class GameController {
     }
 
     takeDamage() {
-        this.hp = Math.max(0, this.hp - this.colisionDamage);
-        this.instantDamage = this.colisionDamage;
+        const damage = Math.round(this.minColisionDamage + Math.random() * (this.maxColisionDamage - this.minColisionDamage));
+        this.hp = Math.max(0, this.hp - damage);
+        this.instantDamage = damage;
         setTimeout(() => { this.instantDamage = 0; }, 1500);
     }
 
