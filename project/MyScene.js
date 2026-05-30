@@ -1,5 +1,6 @@
 import { CGFscene, CGFcamera, CGFaxis, CGFappearance, CGFtexture, CGFshader } from "../lib/CGF.js";
 import { Sphere } from "./objects/sphere.js";
+import { MyDisk } from "./objects/disk.js";
 import { Plane } from "./objects/plane.js";
 import { Wagon } from "./objects/wagon.js";
 import { WagonController } from "./controllers/WagonController.js";
@@ -131,7 +132,7 @@ export class MyScene extends CGFscene {
     // --- Objects ---
     this.axis    = new CGFaxis(this);
     this.sky     = new Sphere(this, 64, 32, 0.5, true);
-    this.sun     = new Sphere(this, 16, 8,  1.0, false);
+    this.sun     = new MyDisk(this, 32);
     this.terrain = new Plane(this, 50, 0, 30, 0, 30);
 
     this.barn     = new Barn(this,0,2,30);
@@ -341,13 +342,15 @@ export class MyScene extends CGFscene {
   drawSun() {
     if (!this.displaySun) return;
     const [sx, sy, sz] = this.getSunDirection();
-    const cx = this.camera.position[0];
-    const cz = this.camera.position[2];
+    const elev = this.sunElevation * Math.PI / 180;
+    const deg  = this.sunDegree   * Math.PI / 180;
 
     this.setActiveShaderSimple(this.defaultShader);
     this.sunAppearance.apply();
     this.pushMatrix();
-      this.translate(cx + sx * 190, sy * 190, cz + sz * 190);
+      this.translate(sx * 190, sy * 190, sz * 190);
+      this.rotate(Math.PI + deg, 0, 1, 0);
+      this.rotate(elev, 1, 0, 0);
       this.scale(8, 8, 8);
       this.sun.display();
     this.popMatrix();
