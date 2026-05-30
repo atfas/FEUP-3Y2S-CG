@@ -2,7 +2,7 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title>CGFexample</title>    
+    <title>CGFexample</title>
     <link rel="icon" href="data:,">
 
 <style>
@@ -17,9 +17,90 @@ canvas {
     width: 100%;
     height: 100%;
 }
+
+#hud {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    pointer-events: none;
+    z-index: 10;
+    font-family: monospace;
+}
+
+#health-bar-outer {
+    position: relative;
+    width: 320px;
+    height: 30px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+#health-bar-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 1px 1px 2px #000;
+    pointer-events: none;
+}
+
+#health-bar-inner {
+    height: 100%;
+    width: 100%;
+    background: #22cc44;
+    border-radius: 2px;
+    transition: background 0.05s;
+}
+
+#health-bar-inner.hit {
+    background: #dd2222;
+}
+
+#hud-score, #hud-bales {
+    color: #fff;
+    font-size: 20px;
+    text-shadow: 1px 1px 3px #000, -1px -1px 3px #000;
+    padding-left: 2px;
+}
+
+#health-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#health-indicator {
+    font-size: 20px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+#health-indicator.damage { color: #ff4444; }
+#health-indicator.heal   { color: #44ff88; }
 </style>
 </head>
 <body>
+
+<div id="hud">
+    <div id="health-row">
+        <div id="health-bar-outer">
+            <div id="health-bar-inner"></div>
+            <div id="health-bar-label">100 HP</div>
+        </div>
+        <div id="health-indicator"></div>
+    </div>
+    <div id="hud-score">Score: 0</div>
+    <div id="hud-bales">Bales: 0</div>
+</div>
 
 <script type="module" src="main.js"></script>
 
