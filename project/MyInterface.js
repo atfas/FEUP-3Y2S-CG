@@ -15,7 +15,9 @@ export class MyInterface extends CGFinterface {
     this._hudIndicator = document.getElementById('health-indicator');
 
     this.gui = new dat.GUI();
-
+    
+    this.gui.add(this.scene.wagonController, 'cameraMode', { 'Follow Wagon': 'wagon', 'Free Camera': 'free' }).name("Camera");
+    this.gui.add(this.scene, 'displayAxis').name("Display Axis");
     //  GAME STATUS PANEL
     const gameFolder = this.gui.addFolder('Game Status');
     gameFolder.add(this.scene.gameController, 'hp').name("HP (Health)").listen();
@@ -27,8 +29,6 @@ export class MyInterface extends CGFinterface {
     
     gameFolder.open();
 
-    this.gui.add(this.scene.wagonController, 'cameraMode', { 'Follow Wagon': 'wagon', 'Free Camera': 'free' }).name("Camera");
-    this.gui.add(this.scene, 'displayAxis').name("Display Axis");
 
     
     const floraFolder = this.gui.addFolder('Flora');
