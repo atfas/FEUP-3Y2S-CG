@@ -30,6 +30,7 @@ export class MyInterface extends CGFinterface {
     displayFolder.add(this.scene, 'displayFlowers').name("Flowers");
     displayFolder.add(this.scene, 'displayRocks').name("Rocks");
     displayFolder.add(this.scene, 'displayRings').name("Interaction Rings");
+    displayFolder.add(this.scene, 'displayHorse').name("Horse");
 
     // GAME STATUS PANEL — bound to gameController directly so dat.GUI can read/write the live values
     const gameFolder = this.gui.addFolder('Game Status');

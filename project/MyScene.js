@@ -1,4 +1,5 @@
 import { CGFscene, CGFcamera, CGFaxis, CGFappearance, CGFtexture, CGFshader } from "../lib/CGF.js";
+import { CGFobjModel } from "../lib/extra/CGFobjModel.js";
 import { Sphere } from "./objects/sphere.js";
 import { MyDisk } from "./objects/disk.js";
 import { Plane } from "./objects/plane.js";
@@ -50,6 +51,7 @@ export class MyScene extends CGFscene {
     this.displayFlowers        = true;
     this.displayRocks          = true;
     this.displayRings          = true;
+    this.displayHorse          = true;
 
     this.displaySkyNormals     = false;
     this.displayTerrainNormals = false;
@@ -133,6 +135,12 @@ export class MyScene extends CGFscene {
     this.ringBaleInactiveAppearance.setAmbient(1.0, 0.5, 0.0, 1.0);
     this.ringBaleInactiveAppearance.setDiffuse(1.0, 0.5, 0.0, 1.0);
 
+    this.horseAppearance = new CGFappearance(this);
+    this.horseAppearance.setAmbient(0.30, 0.20, 0.10, 1.0);
+    this.horseAppearance.setDiffuse(0.50, 0.32, 0.15, 1.0);
+    this.horseAppearance.setSpecular(0.10, 0.07, 0.04, 1.0);
+    this.horseAppearance.setShininess(12);
+
     // --- Shaders ---
     this.terrainShader = new CGFshader(this.gl, "shaders/terrain.vert", "shaders/terrain.frag");
     this.terrainShader.setUniformsValues({
@@ -161,6 +169,7 @@ export class MyScene extends CGFscene {
     this.sun     = new MyDisk(this, 32);
     this.terrain = new Plane(this, 50, 0, 30, 0, 30);
 
+    this.horse    = new CGFobjModel(this, "objects/horse.obj");
     this.barn     = new Barn(this,0,2,30);
     this.barnRing = new Ring(
       this,
@@ -476,7 +485,7 @@ export class MyScene extends CGFscene {
 
   drawInteractionRings() {
     if (!this.displayRings) return;
-    this.setActiveShader(this.defaultShader);
+    this.setActiveShaderSimple(this.defaultShader);
     const wx = this.wagon.posX * 3;
     const wz = this.wagon.posZ * 3;
 
@@ -546,8 +555,8 @@ export class MyScene extends CGFscene {
     this.drawWagon();
     this.drawHayBales();
     this.drawArrows();
-    this.drawFlora();           
-    this.drawRocks();           
+    this.drawFlora();
+    this.drawRocks();
     
     for (const [obj, show] of [
       [this.sky,     this.displaySkyNormals],
