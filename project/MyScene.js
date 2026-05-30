@@ -167,6 +167,15 @@ export class MyScene extends CGFscene {
   tryPickUpBale()   { this.gameController.tryPickUpBale(); }
   tryDropOffBales() { this.gameController.tryDropOffBales(); }
 
+  respawnBales(count) {
+    const newBales = this._spawnRandom(count, (x, z) => {
+      const b = new HayBale(this, x, z);
+      b.ring = new Ring(this, x, z, this._hayBaleRingRadius, b.y);
+      return b;
+    });
+    this.hayBales.push(...newBales);
+  }
+
   get hp()                  { return this.gameController.hp; }
   get score()               { return this.gameController.score; }
   get gameOver()            { return this.gameController.gameOver; }
@@ -431,9 +440,8 @@ export class MyScene extends CGFscene {
     ringAppearance.apply();
     this.barnRing.display(this);
 
-    // 2. Pickup indicators beneath active hay bales
+    // 2. Pickup indicators beneath hay bales
     for (const bale of this.hayBales) {
-      if (!bale.active) continue;
       if (bale.ring.contains(wx, wz)) {
         ringAppearance.setAmbient(1.0, 1.0, 0.0, 1.0);
         ringAppearance.setDiffuse(1.0, 1.0, 0.0, 1.0);
@@ -450,7 +458,6 @@ export class MyScene extends CGFscene {
     if (!this.hayBales) return;
     this.setActiveShaderSimple(this.defaultShader);
     for (const bale of this.hayBales) {
-      if (!bale.active) continue;
       this.pushMatrix();
         this.translate(bale.x, 0.8, bale.z);
         this.rotate(bale.yRot, 0, 1, 0);

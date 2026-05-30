@@ -17,7 +17,6 @@ export class HayBale extends CGFobject {
         this.baleRadius=baleRadius
         this.r      = Math.hypot(baleLength / 2, baleRadius);  // ≈ 2.34
         this.yRot   = Math.random() * Math.PI * 2;
-        this.active = true;
 
         this.cylinder = new MyCylinder(scene, 32, 1);
         this.disk     = new MyDisk(scene, 32);

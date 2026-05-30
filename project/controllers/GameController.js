@@ -77,9 +77,8 @@ export class GameController {
         if(this.collectedBalesCount >= this.maxCollectedBales) return;
         for (let i = 0; i < s.balesList.length; i++) {
             const bale = s.balesList[i];
-            if (!bale.active) continue;
             if (bale.ring.contains(wx, wz)) {
-                bale.active = false;
+                s.balesList.splice(i,1);
                 this.collectedBalesCount++;
                 break;
             }
@@ -90,7 +89,9 @@ export class GameController {
         if (this.gameOver || !this.isInsideRing || this.collectedBalesCount === 0) return;
         this.balesDropped += this.collectedBalesCount;
         this.gainHp();
+        const dropped = this.collectedBalesCount;
         this.collectedBalesCount = 0;
+        this.scene.respawnBales(dropped);
     }
 
     _triggerGameOver(reason) {
