@@ -1,6 +1,6 @@
-import { CGFobject } from '../../lib/CGF.js';
-import { MyUnitCube } from './cube.js';
-import { MyCylinder } from './cylinder.js';
+import { CGFobject } from '../../../lib/CGF.js';
+import { MyUnitCube } from '../basics/cube.js';
+import { MyCylinder } from '../basics/cylinder.js';
 import { HayBale } from './hayBale.js';
 
 export class Wagon extends CGFobject {

@@ -1,4 +1,4 @@
-import { Sphere } from './sphere.js';
+import { Sphere } from '../basics/sphere.js';
 
 export class Rock extends Sphere {
     constructor(scene, x, z) {

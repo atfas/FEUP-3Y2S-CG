@@ -1,6 +1,6 @@
-import { CGFobject } from '../../lib/CGF.js';
-import { MyCylinder } from './cylinder.js';
-import { MyDisk }     from './disk.js';
+import { CGFobject } from '../../../lib/CGF.js';
+import { MyCylinder } from '../basics/cylinder.js';
+import { MyDisk }     from '../basics/disk.js';
 
 /**
  * HayBale

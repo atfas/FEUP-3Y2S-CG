@@ -1,4 +1,4 @@
-import {CGFobject} from '../../lib/CGF.js';
+import {CGFobject} from '../../../lib/CGF.js';
 
 export class Sphere extends CGFobject {
     constructor(scene, slices, stacks, percentage = 1, invert = false) {

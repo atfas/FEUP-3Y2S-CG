@@ -1,13 +1,13 @@
 import { CGFaxis }     from "../../lib/CGF.js";
 import { CGFobjModel } from "../../lib/extra/CGFobjModel.js";
-import { Sphere }  from "../objects/sphere.js";
-import { MyDisk }  from "../objects/disk.js";
-import { Plane }   from "../objects/plane.js";
-import { Wagon }   from "../objects/wagon.js";
-import { Arrow }   from "../objects/Arrow.js";
-import { Grass }   from "../objects/grass.js";
-import { Barn }    from "../objects/barn/barn.js";
-import { Ring }    from "../objects/Ring.js";
+import { Sphere }  from "../objects/basics/sphere.js";
+import { MyDisk }  from "../objects/basics/disk.js";
+import { Plane }   from "../objects/basics/plane.js";
+import { Wagon }   from "../objects/composed/wagon.js";
+import { Arrow }   from "../objects/composed/Arrow.js";
+import { Grass }   from "../objects/composed/grass.js";
+import { Barn }    from "../objects/composed/barn/barn.js";
+import { Ring }    from "../objects/composed/Ring.js";
 
 export class ObjectLoader {
     constructor(scene) {

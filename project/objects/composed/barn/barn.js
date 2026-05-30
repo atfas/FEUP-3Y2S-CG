@@ -1,4 +1,4 @@
-import { CGFobject } from '../../../lib/CGF.js';
+import { CGFobject } from '../../../../lib/CGF.js';
 import { BarnWall  } from './BarnWall.js';
 import { BarnGable } from './BarnGable.js';
 import { RoofPanel } from './RoofPanel.js';

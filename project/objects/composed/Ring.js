@@ -1,4 +1,4 @@
-import { MyDisk } from './disk.js';
+import { MyDisk } from '../basics/disk.js';
 
 export class Ring {
     constructor(scene, x, z, radius, y = 0.26) {

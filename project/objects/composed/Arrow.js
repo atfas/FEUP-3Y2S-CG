@@ -1,6 +1,6 @@
-import { CGFobject } from '../../lib/CGF.js';
-import { MyCone }     from './MyCone.js';
-import { MyCylinder } from './cylinder.js';
+import { CGFobject } from '../../../lib/CGF.js';
+import { MyCone }     from '../basics/MyCone.js';
+import { MyCylinder } from '../basics/cylinder.js';
 
 /**
  * Arrow pointing downward (tip at y=0, shaft top at y=2.0).

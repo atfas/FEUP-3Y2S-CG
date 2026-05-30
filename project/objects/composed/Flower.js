@@ -1,7 +1,7 @@
-import { CGFobject } from '../../lib/CGF.js';
-import { MyCylinder } from './cylinder.js';
-import { MyQuad } from './MyQuad.js';
-import { MyUnitCube } from './cube.js';
+import { CGFobject } from '../../../lib/CGF.js';
+import { MyCylinder } from '../basics/cylinder.js';
+import { MyQuad } from '../basics/MyQuad.js';
+import { MyUnitCube } from '../basics/cube.js';
 
 export class Flower extends CGFobject {
     constructor(scene, x, z) {

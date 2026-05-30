@@ -1,4 +1,4 @@
-import { CGFobject } from '../../../lib/CGF.js';
+import { CGFobject } from '../../../../lib/CGF.js';
 
 /**
  * RoofPanel one sloped side of the barn roof.

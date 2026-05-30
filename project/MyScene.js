@@ -7,10 +7,10 @@ import { ObjectLoader }     from "./loaders/ObjectLoader.js";
 import { UniformLoader }    from "./loaders/UniformLoader.js";
 import { WagonController } from "./controllers/WagonController.js";
 import { GameController }  from "./controllers/GameController.js";
-import { HayBale } from "./objects/hayBale.js";
-import { Flower }  from "./objects/Flower.js";
-import { Rock }    from "./objects/Rock.js";
-import { Ring }    from "./objects/Ring.js";
+import { HayBale } from "./objects/composed/hayBale.js";
+import { Flower }  from "./objects/composed/Flower.js";
+import { Rock }    from "./objects/composed/Rock.js";
+import { Ring }    from "./objects/composed/Ring.js";
 
 export class MyScene extends CGFscene {
   constructor() {

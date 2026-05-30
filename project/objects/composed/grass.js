@@ -1,4 +1,4 @@
-import { CGFobject } from '../../lib/CGF.js';
+import { CGFobject } from '../../../lib/CGF.js';
 
 //  Tuning constants 
 const BLADES_PER_CLUMP = 100;     // triangles per clump (smaller = tighter, more distinct patches)
