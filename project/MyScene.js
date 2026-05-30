@@ -50,6 +50,8 @@ export class MyScene extends CGFscene {
     this._deadCount            = 150;
     this._deadHeightScale      = 0.75;
     this._deadSpread           = 40.0;
+    this.barnRingRadius = 8.0;
+    this.barnRingDistance = 12;
 
     // --- Textures ---
     this.skyTexture     = new CGFtexture(this, "textures/skyTex.png");
@@ -116,13 +118,7 @@ export class MyScene extends CGFscene {
     this.sun     = new Sphere(this, 16, 8,  1.0, false);
     this.terrain = new Plane(this, 50, 0, 30, 0, 30);
 
-    this.barn   = new Barn(this);
-    this.barn.x = 0;
-    this.barn.z = 30;
-    this.barn.r = 8;
-    this.barnRingX      = this.barn.x;
-    this.barnRingZ      = this.barn.z - 12;
-    this.barnRingRadius = 8.0;
+    this.barn   = new Barn(this,0,2,30);
 
     this.wagon     = new Wagon(this);
     this.hayBales  = new HayBales(this, this._baleCount, 77);
@@ -439,7 +435,7 @@ export class MyScene extends CGFscene {
 
     // 1. Barn Drop-Off Indicator Zone
     this.pushMatrix();
-      this.translate(this.barnRingX, 2, this.barnRingZ); // Placed slightly above ground floor to avoid flickering
+      this.translate(this.barn.x, this.barn.y, this.barn.z -this.barnRingDistance); 
       this.scale(this.barnRingRadius, 0.01, this.barnRingRadius); 
       
       if (this.gameController.isInsideRing) {

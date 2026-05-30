@@ -18,7 +18,8 @@ export class Barn extends CGFobject {
         this.y     = y;
         this.z     = z;
         this.scale = scale;
-        this.r     = Math.hypot(B_WIDTH, B_DEPTH) * scale;
+        // Bounding radius from the anchor (front-center) to the farthest back corner
+        this.r     = Math.hypot(B_WIDTH / 2 + B_OVHG, B_DEPTH) * scale;
 
         this._buildParts();
         this._buildAppearances();
