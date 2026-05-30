@@ -154,11 +154,7 @@ export class MyScene extends CGFscene {
       { x: this.barn.x,    z: this.barn.z,    r: this.barn.r },
       { x: this.wagon.posX * 3, z: this.wagon.posZ * 3, r: this.wagon.r },
     ];
-    this.rocks    = this._spawnRandom(this.rockCount,   (x, z) => {
-      let r = new Rock(this, x, z);
-      r.r = 1.8;
-      return r;
-    });
+    this.rocks    = this._spawnRandom(this.rockCount,   (x, z) => new Rock(this, x, z));
     this.flowers  = this._spawnRandom(this.flowerCount, (x, z) => new Flower(this, x, z));
     this.hayBales = this._spawnRandom(this._baleCount,  (x, z) => {
       const b = new HayBale(this, x, z);

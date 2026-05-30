@@ -43,7 +43,7 @@ export class GameController {
         this.isInsideRing = s.barnRing.contains(wx, wz);
 
         for (const rock of s.rocks) {
-            if (Math.hypot(wx - rock.x, wz - rock.z) < 3.2) {
+            if (Math.hypot(wx - rock.x, wz - rock.z) < rock.r) {
                 const key = rock.x + "_" + rock.z;
                 const now = Date.now();
                 if (!this._cooldowns[key] || now - this._cooldowns[key] > 1500) {

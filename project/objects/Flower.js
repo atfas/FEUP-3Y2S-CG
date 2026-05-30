@@ -10,7 +10,7 @@ export class Flower extends CGFobject {
         this.y = 0;
         this.z = z;
         this.scale = 2.5;
-        this.r = 0.4;
+        this.r = this.scale * 0.4;
         this.rotY = Math.random() * 2 * Math.PI;
         this.petalCount = 6 + Math.floor(Math.random() * 4);
         this._petalColor = [Math.random(), Math.random(), Math.random()];

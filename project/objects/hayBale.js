@@ -9,11 +9,13 @@ import { MyDisk }     from './disk.js';
  * - Circular caps   → hayFaceTex.png    (the spiral face texture)
  */
 export class HayBale extends CGFobject {
-    constructor(scene, x = 0, z = 0) {
+    constructor(scene, x = 0, z = 0, baleRadius= 1.8, baleLength=3) {
         super(scene);
         this.x      = x;
         this.z      = z;
-        this.r      = 2.0;
+        this.baleLength= baleLength;
+        this.baleRadius=baleRadius
+        this.r      = Math.hypot(baleLength / 2, baleRadius);  // ≈ 2.34
         this.yRot   = Math.random() * Math.PI * 2;
         this.active = true;
 
@@ -44,15 +46,12 @@ export class HayBale extends CGFobject {
     }
 
     display() {
-        const RADIUS = 0.6 * 3;   // 1.8
-        const LENGTH = 1.0 * 3;   // 3.0
-
         // ── Shared transform: bale lying on X-axis, resting on ground ─────────
         // (same as the original)
         this.scene.pushMatrix();
-            this.scene.translate(-LENGTH / 2, RADIUS, 0);
+            this.scene.translate(-this.baleLength / 2, this.baleRadius, 0);
             this.scene.rotate(Math.PI / 2, 0, 1, 0);   // cylinder axis → +X
-            this.scene.scale(RADIUS, RADIUS, LENGTH);
+            this.scene.scale(this.baleRadius, this.baleRadius, this.baleLength);
 
             // ── Curved side ───────────────────────────────────────────────────
             this.sideMat.apply();
