@@ -67,6 +67,7 @@ export class MyInterface extends CGFinterface {
 
     const debugFolder = this.gui.addFolder('Debug');
     debugFolder.add(this.scene, 'displayHitBoxes').name("Hit Boxes");
+    debugFolder.add(this.scene, 'renderRange', 10, 300, 1).name("Bale Render Range");
 
     const normalsFolder = this.gui.addFolder('Normals');
     normalsFolder.add(this.scene, 'displaySkyNormals').name("Sky Normals");

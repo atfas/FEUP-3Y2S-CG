@@ -39,8 +39,8 @@ export class GameController {
         }
 
         const s = this.scene;
-        const wx = s.wagon.posX * 3;
-        const wz = s.wagon.posZ * 3;
+        const wx = s.wagon.x;
+        const wz = s.wagon.z;
 
         this.isInsideRing = s.barnRing.contains(wx, wz);
 
@@ -74,8 +74,8 @@ export class GameController {
     tryPickUpBale() {
         if (this.gameOver) return;
         const s = this.scene;
-        const wx = s.wagon.posX * 3;
-        const wz = s.wagon.posZ * 3;
+        const wx = s.wagon.x;
+        const wz = s.wagon.z;
 
         if(this.collectedBalesCount >= this.maxCollectedBales) return;
         for (let i = 0; i < s.balesList.length; i++) {

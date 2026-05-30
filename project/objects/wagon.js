@@ -3,7 +3,7 @@ import { MyUnitCube } from './cube.js';
 import { MyCylinder } from './cylinder.js';
 
 export class Wagon extends CGFobject {
-    constructor(scene) {
+    constructor(scene,x,z,angle,scale) {
         super(scene);
 
         this.cube  = new MyUnitCube(scene);
@@ -16,11 +16,11 @@ export class Wagon extends CGFobject {
         this.canvasMat.setSpecular(0.05, 0.05, 0.04, 1.0);
         this.canvasMat.setShininess(3.0);
 
-        this.posX  = 0;
-        this.posZ  = 0;
-        this.angle = 0;
-        this.scale = 3;
-        this.r     = Math.hypot(1.5, 1.1) * this.scale;
+        this.x  = x;
+        this.z  = z;
+        this.angle =angle;
+        this.scale = scale;
+        this.r = 6 * this.scale;
 
         // Motion state
         this.speed      = 0;   // units/s
@@ -61,8 +61,8 @@ export class Wagon extends CGFobject {
         // distance between front axle (x=-1.5) and rear axle (x=1.5) = 3.0
         this.angle += this.speed * Math.tan(this.steerAngle) / 3.0 * dt;
 
-        this.posX -= Math.sin(this.angle) * this.speed * dt;
-        this.posZ += Math.cos(this.angle) * this.speed * dt;
+        this.x -= Math.sin(this.angle) * this.speed * this.scale * dt;
+        this.z += Math.cos(this.angle) * this.speed * this.scale * dt;
 
         this.wheelAngle += this.speed * dt / 0.5;
     }
@@ -247,9 +247,11 @@ export class Wagon extends CGFobject {
 
     display() {
         this.scene.pushMatrix();
-            this.scene.translate(this.posX, 0, this.posZ);
+            this.scene.translate(this.x, 0, this.z);
+            this.scene.scale(this.scale, this.scale, this.scale);
             this.scene.rotate(-this.angle, 0, 1, 0);
             this.scene.rotate(Math.PI / 2, 0, 1, 0);
+            this.scene.translate(0.75, 0, 0); // shift geometry so origin sits at wagon centre
 
             this.updateSunDirection();
             this.scene.woodAppearance.apply();

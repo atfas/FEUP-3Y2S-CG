@@ -41,19 +41,18 @@ export class WagonController {
         this.previousKeys['KeyL'] = this.keys['KeyL'];
 
         // Maintain core camera following mechanics
-        const scale = 3;
-        const wx = this.wagon.posX * scale;
-        const wz = this.wagon.posZ * scale;
+        const wx = this.wagon.x;
+        const wz = this.wagon.z;
         const wa = this.wagon.angle;
-        const followDist   = 10 * scale;
-        const followHeight = 4 * scale;
-        
+        const followDist   = 30;
+        const followHeight = 12;
+
         this.wagonCamera.setPosition(vec3.fromValues(
             wx + Math.sin(wa) * followDist,
             followHeight,
             wz - Math.cos(wa) * followDist,
         ));
-        this.wagonCamera.setTarget(vec3.fromValues(wx, 1.5 * scale, wz));
+        this.wagonCamera.setTarget(vec3.fromValues(wx, 4.5, wz));
     }
 
     get activeCamera() {
