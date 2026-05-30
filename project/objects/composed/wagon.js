@@ -9,7 +9,7 @@ export class Wagon extends CGFobject {
 
         this.cube  = new MyUnitCube(scene);
         this.wheel = new MyCylinder(scene, 16, 2);
-        this.cover  = new MyCylinder(scene, 20, 2, 0.5);
+        this.cover  = new MyCylinder(scene, 20, 20, 0.5);
         this.hayBale = new HayBale(scene, 0, 0, 0.45, 1.8);
 
         this.x  = x;
@@ -255,6 +255,7 @@ export class Wagon extends CGFobject {
         const len = Math.sqrt(lx*lx + ly*ly + lz*lz) || 1;
         const sunDir = [lx/len, ly/len, lz/len];
         this.scene.woodShader.setUniformsValues({ uSunDirection: sunDir });
+        this.scene.canvasShader.setUniformsValues({ uSunDirection: sunDir });
     }
 
     display() {
@@ -288,8 +289,9 @@ export class Wagon extends CGFobject {
 
             this.scene.setActiveShaderSimple(this.scene.defaultShader);
             this.displayHayBales();
-            this.scene.canvasAppearance.apply();
+            this.scene.setActiveShaderSimple(this.scene.canvasShader);
             this.displayCover();
+            this.scene.setActiveShaderSimple(this.scene.defaultShader);
         this.scene.popMatrix();
     }
 

@@ -22,5 +22,12 @@ export class ShaderLoader {
 
         scene.arrowShader = new CGFshader(scene.gl, "shaders/arrow.vert", "shaders/arrow.frag");
         scene.arrowShader.setUniformsValues({ uTimeFactor: 0 });
+
+        scene.canvasShader = new CGFshader(scene.gl, "shaders/canvas.vert", "shaders/canvas.frag");
+        scene.canvasShader.setUniformsValues({
+            uSunDirection: scene.getSunDirection(),
+            uNumStacks:    5.0,
+            uQuadraticDepth:     0.10
+        });
     }
 }
