@@ -2,6 +2,7 @@ export class GameController {
     constructor(scene, maxHP, maxCollectedBales, minColisionDamage, maxColisionDamage, healHP) {
         this.scene = scene;
 
+        this.maxHP = maxHP;
         this.hp = maxHP;
         this.score = 0;
         this.gameOver = false;
