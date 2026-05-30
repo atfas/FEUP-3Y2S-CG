@@ -291,5 +291,11 @@ export class SceneDraw {
         this.scene.displayRockNormals
           ? rock.enableNormalViz()
           : rock.disableNormalViz();
+
+    for (const flower of this.model.flowers)
+      if (flower)
+        this.scene.displayFlowerNormals
+          ? flower.enableNormalViz()
+          : flower.disableNormalViz();
   }
 }

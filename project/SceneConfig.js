@@ -58,4 +58,5 @@ export const SceneConfig = {
     displaySunNormals:     false,
     displayWagonNormals:   false,
     displayRockNormals:    false,
+    displayFlowerNormals:  false,
 };

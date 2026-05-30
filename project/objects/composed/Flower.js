@@ -23,10 +23,10 @@ export class Flower extends CGFobject {
 
     display() {
         const scene = this.scene;
-        
+
         const segmentLen = 0.35;
         const stemR  = 0.035;
-        const tilt   = this._tiltDir * 0.20; 
+        const tilt   = this._tiltDir * 0.20;
         const tilts  = [tilt, 0, -tilt];     //s curve on stem
 
         this.scene.flowerMaterial.setColor(0.2, 0.6, 0.1, 1);
@@ -68,5 +68,16 @@ export class Flower extends CGFobject {
             scene.scale(0.20, 0.07, 0.20);
             this._center.display();
         scene.popMatrix();
+    }
+
+    enableNormalViz(){
+        this._stem.enableNormalViz();
+        this._petal.enableNormalViz();
+        this._center.enableNormalViz();
+    }
+    disableNormalViz(){
+        this._stem.disableNormalViz();
+        this._petal.disableNormalViz();
+        this._center.disableNormalViz();
     }
 }

@@ -75,6 +75,7 @@ export class MyInterface extends CGFinterface {
     normalsFolder.add(this.scene, 'displaySunNormals').name("Sun Normals");
     normalsFolder.add(this.scene, 'displayWagonNormals').name("Wagon Normals");
     normalsFolder.add(this.scene, 'displayRockNormals').name("Rock Normals");
+    normalsFolder.add(this.scene, 'displayFlowerNormals').name("Flower Normals");
 
     return true;
   }
