@@ -191,6 +191,30 @@ export class Wagon extends CGFobject {
         this.scene.popMatrix();
     }
 
+    displayHorses() {
+        if (!this.scene.horse || !this.scene.displayHorse) return;
+
+        this.scene.setActiveShaderSimple(this.scene.defaultShader);
+        this.scene.gl.enable(this.scene.gl.NORMALIZE);
+        this.scene.gl.disable(this.scene.gl.CULL_FACE);
+        this.scene.horseAppearance.apply();
+
+        for (const zOff of [-0.4, 0.4]) {
+            this.scene.pushMatrix();
+                this.scene.translate(-1.1, 0, zOff);
+                this.scene.rotate(-Math.PI / 2, 0, 1, 0);
+                this.scene.scale(0.082, 0.082, 0.082);
+                this.scene.translate(0, 0, -3.241);
+                this.scene.horse.display();
+            this.scene.popMatrix();
+        }
+
+        this.scene.gl.enable(this.scene.gl.CULL_FACE);
+        this.scene.gl.disable(this.scene.gl.NORMALIZE);
+        this.scene.setActiveShaderSimple(this.scene.woodShader);
+        this.scene.woodAppearance.apply();
+    }
+
     // Forward tongue bar and crossbar, extending from the pivot toward the horse
     displaySteerableTongue() {
         // Bar from pivot (x=0) to horse (x=-1.95 in pivot coords = model x=-3.45)
@@ -229,7 +253,7 @@ export class Wagon extends CGFobject {
 
             this.updateSunDirection();
             this.scene.woodAppearance.apply();
-            this.scene.setActiveShader(this.scene.woodShader);
+            this.scene.setActiveShaderSimple(this.scene.woodShader);
 
             // Fixed body
             this.displayBed();
@@ -245,9 +269,10 @@ export class Wagon extends CGFobject {
                 this.displayFrontWheels();
                 this.displayFrontAxle();
                 this.displaySteerableTongue();
+                this.displayHorses();
             this.scene.popMatrix();
 
-            this.scene.setActiveShader(this.scene.defaultShader);
+            this.scene.setActiveShaderSimple(this.scene.defaultShader);
             this.canvasMat.apply();
             this.displayCover();
         this.scene.popMatrix();
