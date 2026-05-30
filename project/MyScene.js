@@ -164,6 +164,12 @@ export class MyScene extends CGFscene {
     this.horseAppearance.setSpecular(0.10, 0.07, 0.04, 1.0);
     this.horseAppearance.setShininess(12);
     
+    this.canvasAppearance = new CGFappearance(this);
+    this.canvasAppearance.setAmbient(0.90, 0.85, 0.70, 1.0);
+    this.canvasAppearance.setDiffuse(0.90, 0.85, 0.70, 1.0);
+    this.canvasAppearance.setSpecular(0.05, 0.05, 0.04, 1.0);
+    this.canvasAppearance.setShininess(3.0);
+
     this.hitBoxAppearance = new CGFappearance(this);
     this.hitBoxAppearance.setEmission(1.0, 0.0, 0.2, 1.0);
     this.hitBoxAppearance.setAmbient(1.0, 0.0, 0.2, 1.0);

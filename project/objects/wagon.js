@@ -1,6 +1,7 @@
-import { CGFobject, CGFappearance } from '../../lib/CGF.js';
+import { CGFobject } from '../../lib/CGF.js';
 import { MyUnitCube } from './cube.js';
 import { MyCylinder } from './cylinder.js';
+import { HayBale } from './hayBale.js';
 
 export class Wagon extends CGFobject {
     constructor(scene,x,z,angle,scale) {
@@ -9,12 +10,7 @@ export class Wagon extends CGFobject {
         this.cube  = new MyUnitCube(scene);
         this.wheel = new MyCylinder(scene, 16, 2);
         this.cover  = new MyCylinder(scene, 20, 2, 0.5);
-
-        this.canvasMat = new CGFappearance(scene);
-        this.canvasMat.setAmbient(0.90, 0.85, 0.70, 1.0);
-        this.canvasMat.setDiffuse(0.90, 0.85, 0.70, 1.0);
-        this.canvasMat.setSpecular(0.05, 0.05, 0.04, 1.0);
-        this.canvasMat.setShininess(3.0);
+        this.hayBale = new HayBale(scene, 0, 0, 0.45, 1.8);
 
         this.x  = x;
         this.z  = z;
@@ -28,6 +24,8 @@ export class Wagon extends CGFobject {
         this.spokeWidth           = 0.05;
         this.axleLength           = 2.2;
         this.r = this.boundingRadiusFactor * this.scale;
+
+        this.carriedHayBales = 0;
 
         // Motion state
         this.speed      = 0;   // units/s
@@ -233,6 +231,19 @@ export class Wagon extends CGFobject {
         this.scene.popMatrix();
     }
 
+    displayHayBales() {
+        if (this.carriedHayBales <= 0) return;
+        const toShow = this.carriedHayBales >= 2 ? 2 : 1;
+        this.scene.setActiveShaderSimple(this.scene.defaultShader);
+        const zPositions = toShow === 2 ? [-0.45, 0.45] : [0];
+        for (const z of zPositions) {
+            this.scene.pushMatrix();
+                this.scene.translate(0.9, 0.55, z);
+                this.hayBale.display();
+            this.scene.popMatrix();
+        }
+    }
+
     // ────────────────────────────────────────────────────────────────────────────
 
     updateSunDirection() {
@@ -276,7 +287,8 @@ export class Wagon extends CGFobject {
             this.scene.popMatrix();
 
             this.scene.setActiveShaderSimple(this.scene.defaultShader);
-            this.canvasMat.apply();
+            this.displayHayBales();
+            this.scene.canvasAppearance.apply();
             this.displayCover();
         this.scene.popMatrix();
     }

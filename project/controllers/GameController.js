@@ -74,13 +74,14 @@ export class GameController {
 
     tryPickUpBale() {
         if (this.gameOver) return;
-        
+
         if(this.collectedBalesCount >= this.maxCollectedBales) return;
         for (let i = 0; i < this.scene.balesList.length; i++) {
             const bale = this.scene.balesList[i];
             if (bale.ring.contains(this.scene.wagon.x, this.scene.wagon.z)) {
                 this.scene.balesList.splice(i,1);
                 this.collectedBalesCount++;
+                this.scene.wagon.carriedHayBales = this.collectedBalesCount;
                 break;
             }
         }
@@ -92,6 +93,7 @@ export class GameController {
         this.gainHp();
         const dropped = this.collectedBalesCount;
         this.collectedBalesCount = 0;
+        this.scene.wagon.carriedHayBales = 0;
         this.scene.respawnBales(dropped);
     }
 
