@@ -1,104 +1,106 @@
 export class GameController {
-    constructor(scene, maxHP, maxCollectedBales, minColisionDamage, maxColisionDamage, healHP) {
-        this.scene = scene;
-
-        this.maxHP = maxHP;
-        this.hp = maxHP;
-        this.score = 0;
-        this.gameOver = false;
-        this.collectedBalesCount = 0;
-        this.maxCollectedBales= maxCollectedBales;
-        this.balesDropped = 0;
-        this.instantDamage = 0;
-        this.minColisionDamage = minColisionDamage;
-        this.maxColisionDamage = maxColisionDamage;
-        this.instantHeal = 0;
-        this.healHP = healHP;
-        this.isInsideRing = false;
-        this.hasStartedMoving = false;
-
-        this.healthDrainInterval   = 1000;
-        this.collisionCooldown     = 1500;
-        this.damageDisplayDuration = 1500;
-        this.healDisplayDuration   = 1500;
-
-        this._lastSecondTime = 0;
-        this._cooldowns = {};
+    constructor(gameModel, wagon, barnRing, inputController) {
+        this.model   = gameModel;
+        this.wagon   = wagon;
+        this.barnRing = barnRing;
+        this.input   = inputController;
     }
 
     update(t) {
-        if (this.gameOver) return;
+        
+        if (!this.model.gameOver) {
+            if (this.input.wasJustPressed('KeyP')) this.tryPickUpBale();
+            if (this.input.wasJustPressed('KeyL')) this.tryDropOffBales();
+        }
+        this.input.endFrame();
 
-        if (!this.hasStartedMoving && this.scene.wagon.speed > 0)
-            this.hasStartedMoving = true;
+        if (this.model.gameOver) return;
 
-        if (this.hasStartedMoving) {
-            if (t - this._lastSecondTime >= this.healthDrainInterval) {
-                this.hp = Math.max(0, this.hp - 1);
-                this.score++;
-                this._lastSecondTime = t;
-                if (this.hp <= 0) this._triggerGameOver("Out of health");
+        if (!this.model.hasStartedMoving && this.wagon.speed > 0)
+            this.model.hasStartedMoving = true;
+
+        if (this.model.hasStartedMoving) {
+            if (t - this.model._lastSecondTime >= this.model.healthDrainInterval) {
+                this.model.hp = Math.max(0, this.model.hp - 1);
+                this.model.score++;
+                this.model._lastSecondTime = t;
+                if (this.model.hp <= 0) this._triggerGameOver("Out of health");
             }
         } else {
-            this._lastSecondTime = t;
+            this.model._lastSecondTime = t;
         }
 
-        this.isInsideRing = this.scene.barnRing.contains(this.scene.wagon.x, this.scene.wagon.z);
+        this.model.isInsideRing = this.barnRing.contains(this.wagon.x, this.wagon.z);
 
-        for (const rock of this.scene.rocks) {
-            if (Math.hypot(this.scene.wagon.x - rock.x, this.scene.wagon.z - rock.z) < rock.r) {
+        for (const rock of this.model.rocks) {
+            if (Math.hypot(this.wagon.x - rock.x, this.wagon.z - rock.z) < rock.r) {
                 const key = rock.x + "_" + rock.z;
                 const now = Date.now();
-                if (!this._cooldowns[key] || now - this._cooldowns[key] > this.collisionCooldown) {
-                    this._cooldowns[key] = now;
+                if (!this.model._cooldowns[key] || now - this.model._cooldowns[key] > this.model.collisionCooldown) {
+                    this.model._cooldowns[key] = now;
                     this.takeDamage();
-                    if (this.hp <= 0) this._triggerGameOver("Crashed into Rock");
+                    if (this.model.hp <= 0) this._triggerGameOver("Crashed into Rock");
                 }
             }
         }
     }
 
     takeDamage() {
-        const damage = Math.round(this.minColisionDamage + Math.random() * (this.maxColisionDamage - this.minColisionDamage));
-        this.hp = Math.max(0, this.hp - damage);
-        this.instantDamage = damage;
-        setTimeout(() => { this.instantDamage = 0; }, this.damageDisplayDuration);
+        
+        const damage = Math.round(this.model.minColisionDamage + Math.random() * (this.model.maxColisionDamage - this.model.minColisionDamage));
+        this.model.hp = Math.max(0, this.model.hp - damage);
+        this.model.instantDamage = damage;
+        setTimeout(() => { this.model.instantDamage = 0; }, this.model.damageDisplayDuration);
     }
 
     gainHp() {
-        const amount = this.collectedBalesCount * this.healHP;
-        this.hp = Math.min(this.maxHP, this.hp + amount);
-        this.instantHeal = amount;
-        setTimeout(() => { this.instantHeal = 0; }, this.healDisplayDuration);
+        
+        const amount = this.model.collectedBalesCount * this.model.healHP;
+        this.model.hp = Math.min(this.model.maxHP, this.model.hp + amount);
+        this.model.instantHeal = amount;
+        setTimeout(() => { this.model.instantHeal = 0; }, this.model.healDisplayDuration);
     }
 
     tryPickUpBale() {
-        if (this.gameOver) return;
-
-        if(this.collectedBalesCount >= this.maxCollectedBales) return;
-        for (let i = 0; i < this.scene.balesList.length; i++) {
-            const bale = this.scene.balesList[i];
-            if (bale.ring.contains(this.scene.wagon.x, this.scene.wagon.z)) {
-                this.scene.balesList.splice(i,1);
-                this.collectedBalesCount++;
-                this.scene.wagon.carriedHayBales = this.collectedBalesCount;
+        
+        if (this.model.gameOver) return;
+        if (this.model.collectedBalesCount >= this.model.maxCollectedBales) return;
+        for (let i = 0; i < this.model.hayBales.length; i++) {
+            const bale = this.model.hayBales[i];
+            if (bale.ring.contains(this.wagon.x, this.wagon.z)) {
+                this.model.hayBales.splice(i, 1);
+                this.model.collectedBalesCount++;
+                this.wagon.carriedHayBales = this.model.collectedBalesCount;
                 break;
             }
         }
     }
 
     tryDropOffBales() {
-        if (this.gameOver || !this.isInsideRing || this.collectedBalesCount === 0) return;
-        this.balesDropped += this.collectedBalesCount;
+        
+        if (this.model.gameOver || !this.model.isInsideRing || this.model.collectedBalesCount === 0) return;
+        this.model.balesDropped += this.model.collectedBalesCount;
         this.gainHp();
-        const dropped = this.collectedBalesCount;
-        this.collectedBalesCount = 0;
-        this.scene.wagon.carriedHayBales = 0;
-        this.scene.respawnBales(dropped);
+        const dropped = this.model.collectedBalesCount;
+        this.model.collectedBalesCount = 0;
+        this.wagon.carriedHayBales = 0;
+        this._spawnController.respawnBales(dropped);
     }
 
+    setSpawnController(spawnController) {
+        this._spawnController = spawnController;
+    }
+
+    // Proxy getters for dat.GUI bindings in MyInterface
+    get hp()                  { return this.model.hp; }
+    get score()               { return this.model.score; }
+    get instantDamage()       { return this.model.instantDamage; }
+    get instantHeal()         { return this.model.instantHeal; }
+    get collectedBalesCount() { return this.model.collectedBalesCount; }
+    get balesDropped()        { return this.model.balesDropped; }
+
     _triggerGameOver(reason) {
-        this.gameOver = true;
-        alert(`Game Over! ${reason}. Final Score: ${this.score}`);
+        this.model.gameOver = true;
+        alert(`Game Over! ${reason}. Final Score: ${this.model.score}`);
     }
 }

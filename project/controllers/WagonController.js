@@ -1,48 +1,24 @@
 export class WagonController {
-    constructor(wagon, freeCamera, wagonCamera) {
+    constructor(wagon, freeCamera, wagonCamera, inputController) {
         this.wagon       = wagon;
         this.freeCamera  = freeCamera;
         this.wagonCamera = wagonCamera;
-        this.cameraMode = 'wagon';
+        this.cameraMode  = 'wagon';
+        this.input      = inputController;
 
         this.followDist         = 30;
         this.followHeight       = 12;
         this.cameraTargetHeight = 4.5;
-
-        this.keys = {};
-        // Track whether the key was already down on the previous frame to prevent repeat-spamming
-        this.previousKeys = {};
-
-        document.addEventListener('keydown', (e) => { this.keys[e.code] = true; });
-        document.addEventListener('keyup',   (e) => { this.keys[e.code] = false; });
     }
 
-    update(dt, scene) {
-        // Handle standard driving physics
+    update(dt) {
         this.wagon.update(
             dt,
-            this.keys['KeyW'] || false,
-            this.keys['KeyS'] || false,
-            this.keys['KeyA'] || false,
-            this.keys['KeyD'] || false,
+            this.input.isDown('KeyW'),
+            this.input.isDown('KeyS'),
+            this.input.isDown('KeyA'),
+            this.input.isDown('KeyD'),
         );
-
-        // --- GAME ACTIONS INPUT EDGE DETECTION ---
-        // If scene reference is passed, safely invoke game logic mechanics
-        if (scene && !scene.gameOver) {
-            // Trigger Pick-up exactly once when KeyP transitions from up to down
-            if (this.keys['KeyP'] && !this.previousKeys['KeyP']) {
-                scene.tryPickUpBale();
-            }
-            // Trigger Drop-off exactly once when KeyL transitions from up to down
-            if (this.keys['KeyL'] && !this.previousKeys['KeyL']) {
-                scene.tryDropOffBales();
-            }
-        }
-
-        // Save current key states for the next frame's edge check
-        this.previousKeys['KeyP'] = this.keys['KeyP'];
-        this.previousKeys['KeyL'] = this.keys['KeyL'];
 
         this.wagonCamera.setPosition(vec3.fromValues(
             this.wagon.x + Math.sin(this.wagon.angle) * this.followDist,

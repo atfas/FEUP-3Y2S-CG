@@ -44,9 +44,9 @@ export class MyInterface extends CGFinterface {
 
     // FLORA — all three object types grouped together, all trigger _regenerate on finish
     const floraFolder = this.gui.addFolder('Flora');
-    floraFolder.add(this.scene, 'rockCount',   0, 500, 1).name('Rocks')    .onFinishChange(() => this.scene._regenerate());
-    floraFolder.add(this.scene, 'flowerCount', 0, 500, 1).name('Flowers')  .onFinishChange(() => this.scene._regenerate());
-    floraFolder.add(this.scene, 'baleCount',   1,  20, 1).name('Hay Bales').onFinishChange(() => this.scene._regenerate());
+    floraFolder.add(this.scene, 'rockCount',   0, 500, 1).name('Rocks')    .onFinishChange(() => this.scene.spawnController.regenerate());
+    floraFolder.add(this.scene, 'flowerCount', 0, 500, 1).name('Flowers')  .onFinishChange(() => this.scene.spawnController.regenerate());
+    floraFolder.add(this.scene, 'baleCount',   1,  20, 1).name('Hay Bales').onFinishChange(() => this.scene.spawnController.regenerate());
 
     const skyFolder = this.gui.addFolder('Sky');
     skyFolder.add(this.scene, 'sunElevation', 0, 180).name("Sun Elevation");
