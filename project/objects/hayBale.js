@@ -9,8 +9,13 @@ import { MyDisk }     from './disk.js';
  * - Circular caps   → hayFaceTex.png    (the spiral face texture)
  */
 export class HayBale extends CGFobject {
-    constructor(scene) {
+    constructor(scene, x = 0, z = 0) {
         super(scene);
+        this.x      = x;
+        this.z      = z;
+        this.r      = 2.0;
+        this.yRot   = Math.random() * Math.PI * 2;
+        this.active = true;
 
         this.cylinder = new MyCylinder(scene, 32, 1);
         this.disk     = new MyDisk(scene, 32);
