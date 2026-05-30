@@ -123,9 +123,11 @@ export class MyScene extends CGFscene {
 
     this.barn     = new Barn(this,0,2,30);
     this.barnRing = new Ring(
+      this,
       this.barn.x,
       this.barn.z - this._barnRingDistance,
-      this._barnRingRadius
+      this._barnRingRadius,
+      this.barn.y
     );
 
     this.wagon     = new Wagon(this);
@@ -160,7 +162,7 @@ export class MyScene extends CGFscene {
     this.flowers  = this._spawnRandom(this.flowerCount, (x, z) => new Flower(this, x, z));
     this.hayBales = this._spawnRandom(this._baleCount,  (x, z) => {
       const b = new HayBale(this, x, z);
-      b.ring = new Ring(x, z, this._hayBaleRingRadius);
+      b.ring = new Ring(this, x, z, this._hayBaleRingRadius, 0.26);
       return b;
     });
     this.balesList = this.hayBales;
@@ -431,7 +433,7 @@ export class MyScene extends CGFscene {
       ringAppearance.setDiffuse(0.6, 0.6, 0.6, 1.0);
     }
     ringAppearance.apply();
-    this.barnRing.display(this, this.sun, this.barn.y);
+    this.barnRing.display(this);
 
     // 2. Pickup indicators beneath active hay bales
     for (const bale of this.hayBales) {
@@ -444,7 +446,7 @@ export class MyScene extends CGFscene {
         ringAppearance.setDiffuse(1.0, 0.5, 0.0, 1.0);
       }
       ringAppearance.apply();
-      bale.ring.display(this, this.sun);
+      bale.ring.display(this);
     }
   }
 
