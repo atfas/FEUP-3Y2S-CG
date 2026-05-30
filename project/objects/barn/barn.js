@@ -3,52 +3,46 @@ import { BarnWall  } from './BarnWall.js';
 import { BarnGable } from './BarnGable.js';
 import { RoofPanel } from './RoofPanel.js';
 
-// Barn proportions 
-const B_WIDTH  = 1.6;
-const B_DEPTH  = 2.2;
-const B_WALL_H = 1.0;
-const B_ROOF_H = 0.55;
-const B_OVHG   = 0.12;
-
 export class Barn extends CGFobject {
     constructor(scene, x = 30, y = 2, z = 10, scale = 10) {
         super(scene);
 
-        this.x     = x;
-        this.y     = y;
-        this.z     = z;
-        this.scale = scale;
+        this.x              = x;
+        this.y              = y;
+        this.z              = z;
+        this.scale          = scale;
+        this.barnWidth      = 1.6;
+        this.barnDepth      = 2.2;
+        this.barnWallHeight = 1.0;
+        this.barnRoofHeight = 0.55;
+        this.barnOverhang   = 0.12;
+
         // Bounding radius from the anchor (front-center) to the farthest back corner
-        this.r     = Math.hypot(B_WIDTH / 2 + B_OVHG, B_DEPTH) * scale;
+        this.r = Math.hypot(this.barnWidth / 2 + this.barnOverhang, this.barnDepth) * scale;
 
         this._buildParts();
         this._buildAppearances();
     }
 
     _buildParts() {
-        const W  = B_WIDTH;
-        const D  = B_DEPTH;
-        const wH = B_WALL_H;
-        const rH = B_ROOF_H;
-        const ov = B_OVHG;
 
-        this.frontGable = new BarnGable(this.scene, W, wH, rH, ov);
-        this.backGable  = new BarnGable(this.scene, W, wH, rH, ov);
-        this.leftWall   = new BarnWall(this.scene, D, wH);
-        this.rightWall  = new BarnWall(this.scene, D, wH);
+        this.frontGable = new BarnGable(this.scene, this.barnWidth, this.barnWallHeight, this.barnRoofHeight, this.barnOverhang);
+        this.backGable  = new BarnGable(this.scene, this.barnWidth, this.barnWallHeight, this.barnRoofHeight, this.barnOverhang);
+        this.leftWall   = new BarnWall(this.scene, this.barnDepth, this.barnWallHeight);
+        this.rightWall  = new BarnWall(this.scene, this.barnDepth, this.barnWallHeight);
 
-        const topY      = wH + rH;
-        const midY      = wH + rH * 0.82;
-        const inset     = W * 0.34;
-        const leftX     = -(W / 2 + ov);
-        const rightX    =  (W / 2 + ov);
+        const topY      = this.barnWallHeight + this.barnRoofHeight;
+        const midY      = this.barnWallHeight + this.barnRoofHeight * this.frontGable.midHeightRatio;
+        const inset     = this.barnWidth * this.frontGable.insetRatio;
+        const leftX     = -(this.barnWidth / 2 + this.barnOverhang);
+        const rightX    =  (this.barnWidth / 2 + this.barnOverhang);
         const leftMidX  = -inset;
         const rightMidX =  inset;
-        const frontZ    = -ov;
-        const backZ     =  D + ov;
+        const frontZ    = -this.barnOverhang;
+        const backZ     =  this.barnDepth + this.barnOverhang;
 
         this.lowerLeftRoof = new RoofPanel(this.scene, [
-            leftX, wH, frontZ,  leftX, wH, backZ,
+            leftX, this.barnWallHeight, frontZ,  leftX, this.barnWallHeight, backZ,
             leftMidX, midY, backZ,  leftMidX, midY, frontZ,
         ]);
         this.upperLeftRoof = new RoofPanel(this.scene, [
@@ -61,7 +55,7 @@ export class Barn extends CGFobject {
         ]);
         this.lowerRightRoof = new RoofPanel(this.scene, [
             rightMidX, midY, frontZ,  rightMidX, midY, backZ,
-            rightX, wH, backZ,  rightX, wH, frontZ,
+            rightX, this.barnWallHeight, backZ,  rightX, this.barnWallHeight, frontZ,
         ]);
     }
 
@@ -92,8 +86,6 @@ export class Barn extends CGFobject {
     }
 
     display() {
-        const W = B_WIDTH;
-        const D = B_DEPTH;
         const scene = this.scene;
 
         // FRONT — uses the composite texture (door + window)
@@ -104,7 +96,7 @@ export class Barn extends CGFobject {
 
         // BACK
         scene.pushMatrix();
-            scene.translate(0, 0, D);
+            scene.translate(0, 0, this.barnDepth);
             scene.rotate(Math.PI, 0, 1, 0);
             this.wallAppearance.apply();
             this.backGable.display();
@@ -112,7 +104,7 @@ export class Barn extends CGFobject {
 
         // LEFT WALL
         scene.pushMatrix();
-            scene.translate(-(W / 2 + B_OVHG), 0, D / 2);
+            scene.translate(-(this.barnWidth / 2 + this.barnOverhang), 0, this.barnDepth / 2);
             scene.rotate(-Math.PI / 2, 0, 1, 0);
             this.wallAppearance.apply();
             this.leftWall.display();
@@ -120,7 +112,7 @@ export class Barn extends CGFobject {
 
         // RIGHT WALL
         scene.pushMatrix();
-            scene.translate((W / 2 + B_OVHG), 0, D / 2);
+            scene.translate((this.barnWidth / 2 + this.barnOverhang), 0, this.barnDepth / 2);
             scene.rotate(Math.PI / 2, 0, 1, 0);
             this.wallAppearance.apply();
             this.rightWall.display();

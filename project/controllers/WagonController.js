@@ -5,6 +5,10 @@ export class WagonController {
         this.wagonCamera = wagonCamera;
         this.cameraMode = 'wagon';
 
+        this.followDist         = 30;
+        this.followHeight       = 12;
+        this.cameraTargetHeight = 4.5;
+
         this.keys = {};
         // Track whether the key was already down on the previous frame to prevent repeat-spamming
         this.previousKeys = {};
@@ -40,19 +44,12 @@ export class WagonController {
         this.previousKeys['KeyP'] = this.keys['KeyP'];
         this.previousKeys['KeyL'] = this.keys['KeyL'];
 
-        // Maintain core camera following mechanics
-        const wx = this.wagon.x;
-        const wz = this.wagon.z;
-        const wa = this.wagon.angle;
-        const followDist   = 30;
-        const followHeight = 12;
-
         this.wagonCamera.setPosition(vec3.fromValues(
-            wx + Math.sin(wa) * followDist,
-            followHeight,
-            wz - Math.cos(wa) * followDist,
+            this.wagon.x + Math.sin(this.wagon.angle) * this.followDist,
+            this.followHeight,
+            this.wagon.z - Math.cos(this.wagon.angle) * this.followDist,
         ));
-        this.wagonCamera.setTarget(vec3.fromValues(wx, 4.5, wz));
+        this.wagonCamera.setTarget(vec3.fromValues(this.wagon.x, this.cameraTargetHeight, this.wagon.z));
     }
 
     get activeCamera() {

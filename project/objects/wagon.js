@@ -20,7 +20,14 @@ export class Wagon extends CGFobject {
         this.z  = z;
         this.angle =angle;
         this.scale = scale;
-        this.r = 6 * this.scale;
+        this.boundingRadiusFactor = 6;
+        this.wheelbase            = 3.0;
+        this.wheelRadius          = 0.5;
+        this.wheelThickness       = 0.2;
+        this.numSpokes            = 8;
+        this.spokeWidth           = 0.05;
+        this.axleLength           = 2.2;
+        this.r = this.boundingRadiusFactor * this.scale;
 
         // Motion state
         this.speed      = 0;   // units/s
@@ -58,20 +65,16 @@ export class Wagon extends CGFobject {
             else this.steerAngle -= Math.sign(this.steerAngle) * ret;
         }
 
-        // distance between front axle (x=-1.5) and rear axle (x=1.5) = 3.0
-        this.angle += this.speed * Math.tan(this.steerAngle) / 3.0 * dt;
+        this.angle += this.speed * Math.tan(this.steerAngle) / this.wheelbase * dt;
 
         this.x -= Math.sin(this.angle) * this.speed * this.scale * dt;
         this.z += Math.cos(this.angle) * this.speed * this.scale * dt;
 
-        this.wheelAngle += this.speed * dt / 0.5;
+        this.wheelAngle += this.speed * dt / this.wheelRadius;
     }
 
     // Draws one wheel (rim + spokes) centred at (cx, cy, cz)
     drawWheelGroup(cx, cy, cz, WR, WT) {
-        const NUM_SPOKES = 8;
-        const SPOKE_W = 0.05;
-
         this.scene.pushMatrix();
             this.scene.translate(cx, cy, cz);
             this.scene.rotate(this.wheelAngle, 0, 0, 1);
@@ -82,12 +85,12 @@ export class Wagon extends CGFobject {
                 this.wheel.display();
             this.scene.popMatrix();
 
-            for (let i = 0; i < NUM_SPOKES; i++) {
-                const a = (i / NUM_SPOKES) * Math.PI * 2;
+            for (let i = 0; i < this.numSpokes; i++) {
+                const a = (i / this.numSpokes) * Math.PI * 2;
                 this.scene.pushMatrix();
                     this.scene.rotate(a, 0, 0, 1);
                     this.scene.translate(WR / 2, 0, 0);
-                    this.scene.scale(WR, SPOKE_W, SPOKE_W);
+                    this.scene.scale(WR, this.spokeWidth, this.spokeWidth);
                     this.cube.display();
                 this.scene.popMatrix();
             }
@@ -119,16 +122,15 @@ export class Wagon extends CGFobject {
     }
 
     displayRearWheels() {
-        const WR = 0.5, WT = 0.2;
+        const WR = this.wheelRadius, WT = this.wheelThickness;
         this.drawWheelGroup(1.5, WR, -(1.0 + WT / 2), WR, WT);
         this.drawWheelGroup(1.5, WR,  (1.0 + WT / 2), WR, WT);
     }
 
     displayRearAxle() {
-        const axleLen = 2.2;
         this.scene.pushMatrix();
             this.scene.translate(1.5, 0.5, 0);
-            this.scene.scale(0.05, 0.05, axleLen);
+            this.scene.scale(0.05, 0.05, this.axleLength);
             this.cube.display();
         this.scene.popMatrix();
         this.scene.pushMatrix();
@@ -172,16 +174,15 @@ export class Wagon extends CGFobject {
     // ── Steerable front assembly (all coords relative to front axle pivot) ──────
 
     displayFrontWheels() {
-        const WR = 0.5, WT = 0.2;
+        const WR = this.wheelRadius, WT = this.wheelThickness;
         this.drawWheelGroup(0, WR, -(1.0 + WT / 2), WR, WT);
         this.drawWheelGroup(0, WR,  (1.0 + WT / 2), WR, WT);
     }
 
     displayFrontAxle() {
-        const axleLen = 2.2;
         this.scene.pushMatrix();
             this.scene.translate(0, 0.5, 0);
-            this.scene.scale(0.05, 0.05, axleLen);
+            this.scene.scale(0.05, 0.05, this.axleLength);
             this.cube.display();
         this.scene.popMatrix();
         this.scene.pushMatrix();

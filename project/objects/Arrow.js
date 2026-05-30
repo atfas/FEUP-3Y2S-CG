@@ -9,24 +9,25 @@ import { MyCylinder } from './cylinder.js';
 export class Arrow extends CGFobject {
     constructor(scene) {
         super(scene);
-        this.cone     = new MyCone(scene, 12, 1);
-        this.cylinder = new MyCylinder(scene, 12, 1);
+        this.cone       = new MyCone(scene, 12, 1);
+        this.cylinder   = new MyCylinder(scene, 12, 1);
+        this.headBaseY  = 0.7;
     }
 
     display() {
         // Arrowhead: MyCone has base at y=0, tip at y=1 (pointing up).
-        // Flip 180° around X so tip points down (y=0), base at y=0.7.
+        // Flip 180° around X so tip points down (y=0), base at this.headBaseY.
         this.scene.pushMatrix();
-            this.scene.translate(0, 0.7, 0);
+            this.scene.translate(0, this.headBaseY, 0);
             this.scene.rotate(Math.PI, 1, 0, 0);
             this.scene.scale(0.4, 0.7, 0.4);
             this.cone.display();
         this.scene.popMatrix();
 
-        // Shaft: project cylinder goes along Z (z=0..1).
-        // Rotate -90° around X so it goes along Y, from y=0.7 to y=2.0.
+        // Shaft: cylinder goes along Z (z=0..1).
+        // Rotate -90° around X so it goes along Y, from y=headBaseY to y=2.0.
         this.scene.pushMatrix();
-            this.scene.translate(0, 0.7, 0);
+            this.scene.translate(0, this.headBaseY, 0);
             this.scene.rotate(-Math.PI / 2, 1, 0, 0);
             this.scene.scale(0.1, 0.1, 1.3);
             this.cylinder.display();

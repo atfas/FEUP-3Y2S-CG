@@ -40,8 +40,8 @@ export class MyScene extends CGFscene {
     this.sunDegree             = 180;
     this.renderRange           = 120;
     this.windStrength          = 0.5;
-    this.rockCount             = 50;
-    this.flowerCount           = 100;
+    this.rockCount             = 100;
+    this.flowerCount           = 500;
     this._baleCount            = 8;
     this._liveCount            = 300;
     this._liveHeightScale      = 0.8;
@@ -53,7 +53,28 @@ export class MyScene extends CGFscene {
     this._barnRingRadius   = 8.0;
     this._barnRingDistance = 12.0;
     this._hayBaleRingRadius = 5.0;
-    
+    this._spawnRadius       = 170;
+
+    // --- Scene layout ---
+    this._groundLevel        = -10;
+    this._terrainScale       = 400;
+    this._skyScale           = 200;
+    this._sunDistance        = 190;
+    this._sunSize            = 8;
+    this._rockGroundY        = 0.25;
+    this._flowerGroundY      = 0.25;
+    this._baleGroundY        = 0.8;
+    this._arrowDisplayHeight = 5.5;
+    this._arrowDisplayScale  = 7;
+    this._hitCircleY         = 0.3;
+
+    // --- Animation ---
+    this._maxDeltaTime  = 0.1;
+    this._skyAnimPeriod = 8000;
+    this._skyAnimWrap   = 100;
+    this._grassAnimWrap = 1000;
+    this._arrowAnimWrap = 100;
+
     // --- Display flags ---
     this.displayAxis           = false;
     this.displaySky            = true;
@@ -249,16 +270,10 @@ export class MyScene extends CGFscene {
     const result = [];
     let attempts = 0;
     
-    // 120 keeps objects perfectly distributed across the flat valley
-    // right up until the mountains start climbing around 130!
-    const MAX_RADIUS = 170;
-
     while (result.length < count && attempts < count * 10) {
       attempts++;
       const a = Math.random() * 2 * Math.PI;
-      
-      // Scale up the uniform distance distribution to our new maximum boundary
-      const r = Math.sqrt(Math.random()) * MAX_RADIUS; 
+      const r = Math.sqrt(Math.random()) * this._spawnRadius;
       const x = Math.cos(a) * r;
       const z = Math.sin(a) * r;
 
@@ -280,7 +295,7 @@ export class MyScene extends CGFscene {
     for (const rock of this.rocks) {
       if (Math.hypot(rock.x - this.wagon.x, rock.z - this.wagon.z) > this.renderRange) continue;
       this.pushMatrix();
-        this.translate(rock.x, 0.25, rock.z);
+        this.translate(rock.x, this._rockGroundY, rock.z);
         rock.display();
       this.popMatrix();
     }
@@ -292,7 +307,7 @@ export class MyScene extends CGFscene {
     for (const f of this.flowers) {
       if (Math.hypot(f.x - this.wagon.x, f.z - this.wagon.z) > this.renderRange) continue;
       this.pushMatrix();
-        this.translate(f.x, 0.25, f.z);
+        this.translate(f.x, this._flowerGroundY, f.z);
         this.scale(f.scale, f.scale, f.scale);
         this.rotate(f.rotY, 0, 1, 0);
         f.display();
@@ -351,7 +366,7 @@ export class MyScene extends CGFscene {
 
   update(t) {
     if (this.lastTime === undefined) this.lastTime = t;
-    const dt = Math.min((t - this.lastTime) / 1000, 0.1);
+    const dt = Math.min((t - this.lastTime) / 1000, this._maxDeltaTime);
     this.lastTime = t;
 
     this.gameController.update(t);
@@ -360,10 +375,10 @@ export class MyScene extends CGFscene {
     const [sx, sy, sz] = this.getSunDirection();
     this.lights[1].setPosition(sx, sy, sz, 0);
     this.lights[1].update();
-    this._uSkyTime.timeFactor = t / 8000 % 100;
-    this._uGrassWind.uTime = (t / 1000) % 1000;
+    this._uSkyTime.timeFactor = t / this._skyAnimPeriod % this._skyAnimWrap;
+    this._uGrassWind.uTime = (t / 1000) % this._grassAnimWrap;
     this._uGrassWind.uWindStrength = this.windStrength;
-    this._uArrow.uTimeFactor = (t / 1000) % 100;
+    this._uArrow.uTimeFactor = (t / 1000) % this._arrowAnimWrap;
 
     this.wagonController.update(dt, this);
     this.camera = this.wagonController.activeCamera;
@@ -382,8 +397,8 @@ export class MyScene extends CGFscene {
     this.skyShader.setUniformsValues(this._uSkyTime);
     this.pushMatrix();
       this.skyAppearance.apply();
-      this.translate(0, -10, 0);
-      this.scale(200, 200, 200);
+      this.translate(0, this._groundLevel, 0);
+      this.scale(this._skyScale, this._skyScale, this._skyScale);
       this.rotate(-Math.PI / 2, 1, 0, 0);
       this.sky.display();
     this.popMatrix();
@@ -398,10 +413,10 @@ export class MyScene extends CGFscene {
     this.setActiveShaderSimple(this.defaultShader);
     this.sunAppearance.apply();
     this.pushMatrix();
-      this.translate(sx * 190, sy * 190, sz * 190);
+      this.translate(sx * this._sunDistance, sy * this._sunDistance, sz * this._sunDistance);
       this.rotate(Math.PI + deg, 0, 1, 0);
       this.rotate(elev, 1, 0, 0);
-      this.scale(8, 8, 8);
+      this.scale(this._sunSize, this._sunSize, this._sunSize);
       this.sun.display();
     this.popMatrix();
   }
@@ -423,8 +438,8 @@ export class MyScene extends CGFscene {
     this.terrainShader.setUniformsValues(this._uTerrainLighting );
 
     this.pushMatrix();
-      this.translate(0, -10, 0);
-      this.scale(400, 400, 400);
+      this.translate(0, this._groundLevel, 0);
+      this.scale(this._terrainScale, this._terrainScale, this._terrainScale);
       this.rotate(-Math.PI / 2, 1, 0, 0);
       this.terrain.display();
     this.popMatrix();
@@ -447,8 +462,8 @@ export class MyScene extends CGFscene {
     this._uGrassLive.uSunDir = sunDir;
     this.grassShader.setUniformsValues(this._uGrassLive);
     this.pushMatrix();
-      this.translate(0, -10, 0);
-      this.scale(400, 400, 400);
+      this.translate(0, this._groundLevel, 0);
+      this.scale(this._terrainScale, this._terrainScale, this._terrainScale);
       this.rotate(-Math.PI / 2, 1, 0, 0);
       this.grass.display();
     this.popMatrix();
@@ -457,8 +472,8 @@ export class MyScene extends CGFscene {
       this._uGrassDead.uSunDir = sunDir;
       this.grassShader.setUniformsValues(this._uGrassDead);
       this.pushMatrix();
-        this.translate(0, -10, 0);
-        this.scale(400, 400, 400);
+        this.translate(0, this._groundLevel, 0);
+        this.scale(this._terrainScale, this._terrainScale, this._terrainScale);
         this.rotate(-Math.PI / 2, 1, 0, 0);
         this.deadGrass.display();
       this.popMatrix();
@@ -511,7 +526,7 @@ export class MyScene extends CGFscene {
     for (const bale of this.hayBales) {
       if (Math.hypot(bale.x - this.wagon.x, bale.z - this.wagon.z) > this.renderRange) continue;
       this.pushMatrix();
-        this.translate(bale.x, 0.8, bale.z);
+        this.translate(bale.x, this._baleGroundY, bale.z);
         this.rotate(bale.yRot, 0, 1, 0);
         bale.display();
       this.popMatrix();
@@ -527,8 +542,8 @@ export class MyScene extends CGFscene {
 
     for (const bale of this.hayBales) {
       this.pushMatrix();
-        this.translate(bale.x, 5.5, bale.z);
-        this.scale(7,7,7);
+        this.translate(bale.x, this._arrowDisplayHeight, bale.z);
+        this.scale(this._arrowDisplayScale, this._arrowDisplayScale, this._arrowDisplayScale);
         this.arrow.display();
       this.popMatrix();
     }
@@ -536,7 +551,7 @@ export class MyScene extends CGFscene {
 
   _drawHitCircle(x, z, r) {
     this.pushMatrix();
-      this.translate(x, 0.3, z);
+      this.translate(x, this._hitCircleY, z);
       this.rotate(-Math.PI / 2, 1, 0, 0);
       this.scale(r, r, 1);
       this._hitBoxDisk.display();
