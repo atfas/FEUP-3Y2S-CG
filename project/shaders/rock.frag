@@ -3,10 +3,10 @@ precision highp float;
 #endif
 
 varying vec3 vNormal;
-varying vec2 vTexCoord;
+varying vec2 vTextureCoord;
 
 uniform sampler2D uSampler;
-uniform vec3 uSunDir;
+uniform vec3 uSunDirection;
 uniform int uRockType;
 
 void main() {
@@ -20,10 +20,10 @@ void main() {
     else
         tint = vec3(0.65, 0.85, 0.55);     // greenish
 
-    vec3 color = texture2D(uSampler, vTexCoord).rgb * tint;
+    vec3 rockColor = texture2D(uSampler, vTextureCoord).rgb * tint;
 
-    float diffuse = max(dot(normalize(vNormal), normalize(uSunDir)), 0.0);
-    color *= 0.25 + 0.75 * diffuse;
+    float diffuseLight = max(dot(normalize(vNormal), normalize(uSunDirection)), 0.0);
+    rockColor *= 0.25 + 0.75 * diffuseLight;
 
-    gl_FragColor = vec4(color, 1.0);
+    gl_FragColor = vec4(rockColor, 1.0);
 }

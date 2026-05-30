@@ -9,7 +9,7 @@ uniform vec3 uSeed;
 
 varying vec3 vNormal;
 varying vec3 vPosition;
-varying vec2 vTexCoord;
+varying vec2 vTextureCoord;
 
 float hash(vec3 p) {
     p = fract(p * 0.3183099 + 0.1);
@@ -32,10 +32,10 @@ void main() {
     // Push each vertex outward along its normal by a noise amount
     // uSeed makes each rock look different
     float displacement = noise(aVertexPosition * 3.5 + uSeed) * 0.3 - 0.05;
-    vec3 displaced = aVertexPosition + aVertexNormal * displacement;
+    vec3 displacedPosition = aVertexPosition + aVertexNormal * displacement;
 
-    vNormal   = normalize((uNMatrix * vec4(aVertexNormal, 0.0)).xyz);
-    vPosition = aVertexPosition;
-    vTexCoord = aTextureCoord;
-    gl_Position = uPMatrix * uMVMatrix * vec4(displaced, 1.0);
+    vNormal      = normalize((uNMatrix * vec4(aVertexNormal, 0.0)).xyz);
+    vPosition    = aVertexPosition;
+    vTextureCoord = aTextureCoord;
+    gl_Position  = uPMatrix * uMVMatrix * vec4(displacedPosition, 1.0);
 }

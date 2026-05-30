@@ -2,11 +2,10 @@
 precision mediump float;
 #endif
 
-uniform vec3  uSunDir;
+uniform vec3  uSunDirection;
 uniform float uDeadGrass; // 0.0 = living green, 1.0 = dead brown
 
 varying float vHeight;
-varying vec3  vNormal;
 
 void main() {
     // Living: dark earthy green → bright yellow-green
@@ -22,11 +21,11 @@ void main() {
     vec3 color = mix(baseColor, tipColor, vHeight);
 
     // Simple sun-direction diffuse tint
-    float sunHeight = max(normalize(uSunDir).y, 0.0);
-    float light = clamp(0.35 + sunHeight * 0.65, 0.0, 1.0);
+    float sunHeight = max(normalize(uSunDirection).y, 0.0);
+    float lightIntensity = clamp(0.35 + sunHeight * 0.65, 0.0, 1.0);
 
     // Soft AO: darken slightly at the base
     float ao = 0.5 + 0.5 * vHeight;
 
-    gl_FragColor = vec4(color * light * ao, 1.0);
+    gl_FragColor = vec4(color * lightIntensity * ao, 1.0);
 }

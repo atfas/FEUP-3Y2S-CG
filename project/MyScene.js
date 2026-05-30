@@ -180,7 +180,7 @@ export class MyScene extends CGFscene {
     });
     
     this.skyShader = new CGFshader(this.gl, "shaders/sky.vert", "shaders/sky.frag");
-    this.skyShader.setUniformsValues({ uSampler2: 1, timeFactor: 0, normScale: 1 });
+    this.skyShader.setUniformsValues({ uSampler2: 1, uTimeFactor: 0, uNormScale: 1 });
     
     this.rockShader = new CGFshader(this.gl, "shaders/rock.vert", "shaders/rock.frag");
     
@@ -219,12 +219,12 @@ export class MyScene extends CGFscene {
     
     // --- Uniforms ---
     const initialSunDir        = this.getSunDirection();
-    this._uSkyTime             = { timeFactor: 0 };
+    this._uSkyTime             = { uTimeFactor: 0 };
     this._uGrassWind           = { uTime: 0, uWindStrength: this.windStrength };
-    this._uTerrainLighting     = { uSunDir: initialSunDir };
-    this._uGrassLive           = { uSunDir: initialSunDir, uDeadGrass: 0.0 };
-    this._uGrassDead           = { uSunDir: initialSunDir, uDeadGrass: 1.0 };
-    this._uRock                = { uSampler: 0, uSunDir: initialSunDir };
+    this._uTerrainLighting     = { uSunDirection: initialSunDir };
+    this._uGrassLive           = { uSunDirection: initialSunDir, uDeadGrass: 0.0 };
+    this._uGrassDead           = { uSunDirection: initialSunDir, uDeadGrass: 1.0 };
+    this._uRock                = { uSampler: 0, uSunDirection: initialSunDir };
     this._uArrow               = { uTimeFactor: 0 };
 
     // --- Controllers ---
@@ -290,7 +290,7 @@ export class MyScene extends CGFscene {
     if (!this.displayRocks) return;
     this.setActiveShaderSimple(this.rockShader);
     this.rockTexture.bind(0);
-    this._uRock.uSunDir = this.getSunDirection();
+    this._uRock.uSunDirection = this.getSunDirection();
     this.rockShader.setUniformsValues(this._uRock);
     for (const rock of this.rocks) {
       if (Math.hypot(rock.x - this.wagon.x, rock.z - this.wagon.z) > this.renderRange) continue;
@@ -375,7 +375,7 @@ export class MyScene extends CGFscene {
     const [sx, sy, sz] = this.getSunDirection();
     this.lights[1].setPosition(sx, sy, sz, 0);
     this.lights[1].update();
-    this._uSkyTime.timeFactor = t / this._skyAnimPeriod % this._skyAnimWrap;
+    this._uSkyTime.uTimeFactor = t / this._skyAnimPeriod % this._skyAnimWrap;
     this._uGrassWind.uTime = (t / 1000) % this._grassAnimWrap;
     this._uGrassWind.uWindStrength = this.windStrength;
     this._uArrow.uTimeFactor = (t / 1000) % this._arrowAnimWrap;
@@ -434,7 +434,7 @@ export class MyScene extends CGFscene {
     this.pathMask.bind(2);
     this.pathTex.bind(3);
 
-    this._uTerrainLighting.uSunDir = sunDir;
+    this._uTerrainLighting.uSunDirection = sunDir;
     this.terrainShader.setUniformsValues(this._uTerrainLighting );
 
     this.pushMatrix();
@@ -459,7 +459,7 @@ export class MyScene extends CGFscene {
     this.grassShader.setUniformsValues(this._uGrassWind);
 
     // Living green grass
-    this._uGrassLive.uSunDir = sunDir;
+    this._uGrassLive.uSunDirection = sunDir;
     this.grassShader.setUniformsValues(this._uGrassLive);
     this.pushMatrix();
       this.translate(0, this._groundLevel, 0);
@@ -469,7 +469,7 @@ export class MyScene extends CGFscene {
     this.popMatrix();
 
     if (this.deadGrass) {
-      this._uGrassDead.uSunDir = sunDir;
+      this._uGrassDead.uSunDirection = sunDir;
       this.grassShader.setUniformsValues(this._uGrassDead);
       this.pushMatrix();
         this.translate(0, this._groundLevel, 0);

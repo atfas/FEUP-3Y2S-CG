@@ -5,8 +5,8 @@ uniform mat4 uPMatrix;
 uniform float uTimeFactor;
 
 void main() {
-    float bob = sin(uTimeFactor * 3.0) * 0.35;
+    float verticalBob = sin(uTimeFactor * 3.0) * 0.35;
     vec4 mvPos = uMVMatrix * vec4(aVertexPosition, 1.0);
-    mvPos.y += bob;
+    mvPos.y += verticalBob;
     gl_Position = uPMatrix * mvPos;
 }
