@@ -1,4 +1,4 @@
-import { CGFobject, CGFappearance } from '../../../lib/CGF.js';
+import { CGFobject } from '../../../lib/CGF.js';
 import { BarnWall  } from './BarnWall.js';
 import { BarnGable } from './BarnGable.js';
 import { RoofPanel } from './RoofPanel.js';
@@ -21,7 +21,6 @@ export class Barn extends CGFobject {
         this.r = Math.hypot(this.barnWidth / 2 + this.barnOverhang, this.barnDepth) * scale;
 
         this._buildParts();
-        this._buildAppearances();
     }
 
     _buildParts() {
@@ -59,38 +58,12 @@ export class Barn extends CGFobject {
         ]);
     }
 
-    _buildAppearances() {
-        // Generic wall texture (sides + back gable)
-        this.wallAppearance = new CGFappearance(this.scene);
-        this.wallAppearance.setAmbient(1, 1, 1, 1);
-        this.wallAppearance.setDiffuse(1, 1, 1, 1);
-        this.wallAppearance.setSpecular(0.1, 0.1, 0.1, 1);
-        this.wallAppearance.setShininess(10);
-        this.wallAppearance.loadTexture('textures/barnWallTex.jpg');
-
-        // Front face: composite texture with door + window
-        this.frontAppearance = new CGFappearance(this.scene);
-        this.frontAppearance.setAmbient(1, 1, 1, 1);
-        this.frontAppearance.setDiffuse(1, 1, 1, 1);
-        this.frontAppearance.setSpecular(0.1, 0.1, 0.1, 1);
-        this.frontAppearance.setShininess(10);
-        this.frontAppearance.loadTexture('textures/barnFrontTex.png');
-
-        // Roof
-        this.roofAppearance = new CGFappearance(this.scene);
-        this.roofAppearance.setAmbient(1, 1, 1, 1);
-        this.roofAppearance.setDiffuse(1, 1, 1, 1);
-        this.roofAppearance.setSpecular(0.1, 0.1, 0.1, 1);
-        this.roofAppearance.setShininess(10);
-        this.roofAppearance.loadTexture('textures/barnRoofTex.jpg');
-    }
-
     display() {
         const scene = this.scene;
 
         // FRONT — uses the composite texture (door + window)
         scene.pushMatrix();
-            this.frontAppearance.apply();
+            this.scene.barnFrontAppearance.apply();
             this.frontGable.display();
         scene.popMatrix();
 
@@ -98,7 +71,7 @@ export class Barn extends CGFobject {
         scene.pushMatrix();
             scene.translate(0, 0, this.barnDepth);
             scene.rotate(Math.PI, 0, 1, 0);
-            this.wallAppearance.apply();
+            this.scene.barnWallAppearance.apply();
             this.backGable.display();
         scene.popMatrix();
 
@@ -106,7 +79,7 @@ export class Barn extends CGFobject {
         scene.pushMatrix();
             scene.translate(-(this.barnWidth / 2 + this.barnOverhang), 0, this.barnDepth / 2);
             scene.rotate(-Math.PI / 2, 0, 1, 0);
-            this.wallAppearance.apply();
+            this.scene.barnWallAppearance.apply();
             this.leftWall.display();
         scene.popMatrix();
 
@@ -114,12 +87,12 @@ export class Barn extends CGFobject {
         scene.pushMatrix();
             scene.translate((this.barnWidth / 2 + this.barnOverhang), 0, this.barnDepth / 2);
             scene.rotate(Math.PI / 2, 0, 1, 0);
-            this.wallAppearance.apply();
+            this.scene.barnWallAppearance.apply();
             this.rightWall.display();
         scene.popMatrix();
 
         // ROOF
-        this.roofAppearance.apply();
+        this.scene.barnRoofAppearance.apply();
         this.lowerLeftRoof.display();
         this.upperLeftRoof.display();
         this.upperRightRoof.display();

@@ -1,4 +1,4 @@
-import { CGFobject, CGFappearance } from '../../lib/CGF.js';
+import { CGFobject } from '../../lib/CGF.js';
 import { MyCylinder } from './cylinder.js';
 import { MyQuad } from './MyQuad.js';
 import { MyUnitCube } from './cube.js';
@@ -19,10 +19,6 @@ export class Flower extends CGFobject {
         this._stem   = new MyCylinder(scene, 6, 1);
         this._petal  = new MyQuad(scene);
         this._center = new MyUnitCube(scene);
-
-        this._material = new CGFappearance(scene);
-        this._material.setSpecular(0, 0, 0, 1);
-        this._material.setShininess(5);
     }
 
     display() {
@@ -33,8 +29,8 @@ export class Flower extends CGFobject {
         const tilt   = this._tiltDir * 0.20; 
         const tilts  = [tilt, 0, -tilt];     //s curve on stem
 
-        this._material.setColor(0.2, 0.6, 0.1, 1);
-        this._material.apply();
+        this.scene.flowerMaterial.setColor(0.2, 0.6, 0.1, 1);
+        this.scene.flowerMaterial.apply();
 
         let x = 0, y = 0;
         for (let i = 0; i < 3; i++) {
@@ -51,8 +47,8 @@ export class Flower extends CGFobject {
         }
 
         const [r, g, b] = this._petalColor;
-        this._material.setColor(r, g, b, 1);
-        this._material.apply();
+        this.scene.flowerMaterial.setColor(r, g, b, 1);
+        this.scene.flowerMaterial.apply();
         for (let i = 0; i < this.petalCount; i++) {
             const a = (i / this.petalCount) * 2 * Math.PI;
             scene.pushMatrix();
@@ -65,8 +61,8 @@ export class Flower extends CGFobject {
             scene.popMatrix();
         }
 
-        this._material.setColor(0.9, 0.8, 0.1, 1);
-        this._material.apply();
+        this.scene.flowerMaterial.setColor(0.9, 0.8, 0.1, 1);
+        this.scene.flowerMaterial.apply();
         scene.pushMatrix();
             scene.translate(x, y, 0);
             scene.scale(0.20, 0.07, 0.20);
