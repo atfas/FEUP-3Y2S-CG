@@ -6,9 +6,11 @@ import { WagonController } from "./controllers/WagonController.js";
 import { GameController } from "./controllers/GameController.js";
 import { Grass } from "./objects/grass.js";
 import { Barn } from "./objects/barn/barn.js";
-import { HayBales } from "./objects/hayBales.js";
+
+import { HayBale } from "./objects/hayBale.js";
 import { Flower } from "./objects/Flower.js";
 import { Rock } from "./objects/Rock.js";
+import { Ring } from "./objects/Ring.js";
 
 export class MyScene extends CGFscene {
   constructor() {
@@ -50,8 +52,9 @@ export class MyScene extends CGFscene {
     this._deadCount            = 150;
     this._deadHeightScale      = 0.75;
     this._deadSpread           = 40.0;
-    this.barnRingRadius = 8.0;
-    this.barnRingDistance = 12;
+    this._barnRingRadius   = 8.0;
+    this._barnRingDistance = 12.0;
+    this._hayBaleRingRadius = 5.0;
 
     // --- Textures ---
     this.skyTexture     = new CGFtexture(this, "textures/skyTex.png");
@@ -118,10 +121,14 @@ export class MyScene extends CGFscene {
     this.sun     = new Sphere(this, 16, 8,  1.0, false);
     this.terrain = new Plane(this, 50, 0, 30, 0, 30);
 
-    this.barn   = new Barn(this,0,2,30);
+    this.barn     = new Barn(this,0,2,30);
+    this.barnRing = new Ring(
+      this.barn.x,
+      this.barn.z - this._barnRingDistance,
+      this._barnRingRadius
+    );
 
     this.wagon     = new Wagon(this);
-    this.hayBales  = new HayBales(this, this._baleCount, 77);
     this.grass     = new Grass(this, this._liveCount, 42,  this._liveHeightScale, this._liveSpread, this._bladesPerClump);
     this.deadGrass = new Grass(this, this._deadCount, 137, this._deadHeightScale, this._deadSpread, this._bladesPerClump);
 
@@ -145,28 +152,18 @@ export class MyScene extends CGFscene {
       { x: this.barn.x,    z: this.barn.z,    r: this.barn.r },
       { x: this.wagon.posX * 3, z: this.wagon.posZ * 3, r: this.wagon.r },
     ];
-    this.rocks   = this._spawnRandom(this.rockCount,   (x, z) => {
+    this.rocks    = this._spawnRandom(this.rockCount,   (x, z) => {
       let r = new Rock(this, x, z);
-      r.r = 1.8; 
+      r.r = 1.8;
       return r;
     });
-    this.flowers = this._spawnRandom(this.flowerCount, (x, z) => new Flower(this, x, z));
-
-    this.syncHayBalesState();
-  }
-
-  syncHayBalesState() {
-    if (!this.hayBales || !this.hayBales._positions) {
-      this.balesList = [];
-      return;
-    }
-    // Fixed: Maps from the real '_positions' array generated deterministically inside HayBales
-    this.balesList = this.hayBales._positions.map(pos => ({
-      x: pos.x,
-      z: pos.z,
-      r: 2.0,
-      active: pos.active !== undefined ? pos.active : true
-    }));
+    this.flowers  = this._spawnRandom(this.flowerCount, (x, z) => new Flower(this, x, z));
+    this.hayBales = this._spawnRandom(this._baleCount,  (x, z) => {
+      const b = new HayBale(this, x, z);
+      b.ring = new Ring(x, z, this._hayBaleRingRadius);
+      return b;
+    });
+    this.balesList = this.hayBales;
   }
 
   tryPickUpBale()   { this.gameController.tryPickUpBale(); }
@@ -178,7 +175,7 @@ export class MyScene extends CGFscene {
   get instantDamage()       { return this.gameController.instantDamage; }
   get instantHeal()         { return this.gameController.instantHeal; }
   get collectedBalesCount() { return this.gameController.collectedBalesCount; }
-  get balesDropped()        { return this.gameController.balesDropped; }
+  get maxCollectedBales()   { return this.gameController.maxCollectedBales; }
 
   _spawnRandom(count, createFn) {
     const result = [];
@@ -250,14 +247,7 @@ export class MyScene extends CGFscene {
   }
   
   get baleCount() { return this._baleCount; }
-  set baleCount(v) { 
-    this._baleCount = v; 
-    if (this.hayBales) { 
-      this.hayBales.count = v; 
-      this.hayBales.rebuild(); 
-    } 
-    this.syncHayBalesState(); 
-  }
+  set baleCount(v) { this._baleCount = v; }
 
   initLights() {
     this.lights[0].setPosition(0, 10, 0, 1);
@@ -426,57 +416,49 @@ export class MyScene extends CGFscene {
     this.popMatrix();
   }
 
-  // Visualizes interaction rings perfectly on the ground plane at y = 0.26
   drawInteractionRings() {
     this.setActiveShader(this.defaultShader);
     const ringAppearance = new CGFappearance(this);
-    const currentWagonX = this.wagon.posX * 3;
-    const currentWagonZ = this.wagon.posZ * 3;
+    const wx = this.wagon.posX * 3;
+    const wz = this.wagon.posZ * 3;
 
-    // 1. Barn Drop-Off Indicator Zone
-    this.pushMatrix();
-      this.translate(this.barn.x, this.barn.y, this.barn.z -this.barnRingDistance); 
-      this.scale(this.barnRingRadius, 0.01, this.barnRingRadius); 
-      
-      if (this.gameController.isInsideRing) {
-          ringAppearance.setAmbient(0.0, 1.0, 0.0, 1.0); 
-          ringAppearance.setDiffuse(0.0, 1.0, 0.0, 1.0);
+    // 1. Barn drop-off zone
+    if (this.gameController.isInsideRing) {
+      ringAppearance.setAmbient(0.0, 1.0, 0.0, 1.0);
+      ringAppearance.setDiffuse(0.0, 1.0, 0.0, 1.0);
+    } else {
+      ringAppearance.setAmbient(0.6, 0.6, 0.6, 1.0);
+      ringAppearance.setDiffuse(0.6, 0.6, 0.6, 1.0);
+    }
+    ringAppearance.apply();
+    this.barnRing.display(this, this.sun, this.barn.y);
+
+    // 2. Pickup indicators beneath active hay bales
+    for (const bale of this.hayBales) {
+      if (!bale.active) continue;
+      if (bale.ring.contains(wx, wz)) {
+        ringAppearance.setAmbient(1.0, 1.0, 0.0, 1.0);
+        ringAppearance.setDiffuse(1.0, 1.0, 0.0, 1.0);
       } else {
-          ringAppearance.setAmbient(0.6, 0.6, 0.6, 1.0); 
-          ringAppearance.setDiffuse(0.6, 0.6, 0.6, 1.0);
+        ringAppearance.setAmbient(1.0, 0.5, 0.0, 1.0);
+        ringAppearance.setDiffuse(1.0, 0.5, 0.0, 1.0);
       }
       ringAppearance.apply();
-      this.sun.display(); 
-    this.popMatrix();
-
-    // 2. Pickup indicators beneath active field haybales
-    if (this.balesList) {
-      for (let bale of this.balesList) {
-        if (bale.active) {
-          this.pushMatrix();
-            this.translate(bale.x, 0.26, bale.z);
-            this.scale(5.0, 0.01, 5.0); 
-            
-            let dist = Math.hypot(currentWagonX - bale.x, currentWagonZ - bale.z);
-            if (dist < 5.0) {
-                ringAppearance.setAmbient(1.0, 1.0, 0.0, 1.0); 
-                ringAppearance.setDiffuse(1.0, 1.0, 0.0, 1.0);
-            } else {
-                ringAppearance.setAmbient(1.0, 0.5, 0.0, 1.0); 
-                ringAppearance.setDiffuse(1.0, 0.5, 0.0, 1.0);
-            }
-            ringAppearance.apply();
-            this.sun.display();
-          this.popMatrix();
-        }
-      }
+      bale.ring.display(this, this.sun);
     }
   }
 
   drawHayBales() {
-     if (!this.hayBales) return;
-     this.setActiveShaderSimple(this.defaultShader);
-     this.hayBales.display();
+    if (!this.hayBales) return;
+    this.setActiveShaderSimple(this.defaultShader);
+    for (const bale of this.hayBales) {
+      if (!bale.active) continue;
+      this.pushMatrix();
+        this.translate(bale.x, 0.8, bale.z);
+        this.rotate(bale.yRot, 0, 1, 0);
+        bale.display();
+      this.popMatrix();
+    }
   }
 
   display() {

@@ -40,8 +40,7 @@ export class GameController {
         const wx = s.wagon.posX * 3;
         const wz = s.wagon.posZ * 3;
 
-        this.isInsideRing =
-            Math.hypot(wx - s.barnRingX, wz - s.barnRingZ) <= s.barnRingRadius;
+        this.isInsideRing = s.barnRing.contains(wx, wz);
 
         for (const rock of s.rocks) {
             if (Math.hypot(wx - rock.x, wz - rock.z) < 3.2) {
@@ -79,9 +78,8 @@ export class GameController {
         for (let i = 0; i < s.balesList.length; i++) {
             const bale = s.balesList[i];
             if (!bale.active) continue;
-            if (Math.hypot(wx - bale.x, wz - bale.z) < 5.0) {
+            if (bale.ring.contains(wx, wz)) {
                 bale.active = false;
-                if (s.hayBales._positions[i]) s.hayBales._positions[i].active = false;
                 this.collectedBalesCount++;
                 break;
             }
