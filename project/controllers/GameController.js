@@ -84,7 +84,7 @@ export class GameController {
         const dropped = this.model.collectedBalesCount;
         this.model.collectedBalesCount = 0;
         this.wagon.carriedHayBales = 0;
-        this._spawnController.respawnBales(dropped);
+        if(this.model.hayBales.length == 0) this._spawnController.respawnBales(this.model.scene);
     }
 
     setSpawnController(spawnController) {

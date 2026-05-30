@@ -23,8 +23,8 @@ export class SpawnController {
         });
     }
 
-    respawnBales(count) {
-        const newBales = this.spawnRandom(count, (x, z) => {
+    respawnBales() {
+        const newBales = this.spawnRandom(this.scene._baleCount, (x, z) => {
             const bale = new HayBale(this.scene, x, z);
             bale.ring = new Ring(this.scene, x, z, this.scene._hayBaleRingRadius, bale.y);
             return bale;
