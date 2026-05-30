@@ -3,6 +3,7 @@ import { Sphere } from "./objects/sphere.js";
 import { Plane } from "./objects/plane.js";
 import { Wagon } from "./objects/wagon.js";
 import { WagonController } from "./controllers/WagonController.js";
+import { GameController } from "./controllers/GameController.js";
 import { Grass } from "./objects/grass.js";
 import { Barn } from "./objects/barn/barn.js";
 import { HayBales } from "./objects/hayBales.js";
@@ -45,25 +46,15 @@ export class MyScene extends CGFscene {
     
     // Barn proximity ring properties
     this.barnRingX = this.barn.x;
-    this.barnRingZ = this.barn.z - 12; 
+    this.barnRingZ = this.barn.z - 12;
     this.barnRingRadius = 8.0;
-    this.isInsideRing = false;
 
     // --- HayBales Setup ---
     this._baleCount = 8;
     this.hayBales   = new HayBales(this, this._baleCount, 77);
 
     // ==================== GAME MECHANICS STATE ====================
-    this.hp = 100;
-    this.instantDamage = 0;
-    this.instantHeal = 0;
-    this.balesDropped = 0;
-    this.score = 0; 
-    this.gameOver = false;
-    
-    this.collectedBalesCount = 0; 
-    this.lastSecondTime = 0;
-    this.cooldowns = {}; 
+    this.gameController = new GameController(this,100,2,15,18);
     // ==============================================================
 
     // Textures
@@ -194,38 +185,16 @@ export class MyScene extends CGFscene {
     }));
   }
 
-  tryPickUpBale() {
-    const currentWagonX = this.wagon.posX * 3;
-    const currentWagonZ = this.wagon.posZ * 3;
+  tryPickUpBale()   { this.gameController.tryPickUpBale(); }
+  tryDropOffBales() { this.gameController.tryDropOffBales(); }
 
-    for (let i = 0; i < this.balesList.length; i++) {
-      let bale = this.balesList[i];
-      if (bale.active) {
-        let dist = Math.hypot(currentWagonX - bale.x, currentWagonZ - bale.z);
-        if (dist < 5.0) { 
-          bale.active = false;
-          // Set active to false directly in the rendering class so it disappears instantly!
-          if (this.hayBales._positions[i]) {
-            this.hayBales._positions[i].active = false;
-          }
-          this.collectedBalesCount++;
-          break;
-        }
-      }
-    }
-  }
-
-  tryDropOffBales() {
-    if (this.isInsideRing && this.collectedBalesCount > 0) {
-      let restoredAmount = this.collectedBalesCount * 18;
-      this.hp = Math.min(100, this.hp + restoredAmount);
-      this.instantHeal = restoredAmount;
-      this.balesDropped += this.collectedBalesCount;
-      this.collectedBalesCount = 0;
-
-      setTimeout(() => { this.instantHeal = 0; }, 1500);
-    }
-  }
+  get hp()                  { return this.gameController.hp; }
+  get score()               { return this.gameController.score; }
+  get gameOver()            { return this.gameController.gameOver; }
+  get instantDamage()       { return this.gameController.instantDamage; }
+  get instantHeal()         { return this.gameController.instantHeal; }
+  get collectedBalesCount() { return this.gameController.collectedBalesCount; }
+  get balesDropped()        { return this.gameController.balesDropped; }
 
   _spawnRandom(count, createFn) {
     const result = [];
@@ -339,43 +308,8 @@ export class MyScene extends CGFscene {
     const dt = Math.min((t - this.lastTime) / 1000, 0.1);
     this.lastTime = t;
 
-    if (this.gameOver) return;
-
-    if (t - this.lastSecondTime >= 1000) {
-      this.hp = Math.max(0, this.hp - 1);
-      this.score++;
-      this.lastSecondTime = t;
-      
-      if (this.hp <= 0) {
-        this.gameOver = true;
-        alert("Game Over! Out of health. Final Score: " + this.score);
-      }
-    }
-
-    const currentWagonX = this.wagon.posX * 3;
-    const currentWagonZ = this.wagon.posZ * 3;
-
-    let distToRing = Math.hypot(currentWagonX - this.barnRingX, currentWagonZ - this.barnRingZ);
-    this.isInsideRing = (distToRing <= this.barnRingRadius);
-
-    for (let rock of this.rocks) {
-      let distToRock = Math.hypot(currentWagonX - rock.x, currentWagonZ - rock.z);
-      if (distToRock < 3.2) { 
-        let now = Date.now();
-        if (!this.cooldowns[rock.x + "_" + rock.z] || now - this.cooldowns[rock.x + "_" + rock.z] > 1500) {
-          this.hp = Math.max(0, this.hp - 15);
-          this.instantDamage = 15;
-          this.cooldowns[rock.x + "_" + rock.z] = now;
-          
-          setTimeout(() => { this.instantDamage = 0; }, 1500);
-
-          if (this.hp <= 0) {
-            this.gameOver = true;
-            alert("Game Over! Crashed into Rock. Final Score: " + this.score);
-          }
-        }
-      }
-    }
+    this.gameController.update(t);
+    if (this.gameController.gameOver) return;
 
     const [sx, sy, sz] = this.getSunDirection();
     this.lights[1].setPosition(sx, sy, sz, 0);
@@ -520,7 +454,7 @@ export class MyScene extends CGFscene {
       this.translate(this.barnRingX, 2, this.barnRingZ); // Placed slightly above ground floor to avoid flickering
       this.scale(this.barnRingRadius, 0.01, this.barnRingRadius); 
       
-      if (this.isInsideRing) {
+      if (this.gameController.isInsideRing) {
           ringAppearance.setAmbient(0.0, 1.0, 0.0, 1.0); 
           ringAppearance.setDiffuse(0.0, 1.0, 0.0, 1.0);
       } else {
