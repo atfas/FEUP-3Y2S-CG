@@ -19,6 +19,18 @@ export class MyInterface extends CGFinterface {
     this.gui.add(this.scene.wagonController, 'cameraMode', { 'Follow Wagon': 'wagon', 'Free Camera': 'free' }).name("Camera");
     this.gui.add(this.scene, 'displayAxis').name("Display Axis");
 
+    const displayFolder = this.gui.addFolder('Display Objects');
+    displayFolder.add(this.scene, 'displaySky').name("Sky");
+    displayFolder.add(this.scene, 'displaySun').name("Sun");
+    displayFolder.add(this.scene, 'displayTerrain').name("Terrain");
+    displayFolder.add(this.scene, 'displayGrass').name("Grass");
+    displayFolder.add(this.scene, 'displayBarn').name("Barn");
+    displayFolder.add(this.scene, 'displayWagon').name("Wagon");
+    displayFolder.add(this.scene, 'displayHayBales').name("Hay Bales");
+    displayFolder.add(this.scene, 'displayFlowers').name("Flowers");
+    displayFolder.add(this.scene, 'displayRocks').name("Rocks");
+    displayFolder.add(this.scene, 'displayRings').name("Interaction Rings");
+
     // GAME STATUS PANEL — bound to gameController directly so dat.GUI can read/write the live values
     const gameFolder = this.gui.addFolder('Game Status');
     gameFolder.add(this.scene.gameController, 'hp').name("HP (Health)").listen();

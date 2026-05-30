@@ -36,6 +36,19 @@ export class MyScene extends CGFscene {
     this.sunElevation          = 40;
     this.sunDegree             = 180;
     this.displayAxis           = false;
+
+    // --- Display flags ---
+    this.displaySky            = true;
+    this.displaySun            = true;
+    this.displayTerrain        = true;
+    this.displayGrass          = true;
+    this.displayBarn           = true;
+    this.displayWagon          = true;
+    this.displayHayBales       = true;
+    this.displayFlowers        = true;
+    this.displayRocks          = true;
+    this.displayRings          = true;
+
     this.displaySkyNormals     = false;
     this.displayTerrainNormals = false;
     this.displaySunNormals     = false;
@@ -211,6 +224,7 @@ export class MyScene extends CGFscene {
 
 
   drawRocks() {
+    if (!this.displayRocks) return;
     this.setActiveShaderSimple(this.rockShader);
     this.rockTexture.bind(0);
     this._uRock.uSunDir = this.getSunDirection();
@@ -224,6 +238,7 @@ export class MyScene extends CGFscene {
   }
 
   drawFlora() {
+    if (!this.displayFlowers) return;
     this.setActiveShaderSimple(this.defaultShader);
     for (const f of this.flowers) {
       this.pushMatrix();
@@ -311,6 +326,7 @@ export class MyScene extends CGFscene {
   }
 
   drawSky() {
+    if (!this.displaySky) return;
     this.setActiveShaderSimple(this.skyShader);
     this.skyShader.setUniformsValues(this._uSkyTime);
     this.pushMatrix();
@@ -323,6 +339,7 @@ export class MyScene extends CGFscene {
   }
   
   drawSun() {
+    if (!this.displaySun) return;
     const [sx, sy, sz] = this.getSunDirection();
     const cx = this.camera.position[0];
     const cz = this.camera.position[2];
@@ -337,6 +354,7 @@ export class MyScene extends CGFscene {
   }
 
   drawTerrain() {
+    if (!this.displayTerrain) return;
     this.lights[0].disable();
     this.lights[1].disable();
 
@@ -366,7 +384,7 @@ export class MyScene extends CGFscene {
   }
 
   drawGrass() {
-    if (!this.grass) return;
+    if (!this.displayGrass || !this.grass) return;
     const sunDir = this.getSunDirection();
     this.gl.disable(this.gl.CULL_FACE);
     this.gl.enable(this.gl.BLEND);
@@ -402,7 +420,7 @@ export class MyScene extends CGFscene {
   }
 
   drawBarn() {
-    if (!this.barn) return;
+    if (!this.displayBarn || !this.barn) return;
 
     this.setActiveShaderSimple(this.defaultShader);
     this.gl.enable(this.gl.NORMALIZE);
@@ -416,6 +434,7 @@ export class MyScene extends CGFscene {
   }
 
   drawWagon(){
+    if (!this.displayWagon) return;
     const scale = this.wagon.scale || 1;
     this.pushMatrix();
       this.scale(scale, scale, scale);
@@ -424,6 +443,7 @@ export class MyScene extends CGFscene {
   }
 
   drawInteractionRings() {
+    if (!this.displayRings) return;
     this.setActiveShader(this.defaultShader);
     const ringAppearance = new CGFappearance(this);
     const wx = this.wagon.posX * 3;
@@ -455,7 +475,7 @@ export class MyScene extends CGFscene {
   }
 
   drawHayBales() {
-    if (!this.hayBales) return;
+    if (!this.displayHayBales || !this.hayBales) return;
     this.setActiveShaderSimple(this.defaultShader);
     for (const bale of this.hayBales) {
       this.pushMatrix();
