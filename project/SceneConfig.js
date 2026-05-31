@@ -10,7 +10,7 @@ export const SceneConfig = {
     _liveCount:         300,
     _liveHeightScale:   0.8,
     _liveSpread:        50.0,
-    _bladesPerClump:    40,
+    _bladesPerClump:    300,
     _deadCount:         150,
     _deadHeightScale:   0.75,
     _deadSpread:        40.0,
