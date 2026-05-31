@@ -1,6 +1,6 @@
 # CG Final Project 2025/2026
 
-**Computação Gráfica / Computer Graphics — L.EIC, 3rd year**
+**Computação Gráfica / Computer Graphics - L.EIC, 3rd year**
 **Class T5 · Group 8**
 
 ---
@@ -18,7 +18,7 @@
 
 A fully interactive **prairie survival game** built with WebCGF and WebGL.
 
-You are the driver of a covered prairie schooner wagon. Your health drains every second — the only way to survive is to race across the open prairie, collect scattered hay bales, and deliver them to the barn before your HP hits zero. Rocks will damage your wagon on impact. The longer you survive, the higher your score.
+You are the driver of a covered prairie schooner wagon. Your health drains every second - the only way to survive is to race across the open prairie, collect scattered hay bales, and deliver them to the barn before your HP hits zero. Rocks will damage your wagon on impact. The longer you survive, the higher your score.
 
 ---
 
@@ -75,7 +75,7 @@ You are the driver of a covered prairie schooner wagon. Your health drains every
 - Dual-wave wind shader: primary wave + out-of-phase cross-wind gust for organic, non-repetitive movement
 - Tip-weighted sway: displacement scales as height² so the base is fully anchored and the tip swings freely
 - Per-blade ambient occlusion: base of each blade darkened procedurally for depth
-- Single shader handles both live (green) and dead (straw) grass via `uDeadGrass` uniform — no extra draw calls
+- Single shader handles both live (green) and dead (straw) grass via `uDeadGrass` uniform - no extra draw calls
 
 <p align="center">
   <img src="screenshots/project-t5g8-14.png" width="49%"/>
@@ -88,7 +88,7 @@ You are the driver of a covered prairie schooner wagon. Your health drains every
 - Front wheel axis rotates on pivot point when turning (steering animation)
 - Imported horse model (OBJ format) attached to the front tongue
 - Canvas cover shader: procedural quadratic sag between ribs simulates fabric droop, with analytically derived normals for physically correct lighting on the curved surface
-- Alternating cream/blue stripe pattern on canvas computed purely from UV coordinates in the fragment shader — no texture needed
+- Alternating cream/blue stripe pattern on canvas computed purely from UV coordinates in the fragment shader - no texture needed
 
 <p align="center">
   <img src="screenshots/project-t5g8-17.png" width="49%"/>
@@ -110,7 +110,7 @@ You are the driver of a covered prairie schooner wagon. Your health drains every
 - Rock collisions deal 5–15 random damage with cooldown to prevent repeated hits
 - Wagon carries up to 2 hay bales at a time; delivering them to the barn restores HP
 - When all bales on the field are collected, a new batch respawns automatically
-- Animated arrows float above hay bales — sinusoidal vertical bob with synchronised colour pulse — to pinpoint them across the prairie
+- Animated arrows float above hay bales - sinusoidal vertical bob with synchronised colour pulse - to pinpoint them across the prairie
 - Game over alert shows final score when HP reaches zero
 
 ### Interface (dat.GUI + HUD)
@@ -164,7 +164,6 @@ You are the driver of a covered prairie schooner wagon. Your health drains every
 | `D` | Steer right |
 | `P` | Pick up nearby hay bale |
 | `L` | Drop off hay bales at barn |
-| `F` | Switch Between Camera Views |
 ---
 
 ## Implemented Features Summary
@@ -205,7 +204,7 @@ You are the driver of a covered prairie schooner wagon. Your health drains every
 ## Known Issues / Limitations
 
 - The horse OBJ model is static (no skeletal animation)
-- Terrain height is visual only — the wagon does not physically ride the hills
+- Terrain height is visual only - the wagon does not physically ride the hills
 - Flowers are culled beyond render range (intentional, for performance)
 
 ---
