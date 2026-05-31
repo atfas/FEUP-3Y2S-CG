@@ -1,6 +1,12 @@
 import { CGFshader } from "../../lib/CGF.js";
 
 export class ShaderLoader {
+    /**
+     * Compiles and attaches every custom GLSL shader used in the scene.
+     * Initial uniform values are set here so shaders have valid state before
+     * the first update() call.
+     * @param {MyScene} scene
+     */
     constructor(scene) {
         scene.terrainShader = new CGFshader(scene.gl, "shaders/terrain.vert", "shaders/terrain.frag");
         scene.terrainShader.setUniformsValues({

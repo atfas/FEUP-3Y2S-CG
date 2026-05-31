@@ -5,6 +5,14 @@ export class MyInterface extends CGFinterface {
     super();
   }
 
+  /**
+   * Builds the dat.GUI panels: camera toggle, display flags, game-status
+   * read-outs (bound via proxy getters on GameController), flora counts,
+   * sky/sun angles, and grass parameters. Also caches the HUD DOM elements
+   * for use in update().
+   * @param {CGFapplication} application
+   * @returns {boolean} true (required by CGFinterface)
+   */
   init(application) {
     super.init(application);
 
@@ -80,6 +88,12 @@ export class MyInterface extends CGFinterface {
     return true;
   }
 
+  /**
+   * Called every frame by CGF. Syncs the active camera with the one chosen
+   * by WagonController, then refreshes the HTML HUD: health bar width/colour,
+   * score, carried-bale count, and the flash indicator for instant
+   * damage / heal events.
+   */
   update() {
     this.setActiveCamera(this.scene.camera);
 

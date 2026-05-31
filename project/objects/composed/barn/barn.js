@@ -4,6 +4,13 @@ import { BarnGable } from './BarnGable.js';
 import { RoofPanel } from './RoofPanel.js';
 
 export class Barn extends CGFobject {
+    /**
+     * @param {CGFscene} scene
+     * @param {number}   x     - world X anchor (front-centre of the barn)
+     * @param {number}   y     - world Y base height
+     * @param {number}   z     - world Z anchor
+     * @param {number}   scale - uniform scale applied at draw time
+     */
     constructor(scene, x = 30, y = 2, z = 10, scale = 10) {
         super(scene);
 
@@ -23,6 +30,11 @@ export class Barn extends CGFobject {
         this._buildParts();
     }
 
+    /**
+     * Instantiates all sub-components (two gable ends, two side walls, four
+     * gambrel roof panels) and computes the shared vertex positions needed to
+     * align the roof panels with the gable break points.
+     */
     _buildParts() {
 
         this.frontGable = new BarnGable(this.scene, this.barnWidth, this.barnWallHeight, this.barnRoofHeight, this.barnOverhang);
@@ -58,6 +70,11 @@ export class Barn extends CGFobject {
         ]);
     }
 
+    /**
+     * Draws the full barn: front gable (with door/window composite texture),
+     * back gable, two side walls, and the four gambrel roof panels. Each
+     * section applies its own appearance before drawing.
+     */
     display() {
         const scene = this.scene;
 

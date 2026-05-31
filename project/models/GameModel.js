@@ -1,4 +1,13 @@
 export class GameModel {
+    /**
+     * Holds all mutable game state. No logic lives here — controllers read and
+     * write these properties directly.
+     * @param {number} maxHP               - starting and maximum HP value
+     * @param {number} maxCollectedBales   - maximum hay bales the wagon can carry
+     * @param {number} minColisionDamage   - minimum damage dealt on a rock collision
+     * @param {number} maxColisionDamage   - maximum damage dealt on a rock collision
+     * @param {number} healHP              - HP restored per bale when dropping off
+     */
     constructor(maxHP, maxCollectedBales, minColisionDamage, maxColisionDamage, healHP) {
         this.maxHP               = maxHP;
         this.hp                  = maxHP;

@@ -1,4 +1,10 @@
 export class UniformLoader {
+    /**
+     * Creates the plain-object uniform bags that MyScene pushes to shaders each
+     * frame. Centralising them here avoids scattering magic property names
+     * across update() and SceneDraw.
+     * @param {MyScene} scene
+     */
     constructor(scene) {
         const initialSunDir = scene.getSunDirection();
         scene._uSkyTime         = { uTimeFactor: 0 };

@@ -13,6 +13,10 @@ export class MyCone extends CGFobject {
         this.stacks = stacks;
         this.initBuffers();
     }
+    /**
+     * Builds a unit cone (base radius 1 at y=0, apex at y=1) with per-slice
+     * normals tilted 45° outward to approximate the true surface normal.
+     */
     initBuffers() {
         this.vertices = [];
         this.indices = [];

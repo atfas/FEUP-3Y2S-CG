@@ -11,6 +11,11 @@ export class MyUnitCube extends CGFobject {
         this.initBuffers();
     }
 
+    /**
+     * Builds a unit cube centred at the origin. Each of the six faces has its
+     * own four vertices so face normals are flat (no shared edges), and each
+     * face is UV-mapped independently to [0,1]².
+     */
     initBuffers() {
         this.vertices = [
             // Front face (z = +0.5)

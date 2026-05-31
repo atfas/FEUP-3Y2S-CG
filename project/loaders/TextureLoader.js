@@ -1,6 +1,11 @@
 import { CGFtexture } from "../../lib/CGF.js";
 
 export class TextureLoader {
+    /**
+     * Loads every texture used by the scene and attaches them to the scene
+     * object so shaders and appearances can reference them by name.
+     * @param {MyScene} scene
+     */
     constructor(scene) {
         scene.skyTexture     = new CGFtexture(scene, "textures/sky/skyTex.png");
         scene.skyMap         = new CGFtexture(scene, "textures/sky/skyMap.png");

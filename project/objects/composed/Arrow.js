@@ -14,6 +14,11 @@ export class Arrow extends CGFobject {
         this.headBaseY  = 0.7;
     }
 
+    /**
+     * Draws the arrowhead (a cone flipped so its tip points down) and the
+     * vertical shaft (a cylinder rotated onto the Y axis). The arrow.vert
+     * shader animates the Y position to create a bobbing effect.
+     */
     display() {
         // Arrowhead: MyCone has base at y=0, tip at y=1 (pointing up).
         // Flip 180° around X so tip points down (y=0), base at this.headBaseY.

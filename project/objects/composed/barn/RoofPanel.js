@@ -1,10 +1,11 @@
 import { CGFobject } from '../../../../lib/CGF.js';
 
 /**
- * RoofPanel one sloped side of the barn roof.
- * 
- * @param {CGFscene} scene
- * @param {number[]} corners
+ * RoofPanel — one sloped quadrilateral section of the gambrel barn roof.
+ * The face normal is computed automatically from the first triangle so the
+ * panel shades correctly regardless of orientation.
+ * @param {CGFscene}  scene
+ * @param {number[]}  corners - flat array of 12 values: [x0,y0,z0, x1,y1,z1, x2,y2,z2, x3,y3,z3]
  */
 export class RoofPanel extends CGFobject {
     constructor(scene, corners) {
@@ -13,6 +14,11 @@ export class RoofPanel extends CGFobject {
         this.initBuffers();
     }
 
+    /**
+     * Derives the face normal from the cross-product of the first two edges,
+     * applies it to all four vertices, and emits both winding orders so the
+     * panel is visible from outside and inside the barn.
+     */
     initBuffers() {
         const c = this.corners;
 
@@ -33,14 +39,14 @@ export class RoofPanel extends CGFobject {
         ];
 
         this.texCoords = [
-            0,1, 
-            1,1, 
-            1,0, 
+            0,1,
+            1,1,
+            1,0,
             0,0,
         ];
 
         this.indices = [
-            0,1,2, 
+            0,1,2,
             0,2,3,   // outside
             2,1,0,
             3,2,0,   // inside (double-sided)

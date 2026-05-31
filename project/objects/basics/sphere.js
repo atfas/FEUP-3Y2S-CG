@@ -12,6 +12,13 @@ export class Sphere extends CGFobject {
         this.initBuffers();
     }
 
+    /**
+     * Builds a UV sphere. The `percentage` parameter (0–1) controls how much
+     * of the full sphere is generated (0.5 = hemisphere). When `invert` is
+     * true normals point inward, used for the sky sphere rendered from inside.
+     * The degenerate top/bottom ring is skipped for a complete sphere to avoid
+     * a visible seam at the poles.
+     */
     initBuffers() {
         this.vertices = [];
         this.indices = [];

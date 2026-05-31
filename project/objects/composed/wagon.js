@@ -4,6 +4,13 @@ import { MyCylinder } from '../basics/cylinder.js';
 import { HayBale } from './hayBale.js';
 
 export class Wagon extends CGFobject {
+    /**
+     * @param {MyScene} scene
+     * @param {number}  x     - initial world X position
+     * @param {number}  z     - initial world Z position
+     * @param {number}  angle - initial heading in radians
+     * @param {number}  scale - uniform scale applied at draw time
+     */
     constructor(scene,x,z,angle,scale) {
         super(scene);
 
@@ -30,7 +37,7 @@ export class Wagon extends CGFobject {
         // Motion state
         this.speed      = 0;   // units/s
         this.wheelAngle = 0;   // radians
-        this.steerAngle = 0;   // front-wheel steer angle 
+        this.steerAngle = 0;   // front-wheel steer angle
 
         // Physics parameters
         this.maxSpeed    = 8;
@@ -42,6 +49,17 @@ export class Wagon extends CGFobject {
         this.steerReturn = 3.0;          // rad/s auto-center rate
     }
 
+    /**
+     * Advances wagon physics by one time step: applies acceleration/braking/drag
+     * to speed, steers the front wheels (with auto-centering when keys are
+     * released), integrates heading and world position using Ackermann-style
+     * turning via wheelbase, and accumulates wheel rotation angle.
+     * @param {number}  dt      - delta time in seconds
+     * @param {boolean} forward - W key
+     * @param {boolean} brake   - S key
+     * @param {boolean} left    - A key
+     * @param {boolean} right   - D key
+     */
     update(dt, forward, brake, left, right) {
         // Speed
         if (forward) {
@@ -71,7 +89,16 @@ export class Wagon extends CGFobject {
         this.wheelAngle += this.speed * dt / this.wheelRadius;
     }
 
-    // Draws one wheel (rim + spokes) centred at (cx, cy, cz)
+    /**
+     * Draws one complete wheel (rim cylinder + evenly-spaced spoke bars)
+     * centred at the given local position. The wheel rotates by wheelAngle
+     * around its Z axis so it rolls visually in sync with wagon movement.
+     * @param {number} cx - local X centre
+     * @param {number} cy - local Y centre
+     * @param {number} cz - local Z centre
+     * @param {number} WR - wheel radius
+     * @param {number} WT - wheel thickness
+     */
     drawWheelGroup(cx, cy, cz, WR, WT) {
         this.scene.pushMatrix();
             this.scene.translate(cx, cy, cz);
@@ -95,8 +122,10 @@ export class Wagon extends CGFobject {
         this.scene.popMatrix();
     }
 
-    // ── Fixed geometry ──────────────────────────────────────────────────────────
-
+    /**
+     * Draws the flat wagon bed (floor plank) and the three side-rail boards
+     * (left, right, and back) that keep cargo from falling off.
+     */
     displayBed() {
         this.scene.pushMatrix();
             this.scene.translate(0.5, 0.5, 0);
@@ -119,12 +148,14 @@ export class Wagon extends CGFobject {
         this.scene.popMatrix();
     }
 
+    /** Draws the two rear wheels using drawWheelGroup at the rear axle position. */
     displayRearWheels() {
         const WR = this.wheelRadius, WT = this.wheelThickness;
         this.drawWheelGroup(1.5, WR, -(1.0 + WT / 2), WR, WT);
         this.drawWheelGroup(1.5, WR,  (1.0 + WT / 2), WR, WT);
     }
 
+    /** Draws the rear axle as two overlapping thin bar cubes (structural + decorative). */
     displayRearAxle() {
         this.scene.pushMatrix();
             this.scene.translate(1.5, 0.5, 0);
@@ -138,7 +169,7 @@ export class Wagon extends CGFobject {
         this.scene.popMatrix();
     }
 
-    // connector from front axle back under the wagon body
+    /** Draws the tongue base — the longitudinal bar running from body to front axle pivot. */
     displayTongueBase() {
         this.scene.pushMatrix();
             this.scene.translate(0.275, 0.5, 0);
@@ -147,6 +178,7 @@ export class Wagon extends CGFobject {
         this.scene.popMatrix();
     }
 
+    /** Draws the driver's bench: a vertical backrest and a horizontal seat plank. */
     displayBench() {
         this.scene.pushMatrix();
             this.scene.translate(-0.30, 0.75, 0);
@@ -160,6 +192,10 @@ export class Wagon extends CGFobject {
         this.scene.popMatrix();
     }
 
+    /**
+     * Draws the canvas cover as a half-cylinder arc over the cargo bed.
+     * The canvas shader adds a quadratic sag and striped panel lines.
+     */
     displayCover() {
         this.scene.pushMatrix();
             this.scene.translate(-0.5, 1.0, 0);
@@ -169,14 +205,14 @@ export class Wagon extends CGFobject {
         this.scene.popMatrix();
     }
 
-    // ── Steerable front assembly (all coords relative to front axle pivot) ──────
-
+    /** Draws the two steerable front wheels at the front axle pivot position. */
     displayFrontWheels() {
         const WR = this.wheelRadius, WT = this.wheelThickness;
         this.drawWheelGroup(0, WR, -(1.0 + WT / 2), WR, WT);
         this.drawWheelGroup(0, WR,  (1.0 + WT / 2), WR, WT);
     }
 
+    /** Draws the front axle bars (same construction as the rear axle). */
     displayFrontAxle() {
         this.scene.pushMatrix();
             this.scene.translate(0, 0.5, 0);
@@ -190,6 +226,11 @@ export class Wagon extends CGFobject {
         this.scene.popMatrix();
     }
 
+    /**
+     * Renders the two horse OBJ models if the horse asset is loaded and the
+     * displayHorse flag is set. Temporarily disables CULL_FACE (the OBJ has
+     * interior faces) and restores the wood shader afterwards.
+     */
     displayHorses() {
         if (!this.scene.horse || !this.scene.displayHorse) return;
 
@@ -214,7 +255,10 @@ export class Wagon extends CGFobject {
         this.scene.woodAppearance.apply();
     }
 
-    // Forward tongue bar and crossbar, extending from the pivot toward the horse
+    /**
+     * Draws the steerable tongue assembly: a longitudinal bar from the pivot to
+     * the horse attachment point, and a crossbar at the tip for the harness.
+     */
     displaySteerableTongue() {
         // Bar from pivot (x=0) to horse (x=-1.95 in pivot coords = model x=-3.45)
         this.scene.pushMatrix();
@@ -231,6 +275,11 @@ export class Wagon extends CGFobject {
         this.scene.popMatrix();
     }
 
+    /**
+     * Renders the hay bales stacked on the wagon bed when carriedHayBales > 0.
+     * Shows one centred bale for 1 carried, or two side-by-side for 2+.
+     * Uses the default shader so bales are unaffected by the wood shader.
+     */
     displayHayBales() {
         if (this.carriedHayBales <= 0) return;
         const toShow = this.carriedHayBales >= 2 ? 2 : 1;
@@ -244,8 +293,11 @@ export class Wagon extends CGFobject {
         }
     }
 
-    // ────────────────────────────────────────────────────────────────────────────
-
+    /**
+     * Recomputes the sun direction in view space and pushes it to the wood and
+     * canvas shaders. Must be called every frame because the camera and sun
+     * angle can both change.
+     */
     updateSunDirection() {
         const [sx, sy, sz] = this.scene.getSunDirection();
         const V = this.scene.camera.getViewMatrix();
@@ -258,6 +310,12 @@ export class Wagon extends CGFobject {
         this.scene.canvasShader.setUniformsValues({ uSunDirection: sunDir });
     }
 
+    /**
+     * Top-level draw: positions the wagon in world space, applies scale and
+     * heading rotation, then draws all sub-assemblies. The front steering
+     * group (wheels, axle, tongue, horses) is rendered inside a rotated
+     * sub-matrix so it pivots around the front axle kingpin.
+     */
     display() {
         this.scene.pushMatrix();
             this.scene.translate(this.x, 0, this.z);
@@ -295,12 +353,14 @@ export class Wagon extends CGFobject {
         this.scene.popMatrix();
     }
 
+    /** Enables normal visualisation on the cube and cover sub-objects. */
     enableNormalViz(){
         this.cube.enableNormalViz();
         this.cube.enableNormalViz();
         this.cover.enableNormalViz();
     }
 
+    /** Disables normal visualisation on the cube and cover sub-objects. */
     disableNormalViz(){
         this.cube.disableNormalViz();
         this.cube.disableNormalViz();

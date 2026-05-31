@@ -13,6 +13,11 @@ export class MyQuad extends CGFobject {
 			this.updateTexCoords(coords);
 	}
 	
+	/**
+	 * Builds a unit quad centred at the origin on the XY plane.
+	 * Vertices are duplicated so both the front (+Z) and back (-Z) faces have
+	 * correct opposing normals and render from either side.
+	 */
 	initBuffers() {
 		this.vertices = [
 			-0.5, -0.5, 0,	//0

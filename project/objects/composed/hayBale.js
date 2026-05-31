@@ -9,6 +9,13 @@ import { MyDisk }     from '../basics/disk.js';
  * - Circular caps   → hayFaceTex.png    (the spiral face texture)
  */
 export class HayBale extends CGFobject {
+    /**
+     * @param {MyScene} scene
+     * @param {number}  [x=0]          - world X position
+     * @param {number}  [z=0]          - world Z position
+     * @param {number}  [baleRadius=1.8] - cylinder cross-section radius
+     * @param {number}  [baleLength=3]   - cylinder length along the roll axis
+     */
     constructor(scene, x = 0, z = 0, baleRadius= 1.8, baleLength=3) {
         super(scene);
         this.x      = x;
@@ -22,6 +29,12 @@ export class HayBale extends CGFobject {
         this.disk     = new MyDisk(scene, 32);
     }
 
+    /**
+     * Draws the bale lying on its side along the X-axis: first the curved
+     * lateral surface with the side hay texture, then two circular end caps
+     * with the face spiral texture. The whole assembly rests on the ground
+     * (y = baleRadius).
+     */
     display() {
         // ── Shared transform: bale lying on X-axis, resting on ground ─────────
         // (same as the original)

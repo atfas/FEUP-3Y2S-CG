@@ -1,10 +1,19 @@
 export class SceneDraw {
+  /**
+   * @param {MyScene}    scene     - live WebGL scene
+   * @param {GameModel}  gameModel - read-only source of dynamic object lists
+   * @param {WorldModel} worldModel - sun direction and render-range values
+   */
   constructor(scene, gameModel, worldModel) {
     this.scene = scene;
     this.model = gameModel;
     this.world = worldModel;
   }
 
+  /**
+   * Master draw call invoked by MyScene.display(). Draws every scene element
+   * in a defined order so transparency and shader switches are predictable.
+   */
   draw() {
     if (this.scene.displayAxis) this.scene.axis.display();
 
@@ -24,6 +33,10 @@ export class SceneDraw {
     this._updateNormalViz();
   }
 
+  /**
+   * Draws the inverted sky sphere centred at ground level with the animated
+   * sky shader. The sphere uses inward normals so it renders correctly from inside.
+   */
   drawSky() {
     if (!this.scene.displaySky) return;
     this.scene.setActiveShaderSimple(this.scene.skyShader);
@@ -41,6 +54,10 @@ export class SceneDraw {
     this.scene.popMatrix();
   }
 
+  /**
+   * Draws the sun disc at a distance proportional to _sunDistance along the
+   * current sun direction vector, oriented to always face the viewer.
+   */
   drawSun() {
     if (!this.scene.displaySun) return;
     const [sunX, sunY, sunZ] = this.world.getSunDirection();
@@ -66,6 +83,11 @@ export class SceneDraw {
     this.scene.popMatrix();
   }
 
+  /**
+   * Draws the height-mapped terrain plane. Scene lights are temporarily
+   * disabled because the terrain shader handles its own lighting via the
+   * uSunDirection uniform; they are re-enabled afterwards.
+   */
   drawTerrain() {
     if (!this.scene.displayTerrain) return;
     this.scene.lights[0].disable();
@@ -98,6 +120,11 @@ export class SceneDraw {
     this.scene.setActiveShaderSimple(this.scene.defaultShader);
   }
 
+  /**
+   * Draws the live and dead grass layers using the grass shader with wind
+   * animation uniforms. Each layer uses a different uDeadGrass flag so the
+   * shader can colour them separately.
+   */
   drawGrass() {
     if (!this.scene.displayGrass || !this.scene.grass) return;
     const sunDirection = this.world.getSunDirection();
@@ -136,6 +163,10 @@ export class SceneDraw {
     this.scene.setActiveShaderSimple(this.scene.defaultShader);
   }
 
+  /**
+   * Translates and scales the barn to its world position then draws it.
+   * Scale is read from barn.scale so barn size can be configured in ObjectLoader.
+   */
   drawBarn() {
     if (!this.scene.displayBarn || !this.scene.barn) return;
     this.scene.setActiveShaderSimple(this.scene.defaultShader);
@@ -147,11 +178,16 @@ export class SceneDraw {
     this.scene.popMatrix();
   }
 
+  /** Delegates wagon rendering to the Wagon object (which manages its own transform). */
   drawWagon() {
     if (!this.scene.displayWagon) return;
     this.scene.wagon.display();
   }
 
+  /**
+   * Draws the barn drop-off ring (green when wagon is inside, grey otherwise)
+   * and each hay-bale pickup ring (yellow when wagon overlaps, orange otherwise).
+   */
   drawInteractionRings() {
     if (!this.scene.displayRings) return;
     this.scene.setActiveShaderSimple(this.scene.defaultShader);
@@ -171,6 +207,11 @@ export class SceneDraw {
     }
   }
 
+  /**
+   * Draws all hay bales that are within renderRange of the wagon, skipping
+   * distant ones to save draw calls. Each bale is rotated by its random yRot
+   * so the field looks varied.
+   */
   drawHayBales() {
     if (!this.scene.displayHayBales || !this.model.hayBales) return;
     this.scene.setActiveShaderSimple(this.scene.defaultShader);
@@ -188,6 +229,11 @@ export class SceneDraw {
     }
   }
 
+  /**
+   * Draws a bobbing animated arrow above each uncollected hay bale using the
+   * arrow shader. Arrows are always drawn regardless of render range so the
+   * player can spot distant bales.
+   */
   drawArrows() {
     if (!this.model.hayBales || !this.scene.arrow) return;
     this.scene.setActiveShaderSimple(this.scene.arrowShader);
@@ -207,6 +253,10 @@ export class SceneDraw {
     }
   }
 
+  /**
+   * Draws flowers within renderRange of the wagon. Each flower is
+   * translated to its world position, scaled, and randomly rotated around Y.
+   */
   drawFlora() {
     if (!this.scene.displayFlowers) return;
     this.scene.setActiveShaderSimple(this.scene.defaultShader);
@@ -225,6 +275,11 @@ export class SceneDraw {
     }
   }
 
+  /**
+   * Draws rocks within renderRange using the rock procedural shader.
+   * The rock texture is bound to unit 0 and the sun direction uniform is
+   * refreshed each frame for correct shading.
+   */
   drawRocks() {
     if (!this.scene.displayRocks) return;
     this.scene.setActiveShaderSimple(this.scene.rockShader);
@@ -244,6 +299,10 @@ export class SceneDraw {
     }
   }
 
+  /**
+   * Renders the collision radius of every dynamic object and the wagon as a
+   * flat coloured disc on the ground. Only active when displayHitBoxes is true.
+   */
   drawHitBoxes() {
     if (!this.scene.displayHitBoxes) return;
     this.scene.setActiveShaderSimple(this.scene.defaultShader);
@@ -268,6 +327,13 @@ export class SceneDraw {
     );
   }
 
+  /**
+   * Draws a single flat disc at (x, _hitCircleY, z) scaled to radius r,
+   * representing a bounding-circle visualisation.
+   * @param {number} x
+   * @param {number} z
+   * @param {number} r
+   */
   _drawHitCircle(x, z, r) {
     this.scene.pushMatrix();
     this.scene.translate(x, this.scene._hitCircleY, z);
@@ -277,6 +343,11 @@ export class SceneDraw {
     this.scene.popMatrix();
   }
 
+  /**
+   * Enables or disables the normal-vector visualisation on objects based on
+   * the corresponding display flags in the scene. Called at the end of each
+   * draw() so toggling a flag in the GUI takes effect on the next frame.
+   */
   _updateNormalViz() {
     for (const [obj, show] of [
       [this.scene.sky, this.scene.displaySkyNormals],

@@ -10,6 +10,12 @@ import { Barn }    from "../objects/composed/barn/barn.js";
 import { Ring }    from "../objects/composed/Ring.js";
 
 export class ObjectLoader {
+    /**
+     * Constructs and attaches every scene object that persists for the
+     * lifetime of the game (i.e. objects that are not dynamically spawned).
+     * Dynamic objects (rocks, flowers, hay bales) are managed by SpawnController.
+     * @param {MyScene} scene
+     */
     constructor(scene) {
         scene.axis    = new CGFaxis(scene);
         scene.sky     = new Sphere(scene, 64, 32, 0.5, true);

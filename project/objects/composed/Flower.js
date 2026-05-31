@@ -21,6 +21,11 @@ export class Flower extends CGFobject {
         this._center = new MyUnitCube(scene);
     }
 
+    /**
+     * Draws a procedural flower: a three-segment S-curved stem, evenly-spaced
+     * petals (random colour chosen at construction), and a flat disc centre.
+     * Each element is positioned relative to the stem tip accumulated in (x,y).
+     */
     display() {
         const scene = this.scene;
 
@@ -70,11 +75,13 @@ export class Flower extends CGFobject {
         scene.popMatrix();
     }
 
+    /** Enables normal vector visualisation on all sub-objects for debugging. */
     enableNormalViz(){
         this._stem.enableNormalViz();
         this._petal.enableNormalViz();
         this._center.enableNormalViz();
     }
+    /** Disables normal vector visualisation on all sub-objects. */
     disableNormalViz(){
         this._stem.disableNormalViz();
         this._petal.disableNormalViz();

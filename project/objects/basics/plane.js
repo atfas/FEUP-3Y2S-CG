@@ -24,6 +24,11 @@ export class Plane extends CGFobject {
 		this.w = (this.maxT - this.minT) / this.nrDivs;
 		this.initBuffers();
 	}
+	/**
+	 * Generates a subdivided planar grid using TRIANGLE_STRIP. The texture
+	 * coordinate range is mapped from [minS, maxS] × [minT, maxT] so callers
+	 * can control UV tiling without a separate texture matrix.
+	 */
 	initBuffers() {
 		// Generate vertices, normals, and texCoords
 		this.vertices = [];
@@ -59,12 +64,14 @@ export class Plane extends CGFobject {
 		this.initGLBuffers();
 	}
 
-	setFillMode() { 
+	/** Switches rendering back to filled triangles (default after setLineMode). */
+	setFillMode() {
 		this.primitiveType=this.scene.gl.TRIANGLE_STRIP;
 	}
 
-	setLineMode() 
-	{ 
+	/** Switches rendering to wireframe lines, useful for debugging the mesh. */
+	setLineMode()
+	{
 		this.primitiveType=this.scene.gl.LINES;
 	};
 

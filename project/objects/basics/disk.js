@@ -12,6 +12,11 @@ export class MyDisk extends CGFobject {
         this.initBuffers();
     }
 
+    /**
+     * Builds a fan of `slices` triangles from a centre vertex to a ring of
+     * perimeter vertices. Each triangle is emitted twice (opposite winding) so
+     * the disk renders from both +Z and -Z.
+     */
     initBuffers() {
         this.vertices  = [];
         this.normals   = [];

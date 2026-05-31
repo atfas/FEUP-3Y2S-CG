@@ -11,6 +11,12 @@ export class MyCylinder extends CGFobject {
         this.initBuffers();
     }
 
+    /**
+     * Builds the cylinder lateral surface. When `percentage` < 1 the cylinder
+     * is open (an arc rather than a full ring), with an extra vertex column at
+     * the open edge to avoid wrap-around index aliasing. Double-sided triangles
+     * are emitted so the inside is also visible.
+     */
     initBuffers() {
         // percentage controls how much of the circumference is generated (0–1).
         // 1.0 = full cylinder, 0.5 = half cylinder

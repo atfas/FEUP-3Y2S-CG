@@ -18,6 +18,11 @@ export class MyScene extends CGFscene {
     super();
   }
 
+  /**
+   * Bootstraps the entire scene: WebGL state, cameras, lights, config defaults,
+   * all models/loaders/controllers, and the initial bale/flora spawn.
+   * @param {CGFapplication} application
+   */
   init(application) {
     super.init(application);
 
@@ -59,7 +64,7 @@ export class MyScene extends CGFscene {
     this.SceneDraw = new SceneDraw(this, this.gameModel, this.worldModel);
   }
 
-  // getters/setters for interface
+  // Proxy getters for MyInterface — forwards game state without exposing the model directly
   get hp()                  { return this.gameModel.hp; }
   get score()               { return this.gameModel.score; }
   get gameOver()            { return this.gameModel.gameOver; }
@@ -68,6 +73,7 @@ export class MyScene extends CGFscene {
   get collectedBalesCount() { return this.gameModel.collectedBalesCount; }
   get maxCollectedBales()   { return this.gameModel.maxCollectedBales; }
 
+  // Live grass getters/setters — writing triggers an immediate GPU buffer rebuild
   get liveCount()            { return this._liveCount; }
   set liveCount(v)           { this._liveCount = v;        if (this.grass)     { this.grass.count = v;            this.grass.rebuild(); } }
   get liveHeightScale()      { return this._liveHeightScale; }
@@ -89,6 +95,12 @@ export class MyScene extends CGFscene {
   get baleCount() { return this._baleCount; }
   set baleCount(v) { this._baleCount = v; }
 
+  /**
+   * Configures two scene lights:
+   * - lights[0]: ambient fill at the origin (point light, acts as ambient-only fill).
+   * - lights[1]: directional sun light; position is updated each frame to match the
+   *   sun direction computed from sunElevation / sunDegree.
+   */
   initLights() {
     this.lights[0].setPosition(0, 10, 0, 1);
     this.lights[0].setAmbient(0.3, 0.3, 0.35, 1.0);
@@ -105,16 +117,31 @@ export class MyScene extends CGFscene {
     this.lights[1].update();
   }
 
+  /**
+   * Creates two cameras: a free-roam camera and a chase camera that follows
+   * the wagon. The chase camera is active by default.
+   */
   initCameras() {
     this.freeCamera = new CGFcamera(1.2, 0.1, 500, vec3.fromValues(0, 8, -20), vec3.fromValues(0, 1.5, 0));
     this.wagonCamera = new CGFcamera(1.2, 0.1, 500, vec3.fromValues(0, 4, -10), vec3.fromValues(0, 1.5, 0));
     this.camera = this.wagonCamera;
   }
 
+  /**
+   * Convenience wrapper so other subsystems can request the sun direction
+   * without holding a direct reference to WorldModel.
+   * @returns {[number, number, number]} normalised [x, y, z] sun direction
+   */
   getSunDirection() {
     return this.worldModel.getSunDirection();
   }
 
+  /**
+   * Per-frame update: advances game logic, repositions the directional sun
+   * light, pushes time-based uniforms to sky/grass/arrow shaders, and
+   * updates wagon physics + active camera.
+   * @param {number} t - elapsed time in milliseconds since page load
+   */
   update(t) {
     if (this.lastTime === undefined) this.lastTime = t;
     const dt = Math.min((t - this.lastTime) / 1000, this._maxDeltaTime);
@@ -135,6 +162,10 @@ export class MyScene extends CGFscene {
     this.camera = this.wagonController.activeCamera;
   }
 
+  /**
+   * Sets a default blue material for objects that don't apply their own
+   * appearance before drawing.
+   */
   setDefaultAppearance() {
     this.setAmbient(0.2, 0.4, 0.8, 1.0);
     this.setDiffuse(0.2, 0.4, 0.8, 1.0);
@@ -142,6 +173,10 @@ export class MyScene extends CGFscene {
     this.setShininess(10.0);
   }
 
+  /**
+   * Clears the colour/depth buffers, sets up the projection + view matrices,
+   * and delegates all object drawing to SceneDraw.
+   */
   display() {
     this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);

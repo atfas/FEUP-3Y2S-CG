@@ -2,6 +2,16 @@ import { CGFobject } from '../../../../lib/CGF.js';
 
 export class BarnGable extends CGFobject {
 
+    /**
+     * Triangulated gambrel-style gable end for the barn.
+     * The shape has seven control points: four for the lower rectangular wall
+     * section, two for the mid-height gambrel break, and one ridge apex.
+     * @param {CGFscene} scene
+     * @param {number}   width       - total gable width (X extent)
+     * @param {number}   wallHeight  - height of the rectangular lower section
+     * @param {number}   roofHeight  - additional height from wall top to ridge
+     * @param {number}   [overhang=0] - extra width added symmetrically on each side
+     */
     constructor(scene, width, wallHeight, roofHeight, overhang = 0) {
         super(scene);
         this.width          = width;
@@ -13,6 +23,11 @@ export class BarnGable extends CGFobject {
         this.initBuffers();
     }
 
+    /**
+     * Computes the seven vertex positions from the constructor parameters,
+     * assigns proportional UVs that map the full shape linearly onto [0,1]²,
+     * and emits front and back triangles so the gable is double-sided.
+     */
     initBuffers() {
 
         const inset = this.width * this.insetRatio;

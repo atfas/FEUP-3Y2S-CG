@@ -1,6 +1,13 @@
 import { CGFappearance } from "../../lib/CGF.js";
 
 export class AppearanceLoader {
+    /**
+     * Creates and attaches every CGFappearance used in the scene directly onto
+     * the scene object. Grouping all material definitions here keeps them out
+     * of individual object classes and makes colour/shininess tweaks easier to
+     * find in one place.
+     * @param {MyScene} scene
+     */
     constructor(scene) {
         scene.woodAppearance = new CGFappearance(scene);
         scene.woodAppearance.setAmbient(0.35, 0.22, 0.10, 1.0);

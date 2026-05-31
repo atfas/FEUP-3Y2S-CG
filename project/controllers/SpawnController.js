@@ -9,6 +9,12 @@ export class SpawnController {
         this.model = gameModel;
     }
 
+    /**
+     * Clears and rebuilds the entire world population: rocks, flowers, and hay
+     * bales. Seeds the collision exclusion list with the barn and wagon so
+     * nothing spawns on top of them. Called on init and whenever the GUI flora
+     * counts change.
+     */
     regenerate() {
         this.model._placedObjects = [
             { x: this.scene.barn.x,  z: this.scene.barn.z,  r: this.scene.barn.r  },
@@ -23,6 +29,11 @@ export class SpawnController {
         });
     }
 
+    /**
+     * Spawns a fresh batch of hay bales (without touching rocks or flowers)
+     * and appends them to the existing bale list. Called by GameController
+     * when the last bale in the field has been collected.
+     */
     respawnBales() {
         const newBales = this.spawnRandom(this.scene._baleCount, (x, z) => {
             const bale = new HayBale(this.scene, x, z);
@@ -32,6 +43,16 @@ export class SpawnController {
         this.model.hayBales.push(...newBales);
     }
 
+    /**
+     * Places `count` objects at random positions within the spawn radius,
+     * rejecting candidates that overlap any previously placed object. Uses
+     * up to count × 10 attempts before giving up to avoid an infinite loop
+     * when the field is nearly full.
+     * @param {number}   count    - desired number of objects
+     * @param {Function} createFn - factory `(x, z) => object` — the returned
+     *                              object must expose a numeric `r` (bounding radius)
+     * @returns {Array} successfully placed objects
+     */
     spawnRandom(count, createFn) {
         const result = [];
         let attempts = 0;

@@ -1,10 +1,10 @@
 import { CGFobject } from '../../../../lib/CGF.js';
 
 /**
- * BarnWall
+ * BarnWall — a simple rectangular quad used for the barn's side walls.
  * @param {CGFscene} scene
- * @param {number}   width   local X extent
- * @param {number}   height  local Y extent
+ * @param {number}   width   - local X extent
+ * @param {number}   height  - local Y extent
  */
 export class BarnWall extends CGFobject {
     constructor(scene, width = 1, height = 1) {
@@ -14,6 +14,11 @@ export class BarnWall extends CGFobject {
         this.initBuffers();
     }
 
+    /**
+     * Builds a rectangle from (−width/2, 0) to (width/2, height) in the XY
+     * plane. Front and back triangles are both emitted (double-sided).
+     * Texture coordinates map the full wall face to [0,1]².
+     */
     initBuffers() {
         const w = this.width  / 2;
         const h = this.height;
@@ -27,9 +32,9 @@ export class BarnWall extends CGFobject {
 
         // Front face (normal +Z) and back face (normal -Z)
         this.normals = [
-            0, 0, 1, 
-            0, 0, 1, 
-            0, 0, 1, 
+            0, 0, 1,
+            0, 0, 1,
+            0, 0, 1,
             0, 0, 1,
         ];
 
@@ -41,9 +46,9 @@ export class BarnWall extends CGFobject {
 ];
 
         this.indices = [
-            0, 1, 2,  
+            0, 1, 2,
             0, 2, 3,   // front
-            2, 1, 0, 
+            2, 1, 0,
             3, 2, 0,   // back
         ];
 
