@@ -136,7 +136,7 @@ You are the driver of a covered prairie schooner wagon. Your health drains every
 ![Barn close-up](./screenshots/project-t5g8-5.png)
 
 ### Shader animation
-![Shader animation](./screenshots/project-t5g8-4.gif)
+[▶ Shader animation (MP4)](./screenshots/project-t5g8-4.mp4)
 
 ---
 
